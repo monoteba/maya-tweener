@@ -1,0 +1,6 @@
+.idea/*
+*.afdesign
+*.pyc
+
+_releases/*
+_wip/*
