@@ -46,7 +46,7 @@ def download():
         sys.stderr.write('%s\n' % e)
         exit(1)
     finally:
-        sys.stdout.write('# Download succesful, installing...\n')
+        sys.stdout.write('# Download successful, installing...\n')
     
     return zip_path
 
@@ -129,8 +129,22 @@ def load(plugin_path):
         import tweener
         reload(tweener)
         tweener.reload_mods()
-    except:
-        pass
+    except Exception as e:
+        sys.stderr.write('%s\n' % e)
     
     cmds.loadPlugin('tweener.py')
     cmds.tweener()
+    
+    answer = cmds.confirmDialog(t='Tweener Installed!',
+                                m='Tweener was successfully installed!\n'
+                                  'Would you like to add a shelf button to the current shelf?',
+                                button=['Yes', 'No'],
+                                db='Yes',
+                                cb='No',
+                                ds='No')
+    
+    if answer == 'Yes':
+        try:
+            tweener.ui.add_shelf_button(path=plugin_path)
+        except Exception as e:
+            sys.stderr.write('%s\n' % e)

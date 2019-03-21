@@ -8,6 +8,7 @@ import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
+import maya.mel as mel
 import sys
 import os
 
@@ -42,6 +43,28 @@ def delete():
     if tweener_window is not None:
         tweener_window.deleteLater()
         tweener_window = None
+
+
+def add_shelf_button(path=None):
+    if not path:
+        path = g.plugin_path
+    
+    if path.endswith('/'):
+        icon_path = path
+    else:
+        icon_path = path + '/'
+    
+    icon_path = icon_path + 'icons/tweener-icon.svg'
+    
+    gShelfTopLevel = mel.eval('$tmpVar=$gShelfTopLevel')
+    tabs = cmds.tabLayout(gShelfTopLevel, q=True, childArray=True)
+    
+    for tab in tabs:
+        if cmds.shelfLayout(tab, q=True, visible=True):
+            cmds.shelfButton(parent=tab, ann='Open Tweener', label='Tweener',
+                             image=icon_path,
+                             useAlpha=True, style='iconOnly',
+                             command='import maya.cmds as cmds; cmds.loadPlugin("tweener.py", quiet=True); cmds.tweener();')
 
 
 class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
