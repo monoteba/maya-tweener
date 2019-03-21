@@ -19,7 +19,7 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
-lazytween_window = None
+tweener_window = None
 
 
 def get_main_maya_window():
@@ -28,30 +28,30 @@ def get_main_maya_window():
 
 
 def show():
-    global lazytween_window
-    if lazytween_window is None:
-        lazytween_window = LazyTweenUI(parent=get_main_maya_window())
+    global tweener_window
+    if tweener_window is None:
+        tweener_window = TweenerUI(parent=get_main_maya_window())
     
-    lazytween_window.show(dockable=True)  # show the window
-    lazytween_window.raise_()  # raise it on top of others
-    lazytween_window.activateWindow()  # set focus to it
+    tweener_window.show(dockable=True)  # show the window
+    tweener_window.raise_()  # raise it on top of others
+    tweener_window.activateWindow()  # set focus to it
 
 
 def delete():
-    global lazytween_window
-    if lazytween_window is not None:
-        lazytween_window.deleteLater()
-        lazytween_window = None
+    global tweener_window
+    if tweener_window is not None:
+        tweener_window.deleteLater()
+        tweener_window = None
 
 
-class LazyTweenUI(MayaQWidgetDockableMixin, QMainWindow):
+class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     def __init__(self, parent=None):
-        super(LazyTweenUI, self).__init__(parent=parent)
+        super(TweenerUI, self).__init__(parent=parent)
         
-        # self.window_name = 'LazyTweenUIObj'
+        # self.window_name = 'TweenerUIObj'
         
         # set slider window properties
-        self.setWindowTitle('LazyTween')
+        self.setWindowTitle('Tweener')
         # self.setObjectName(self.window_name)
         
         if os.name == 'nt':  # windows platform
@@ -261,18 +261,18 @@ class LazyTweenUI(MayaQWidgetDockableMixin, QMainWindow):
     
     def load_preferences(self):
         # set which mode button is checked
-        if cmds.optionVar(exists='lazytween_interp_type'):
+        if cmds.optionVar(exists='tweener_interp_type'):
             try:
-                button = self.mode_button_group.button(int(cmds.optionVar(q='lazytween_interp_type')))
+                button = self.mode_button_group.button(int(cmds.optionVar(q='tweener_interp_type')))
                 if button is not None:
                     button.setChecked(True)
             except Exception as e:
                 sys.stdout.write('# %s\n' % e)
         
         # overshoot button checked state
-        if cmds.optionVar(exists='lazytween_overshoot'):
+        if cmds.optionVar(exists='tweener_overshoot'):
             try:
-                self.overshoot_btn.setChecked(bool(cmds.optionVar(q='lazytween_overshoot')))
+                self.overshoot_btn.setChecked(bool(cmds.optionVar(q='tweener_overshoot')))
             except Exception as e:
                 self.overshoot_btn.setChecked(False)
                 sys.stdout.write('# %s\n' % e)
@@ -280,7 +280,7 @@ class LazyTweenUI(MayaQWidgetDockableMixin, QMainWindow):
         self.overshoot_button_clicked()  # simulate button click to setup slider values
     
     def save_mode_button(self):
-        cmds.optionVar(iv=('lazytween_interp_type', int(self.mode_button_group.checkedId())))
+        cmds.optionVar(iv=('tweener_interp_type', int(self.mode_button_group.checkedId())))
     
     def overshoot_button_clicked(self):
         checked = self.overshoot_btn.isChecked()
@@ -293,7 +293,7 @@ class LazyTweenUI(MayaQWidgetDockableMixin, QMainWindow):
             self.slider.setMaximum(100)
         
         # save setting
-        cmds.optionVar(iv=('lazytween_overshoot', int(checked)))
+        cmds.optionVar(iv=('tweener_overshoot', int(checked)))
     
     @staticmethod
     def v_separator_layout():
