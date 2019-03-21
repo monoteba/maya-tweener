@@ -5,7 +5,6 @@ import globals as g
 import tween
 
 import maya.api.OpenMaya as om
-import maya.api.OpenMayaAnim as oma
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import maya.mel as mel
@@ -21,6 +20,10 @@ from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
 tweener_window = None
+
+
+def maya_useNewAPI():
+    pass
 
 
 def get_main_maya_window():

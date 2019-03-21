@@ -1,34 +1,24 @@
 """
-Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create in-betweens in Maya
-by favouring adjacent keys and can speed-up the animation process.
+Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens in Maya by
+favouring adjacent keys and can speed-up the animation process.
 
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
 # todo: support for animation layers
 # todo: hammer keys (set key on every key)
-# todo: record/apply change --> maybe build another tool for theese kind of things (imposer)
-# todo: add/remove inbetween buttons
+# todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
+# todo: add/remove inbetween buttons --> maybe separate tool (name: nudger)
 # todo: should we traverse down to inputs? -> yes in case of anim layers
 
 # standard modules
 import sys
 import os
-from collections import namedtuple
 
 # maya modules
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
-import maya.OpenMayaUI as omui
 import maya.cmds as cmds
-
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-
-# PySide2 is for Maya 2017+
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-from shiboken2 import wrapInstance
 
 # tweener modules
 import mods.globals as g

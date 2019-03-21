@@ -13,6 +13,10 @@ curve_key_values = {}
 KeyGroup = namedtuple('KeyGroup', 'key_index value prev_value next_value default_value py0 py1 py2 py3')
 
 
+def maya_useNewAPI():
+    pass
+
+
 def prepare(t_type):
     global curve_key_values
     
