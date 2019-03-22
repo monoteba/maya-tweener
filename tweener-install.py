@@ -20,7 +20,7 @@ def onMayaDroppedPythonFile(*args):
 
 def download():
     # get zip url from github
-    response = urllib2.urlopen(github_url)
+    response = urllib2.urlopen(github_url, timeout=60)
     data = json.load(response)
     
     assets = data['assets']
@@ -30,7 +30,6 @@ def download():
     
     asset = assets[0]
     zip_url = asset['browser_download_url']
-    print('zip url: %s' % zip_url)
     
     # download and temporarily save zip file
     name = 'tweener-' + uuid.uuid1().hex + '.zip'
@@ -38,7 +37,7 @@ def download():
     zip_path = dir_path + '/' + name
     
     try:
-        f = urllib2.urlopen(zip_url)
+        f = urllib2.urlopen(zip_url, timeout=120)
         
         with open(zip_path, 'wb') as local_file:
             local_file.write(f.read())
@@ -75,7 +74,7 @@ def install(zip_path):
             sys.stderr.write('%s\n' % e)
             exit(1)
         finally:
-            sys.stdout.write('# Removed old installation\n')
+            sys.stdout.write('# Removed old installation!\n')
     
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(extract_path)
@@ -84,7 +83,6 @@ def install(zip_path):
     maya_modules_dir = maya_app_dir + 'modules/'
     if not os.path.exists(maya_modules_dir):
         try:
-            sys.stdout.write('# modules directory does not exists, creating it at %s\n' % maya_modules_dir)
             os.makedirs(maya_modules_dir)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
@@ -98,7 +96,7 @@ def install(zip_path):
         sys.stderr.write('%s\n' % e)
         exit(1)
     finally:
-        sys.stdout.write('# Created module file\n')
+        sys.stdout.write('# Created module file at "%s"\n' % maya_modules_dir)
     
     # clean-up
     sys.stdout.write('# Cleaning up...\n')
@@ -108,27 +106,30 @@ def install(zip_path):
         sys.stderr.write('%s\n' % e)
         exit(1)
     finally:
-        sys.stdout.write('# Removed %s\n' % zip_path)
+        sys.stdout.write('\t# Removed %s\n' % zip_path)
     
     return extract_path
 
 
 def load(plugin_path):
     if os.name == 'nt':
-        plugin_path = ';%s' % plugin_path
+        env_path = ';%s' % plugin_path
     else:
-        plugin_path = ':%s' % plugin_path
+        env_path = ':%s' % plugin_path
         
     maya_plugin_path = mel.eval('getenv "MAYA_PLUG_IN_PATH"')
     
     if plugin_path not in maya_plugin_path:
-        mel.eval('putenv "MAYA_PLUG_IN_PATH" "' + maya_plugin_path + plugin_path + '"')
+        mel.eval('putenv "MAYA_PLUG_IN_PATH" "' + maya_plugin_path + env_path + '"')
     
-    try:
-        cmds.unloadPlugin('tweener.py', force=True)
-    except:
-        pass
-    
+    if cmds.pluginInfo('tweener.py', q=True, r=True):
+        try:
+            cmds.unloadPlugin('tweener.py', force=True)
+        except:
+            pass
+
+    sys.path.append(plugin_path)
+
     try:
         import tweener
         reload(tweener)
@@ -140,8 +141,9 @@ def load(plugin_path):
     cmds.tweener()
     
     answer = cmds.confirmDialog(t='Tweener Installed!',
-                                m='Tweener was successfully installed!\n'
-                                  'Would you like to add a shelf button to the current shelf?',
+                                m='Tweener was successfully installed at:\n'
+                                  '%s\n\n'
+                                  'Would you like to add a shelf button to the current shelf?' % plugin_path,
                                 button=['Yes', 'No'],
                                 db='Yes',
                                 cb='No',
@@ -152,3 +154,5 @@ def load(plugin_path):
             tweener.ui.add_shelf_button(path=plugin_path)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
+
+    sys.stdout.write('# Tweener install finished! See the Script Editor for more info.\n')
