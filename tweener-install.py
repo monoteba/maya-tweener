@@ -114,7 +114,11 @@ def install(zip_path):
 
 
 def load(plugin_path):
-    plugin_path = ':%s' % plugin_path
+    if os.name == 'nt':
+        plugin_path = ';%s' % plugin_path
+    else:
+        plugin_path = ':%s' % plugin_path
+        
     maya_plugin_path = mel.eval('getenv "MAYA_PLUG_IN_PATH"')
     
     if plugin_path not in maya_plugin_path:
