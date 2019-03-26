@@ -44,10 +44,10 @@ Interpolates towards or away from the default value of each attribute.
 
 ### Additional Buttons
 
-| Button | Description |
+| Button Icon | Description |
 | --- | --- |
-| <img src="icons/overshoot.svg" width="20" height="20"> Overshoot | Extends the interpolation from -100:100 to -200:200 and allows you to go past the target. |
-| <img src="icons/keyhammer.svg" width="20" height="20"> Key Hammer | Adds a key for every attribute for any key on selected objects. Can be filtered by selecting attributes in the Channel Box or selecting curves in the Graph Editor. The manual equivalent method would be to go to the first key and press `S`, go to the next keyframe and press `S`, go to the next keyframe and press `S` etc. for every keyframe. |
+| <img src="icons/overshoot.svg" width="20" height="20"><br>Overshoot | Extends the interpolation from -100:100 to -200:200 and allows you to go past the target. |
+| <img src="icons/keyhammer.svg" width="20" height="20"><br>Key Hammer | Adds a key for every attribute for any key on selected objects.<br>Can be filtered by selecting attributes in the Channel Box or selecting curves in the Graph Editor.<br>The manual equivalent method would be to go to the first key and press `S`, go to the next keyframe and press `S`, go to the next keyframe and press `S` etc. for every keyframe. |
 
 ## Known Limitations
 The tool is still at an early stage and there are few limitations to be aware of. 
