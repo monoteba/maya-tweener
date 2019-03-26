@@ -163,7 +163,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.overshoot_btn.clicked.connect(self.overshoot_button_clicked)
         self.overshoot_btn.setToolTip('Overshoot')
         
-        self.keyhammer_btn = ModeButton(icon='icons/keyhammer.svg', isCheckable=False)
+        self.keyhammer_btn = ModeButton(icon='icons/keyhammer.svg', is_checkable=False)
         self.keyhammer_btn.clicked.connect(self.keyhammer_button_clicked)
         self.keyhammer_btn.setToolTip('Hammer keys')
         
@@ -347,17 +347,20 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
 
 
 class ModeButton(QPushButton,):
-    def __init__(self, label='', icon=None, isCheckable=True):
+    def __init__(self, label='', icon=None, is_checkable=True):
         super(ModeButton, self).__init__(label)
         
         self.setMinimumSize(65, 20)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        self.setCheckable(isCheckable)
+        self.setCheckable(is_checkable)
         
         if icon:
             self.setFixedSize(40, 20)
+            self.setContentsMargins(0, 0, 0, 0)
             path = g.plugin_path + icon
-            self.setIcon(QIcon(path))
+            qicon = QIcon(path)
+            self.setIconSize(QSize(20, 20))  # icons are designed to fit 16x16 but with 2px padding
+            self.setIcon(qicon)
 
 
 class Pie(QPushButton):
