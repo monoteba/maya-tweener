@@ -46,7 +46,14 @@ Interpolates towards or away from the default value of each attribute.
 
 <img src="icons/overshoot.svg" align="left" width="20" height="20">
 
-**Overshoot:** Extends the interpolation from -100:100 to -200:200 and allows you to go past the target.
+####Overshoot 
+Extends the interpolation from -100:100 to -200:200 and allows you to go past the target.
+
+<img src="icons/keyhammer.svg" align="left" width="20" height="20">
+
+####Key Hammer
+Adds a key for every attribute for any key. The manual method would be to go to the first key, press `S`, go to the next
+keyframe, press `S` etc.
 
 ## Known Limitations
 The tool is still at an early stage and there are few limitations to be aware of. 
