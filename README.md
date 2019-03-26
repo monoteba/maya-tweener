@@ -25,8 +25,8 @@ If you prefer to manually install the plug-in, refer to "Manual Installation" fu
 
 ## Description
 
-Tweener is quite simple. There's a slider and a drop-down menu to select the type of inbetween. I'll encourage you to 
-explore each type. Below is a description of each type:
+Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
+explore each type. See the description of each mode under __Tween Modes__.
 
 ### Tween Modes
 
