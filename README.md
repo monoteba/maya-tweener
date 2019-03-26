@@ -44,11 +44,8 @@ Interpolates towards or away from the default value of each attribute.
 
 ### Additional Buttons
 
-<img src="icons/overshoot.svg" align="left" width="20" height="20">
- 
-#### Overshoot
+#### Overshoot <img src="icons/overshoot.svg" width="20" height="20">
 Extends the interpolation from -100:100 to -200:200 and allows you to go past the target.
-
 
 #### Key Hammer <img src="icons/keyhammer.svg" width="20" height="20">
 Adds a key for every attribute for any key. 
