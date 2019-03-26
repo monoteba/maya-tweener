@@ -30,17 +30,12 @@ explore each type. Below is a description of each type:
 
 ### Tween Modes
 
-#### Between
-Interpolates between two adjacent keys, ignoring the current key.
-
-#### Towards
-Interpolates towards two adjacent keys based on the current key.
-
-#### Curve
-Interpolates along the curve formed by the two adjacent keys' tangents.
-
-#### Default
-Interpolates towards or away from the default value of each attribute.
+| Mode | Description |
+| :--- | :--- |
+| Between | Interpolates between two adjacent keys, ignoring the current key. |
+| Towards | Interpolates towards two adjacent keys based on the current key. |
+| Curve | Interpolates along the curve formed by the two adjacent keys' tangents. |
+| Default | Interpolates towards or away from the default value of each attribute. |
 
 ### Additional Buttons
 
