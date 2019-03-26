@@ -5,7 +5,6 @@ Functions for getting objects, curves, keys etc.
 """
 
 import maya.api.OpenMaya as om
-import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 import maya.mel as mel
 from collections import namedtuple

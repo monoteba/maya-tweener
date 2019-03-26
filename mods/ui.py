@@ -19,7 +19,6 @@ from shiboken2 import wrapInstance
 
 import globals as g
 import tween
-import keyhammer
 
 tweener_window = None
 

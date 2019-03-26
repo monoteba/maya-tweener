@@ -7,7 +7,6 @@ import maya.cmds as cmds
 
 import mods.utils as utils
 import mods.data as data
-import sys
 
 
 def maya_useNewAPI():
