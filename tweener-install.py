@@ -62,7 +62,7 @@ def install(zip_path):
             os.makedirs(maya_plug_in_dir)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
-            exit(1)
+            exit(2)
     
     # extract zip
     extract_path = maya_plug_in_dir + 'tweener'
@@ -72,7 +72,7 @@ def install(zip_path):
             shutil.rmtree(extract_path)  # remove existing folder
         except Exception as e:
             sys.stderr.write('%s\n' % e)
-            exit(1)
+            exit(3)
         finally:
             sys.stdout.write('# Removed old installation!\n')
     
@@ -86,7 +86,7 @@ def install(zip_path):
             os.makedirs(maya_modules_dir)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
-            exit(1)
+            exit(4)
     
     try:
         with open(maya_modules_dir + 'tweener.mod', 'w') as f:
@@ -94,7 +94,7 @@ def install(zip_path):
             f.write('MAYA_PLUG_IN_PATH +:= \n')
     except Exception as e:
         sys.stderr.write('%s\n' % e)
-        exit(1)
+        exit(5)
     finally:
         sys.stdout.write('# Created module file at "%s"\n' % maya_modules_dir)
     
@@ -104,7 +104,7 @@ def install(zip_path):
         os.remove(zip_path)
     except Exception as e:
         sys.stderr.write('%s\n' % e)
-        exit(1)
+        exit(6)
     finally:
         sys.stdout.write('\t# Removed %s\n' % zip_path)
     
@@ -155,4 +155,4 @@ def load(plugin_path):
         except Exception as e:
             sys.stderr.write('%s\n' % e)
 
-    sys.stdout.write('# Tweener install finished! See the Script Editor for more info.\n')
+    sys.stdout.write('# Tweener install completed! See the Script Editor for more information.\n')

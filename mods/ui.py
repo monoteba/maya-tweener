@@ -1,8 +1,6 @@
 """
 ui module
 """
-import globals as g
-import tween
 
 import maya.api.OpenMaya as om
 import maya.OpenMayaUI as omui
@@ -18,6 +16,10 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
+
+import globals as g
+import tween
+import keyhammer
 
 tweener_window = None
 
@@ -91,7 +93,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.idle_callback = None
         
         # define window dimensions
-        self.setMinimumWidth(330)
+        self.setMinimumWidth(360)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         
         # style
@@ -162,7 +164,12 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.overshoot_btn.clicked.connect(self.overshoot_button_clicked)
         self.overshoot_btn.setToolTip('Overshoot')
         
+        self.keyhammer_btn = ModeButton(icon='icons/keyhammer.svg', isCheckable=False)
+        self.keyhammer_btn.clicked.connect(self.keyhammer_button_clicked)
+        self.keyhammer_btn.setToolTip('Hammer keys')
+        
         misc_button_layout.addWidget(self.overshoot_btn)
+        misc_button_layout.addWidget(self.keyhammer_btn)
         
         # slider
         slider_layout = QVBoxLayout(main_widget)
@@ -239,7 +246,6 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.load_preferences()
     
     def slider_pressed(self):
-        
         slider_value = self.slider.value()
         
         blend = slider_value / 100.0
@@ -321,6 +327,9 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # save setting
         cmds.optionVar(iv=('tweener_overshoot', int(checked)))
     
+    def keyhammer_button_clicked(self):
+        cmds.keyHammer()
+    
     @staticmethod
     def v_separator_layout():
         layout = QVBoxLayout()
@@ -338,13 +347,13 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         return layout
 
 
-class ModeButton(QPushButton):
-    def __init__(self, label='', icon=None):
+class ModeButton(QPushButton,):
+    def __init__(self, label='', icon=None, isCheckable=True):
         super(ModeButton, self).__init__(label)
         
         self.setMinimumSize(65, 20)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        self.setCheckable(True)
+        self.setCheckable(isCheckable)
         
         if icon:
             self.setFixedSize(40, 20)

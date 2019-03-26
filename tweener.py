@@ -5,10 +5,10 @@ favouring adjacent keys and can speed-up the animation process.
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
-# todo: hammer keys (set key on every key)
+# todo: fix bug that causes crash when hiding all docked windows with ctrl + space, and Tweener is docked
 # todo: support for animation layers
 # todo: should we traverse down to inputs? -> yes in case of anim layers
-# todo: fix bug what causes crash when hiding all docked windows with ctrl + space, and Tweener is docked
+# todo: hammer keys (set key on every key)
 
 # todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
 # todo: add/remove inbetween buttons --> maybe separate tool (name: nudger)
@@ -26,6 +26,8 @@ import maya.cmds as cmds
 import mods.globals as g
 import mods.ui as ui
 import mods.tween as tween
+import mods.data as data
+import mods.keyhammer as keyhammer
 
 
 def maya_useNewAPI():
@@ -36,13 +38,31 @@ def reload_mods():
     """
     For development purposes only
     """
-    del (sys.modules['mods.globals'])
-    del (sys.modules['mods.ui'])
-    del (sys.modules['mods.tween'])
+    import inspect
     
-    import mods.globals as g
-    import mods.ui as ui
-    import mods.tween as tween
+    path = (os.path.dirname(__file__)).lower()
+    to_delete = []
+    
+    for key, module in sys.modules.iteritems():
+        try:
+            if module is None:
+                continue
+            
+            module_path = inspect.getfile(module).lower()
+            
+            if module_path == __file__.lower():
+                continue
+            
+            if module_path.startswith(path):
+                to_delete.append(key)
+        
+        except TypeError as te:
+            pass  # TypeError is from inspect.getfile() if it's builtin
+        except Exception as e:
+            sys.stdout.write('%s\n' % e)
+    
+    for module_key in to_delete:
+        del (sys.modules[module_key])
 
 
 """
@@ -52,6 +72,8 @@ Plugin registration
 
 def initializePlugin(plugin):
     plugin_fn = om.MFnPlugin(plugin, "Morten Andersen", "1.0", "Any")
+    
+    # register TweenerCmd
     try:
         plugin_fn.registerCommand(TweenerCmd.cmd_name, TweenerCmd.cmd_creator, TweenerCmd.syntax_creator)
     except:
@@ -60,18 +82,38 @@ def initializePlugin(plugin):
     else:
         sys.stdout.write('# Successfully registered command %s\n' % TweenerCmd.cmd_name)
     
+    # register KeyHammerCmd
+    try:
+        plugin_fn.registerCommand(KeyHammerCmd.cmd_name, KeyHammerCmd.cmd_creator)
+    except:
+        sys.stderr.write("Failed to register command: %s\n" % KeyHammerCmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully registered command %s\n' % KeyHammerCmd.cmd_name)
+    
     g.plugin_path = os.path.dirname(cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
 
 
 def uninitializePlugin(plugin):
     plugin_fn = om.MFnPlugin(plugin)
+    
+    # deregister TweenerCmd
     try:
         plugin_fn.deregisterCommand(TweenerCmd.cmd_name)
     except:
-        sys.stderr.write("Failed to unregister command: %s\n" % TweenerCmd.cmd_name)
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerCmd.cmd_name)
         raise
     else:
         sys.stdout.write('# Successfully unregistered command %s\n' % TweenerCmd.cmd_name)
+    
+    # deregister KeyHammerCmd
+    try:
+        plugin_fn.deregisterCommand(KeyHammerCmd.cmd_name)
+    except:
+        sys.stderr.write("Failed to deregister command: %s\n" % KeyHammerCmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully unregistered command %s\n' % KeyHammerCmd.cmd_name)
 
 
 """
@@ -139,12 +181,38 @@ class TweenerCmd(om.MPxCommand):
         if self.press_arg:
             # if press, then create a new cache
             self.anim_cache = oma.MAnimCurveChange()
-            tween.anim_cache = self.anim_cache
-            tween.prepare(t_type=self.type_arg)
+            data.anim_cache = self.anim_cache
+            data.prepare(t_type=self.type_arg)
         else:
             # else use the existing stored at module level
-            self.anim_cache = tween.anim_cache
+            self.anim_cache = data.anim_cache
             tween.interpolate(t=self.blend_arg, t_type=self.type_arg)
+    
+    def redoIt(self):
+        self.anim_cache.redoIt()
+    
+    def undoIt(self):
+        self.anim_cache.undoIt()
+    
+    def isUndoable(*args, **kwargs):
+        return True
+
+
+class KeyHammerCmd(om.MPxCommand):
+    cmd_name = 'keyHammer'
+    anim_cache = None
+    
+    def __init__(self):
+        om.MPxCommand.__init__(self)
+    
+    @staticmethod
+    def cmd_creator():
+        return KeyHammerCmd()
+    
+    def doIt(self, args):
+        self.anim_cache = oma.MAnimCurveChange()
+        data.anim_cache = self.anim_cache
+        keyhammer.do()
     
     def redoIt(self):
         self.anim_cache.redoIt()
