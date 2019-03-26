@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.5;">
-    <g transform="matrix(1,0,0,1.05263,0,-0.526316)">
-        <rect x="1" y="10" width="18" height="9.5" style="fill:rgb(43,43,43);"/>
+<svg width="100%" height="100%" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+    <g transform="matrix(1,0,0,1.09091,0,-1.18182)">
+        <rect x="5" y="13" width="10" height="5.5" style="fill:rgb(43,43,43);"/>
     </g>
-    <path d="M1,10C1,5.033 5.033,1 10,1C14.967,1 19,5.033 19,10" style="fill:rgb(223,110,65);stroke:rgb(189,189,189);stroke-width:2px;"/>
-    <path d="M1,10L1,20" style="fill:none;stroke:rgb(189,189,189);stroke-width:2px;"/>
-    <path d="M19,10L19,20" style="fill:none;stroke:rgb(189,189,189);stroke-width:2px;"/>
+    <g transform="matrix(1.4,0,0,1.09091,-4,-7.18182)">
+        <rect x="5" y="13" width="10" height="5.5" style="fill:rgb(43,43,43);"/>
+    </g>
+    <g transform="matrix(1.8,0,0,1.09091,-8,-13.1818)">
+        <rect x="5" y="13" width="10" height="5.5" style="fill:rgb(43,43,43);"/>
+    </g>
+    <g transform="matrix(3,0,0,1,1,-6)">
+        <rect x="1" y="14" width="4" height="4" style="fill:rgb(189,189,189);"/>
+    </g>
+    <g transform="matrix(4,0,0,1,-2,-12)">
+        <rect x="1" y="14" width="4" height="4" style="fill:rgb(223,110,65);"/>
+    </g>
+    <g transform="matrix(2,0,0,1,4,8.88178e-16)">
+        <rect x="1" y="14" width="4" height="4" style="fill:rgb(189,189,189);"/>
+    </g>
 </svg>
