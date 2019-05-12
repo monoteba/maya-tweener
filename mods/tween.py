@@ -14,6 +14,10 @@ def maya_useNewAPI():
 
 
 def interpolate(t, t_type):
+    """
+    Gateway for calling the function based on interpolation type.
+    """
+    
     if t_type == 'Towards':
         interpolate_towards(t)
     
@@ -28,6 +32,10 @@ def interpolate(t, t_type):
 
 
 def interpolate_towards(t):
+    """
+    Interpolate towards the neighbouring values, based on current value.
+    """
+    
     for curve_fn, key_group in data.curve_key_values.iteritems():
         for i in range(len(key_group.key_index)):
             new_value = lerp_towards(key_group.prev_value[i], key_group.next_value[i], t, key_group.value[i])
@@ -35,6 +43,10 @@ def interpolate_towards(t):
 
 
 def interpolate_between(t):
+    """
+    Linearly interpolate between neighbouring values.
+    """
+    
     for curve_fn, key_group in data.curve_key_values.iteritems():
         for i in range(len(key_group.key_index)):
             new_value = lerp_between(key_group.prev_value[i], key_group.next_value[i], t)
@@ -42,6 +54,10 @@ def interpolate_between(t):
 
 
 def interpolate_curve_tangent(t):
+    """
+    Interpolate based on key tangents.
+    """
+    
     # pre-calculate certain repeated values
     t = (t + 1) * 0.5  # single segment
     tp0 = pow(1 - t, 3)
@@ -54,7 +70,7 @@ def interpolate_curve_tangent(t):
     t1p1 = 3 * t1 * pow(1 - t1, 2)
     t1p2 = 3 * pow(t1, 2) * (1 - t1)
     t1p3 = pow(t1, 3)
-
+    
     t2 = t * 2.0 - 1.0  # right segment
     t2p0 = pow(1 - t2, 3)
     t2p1 = 3 * t2 * pow(1 - t2, 2)
@@ -78,6 +94,10 @@ def interpolate_curve_tangent(t):
 
 
 def interpolate_default(t):
+    """
+    Interpolate towards or away from the attributes default value.
+    """
+    
     for curve_fn, key_group in data.curve_key_values.iteritems():
         for i in range(len(key_group.key_index)):
             if key_group.default_value is None:

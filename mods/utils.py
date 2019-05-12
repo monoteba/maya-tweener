@@ -22,6 +22,7 @@ def get_selected_objects():
     :return: List of selected objects' dependencyNode
     :rtype: list
     """
+    
     nodes = []
     sl_list = om.MGlobal.getActiveSelectionList()
     sl_filter = om.MFn.kDependencyNode
@@ -126,6 +127,7 @@ def get_anim_layer_curves():
     3. Find the animation curve of the selected animation layer.
     4. Assign the value.
     """
+    
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list)
     
@@ -166,6 +168,7 @@ def get_anim_curve_default_value(anim_curve):
     :type anim_curve: om.MFn.
     :return: Default value of attribute curve is connected to.
     """
+    
     # todo: does not work with animation layers
     plug = anim_curve.findPlug('output', True)
     conn = plug.connectedTo(False, True)
@@ -201,6 +204,7 @@ def get_channelbox_attributes():
     :return: Set of attributes short name as strings or None
     :rtype: set, None
     """
+    
     attr = set()
     
     s1 = cmds.channelBox('mainChannelBox', q=True, selectedMainAttributes=True)
@@ -229,6 +233,7 @@ def is_graph_editor():
     :returns: True or False whether keys are selected in the Graph Editor or Dope Sheet
     :rtype: bool
     """
+    
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
     return not it.isDone()
@@ -240,6 +245,7 @@ def get_time_slider_range():
     :return: time range start and end
     :rtype: tuple
     """
+    
     # get time slider range
     aTimeSlider = mel.eval('$tmpVar=$gPlayBackSlider')
     

@@ -51,6 +51,10 @@ def close():
         
 
 def add_shelf_button(path=None):
+    """
+    Setup shelf button (during installation)
+    """
+    
     if not path:
         path = g.plugin_path
     
@@ -379,6 +383,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
 
 
 def TweenerUIScript(restore=False):
+    """
+    Function that gets calls for showing the UI, but also gets called by Maya when the workspace changes, like when
+    entering full screen mode.
+    """
+    
     global tweener_window
     
     if restore:
@@ -398,6 +407,10 @@ def TweenerUIScript(restore=False):
 
 
 class ModeButton(QPushButton):
+    """
+    Subclass for creating the mode buttons (between, towards, curve, default...)
+    """
+    
     def __init__(self, label='', icon=None, is_checkable=True):
         super(ModeButton, self).__init__(label)
         
@@ -415,6 +428,10 @@ class ModeButton(QPushButton):
 
 
 class FractionButton(QPushButton):
+    """
+    Subclass for creating and drawing the fraction buttons
+    """
+    
     def __init__(self, radius, fraction):
         super(FractionButton, self).__init__()
         

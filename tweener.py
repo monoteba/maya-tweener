@@ -6,8 +6,6 @@ Please refer to the plug-ins GitHub page for more information at https://github.
 """
 
 # todo: support for animation layers
-# todo: should we traverse down to inputs? -> yes in case of anim layers
-# todo: hammer keys (set key on every key)
 
 # todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
 # todo: add/remove inbetween buttons --> maybe separate tool (name: nudger)
@@ -35,8 +33,9 @@ def maya_useNewAPI():
 
 def reload_mods():
     """
-    For development purposes only
+    For development and installation purposes only
     """
+    
     import inspect
     
     path = (os.path.dirname(__file__)).lower()
@@ -70,6 +69,10 @@ Plugin registration
 
 
 def initializePlugin(plugin):
+    """
+    Initialize plugin commands
+    """
+    
     plugin_fn = om.MFnPlugin(plugin, "Morten Andersen", "1.0", "Any")
     
     # register TweenerCmd
@@ -94,6 +97,10 @@ def initializePlugin(plugin):
 
 
 def uninitializePlugin(plugin):
+    """
+    Uninitialize plugin commands
+    """
+    
     plugin_fn = om.MFnPlugin(plugin)
     
     # deregister TweenerCmd
@@ -121,6 +128,10 @@ Maya Command (MPxCommand)
 
 
 class TweenerCmd(om.MPxCommand):
+    """
+    tweener command
+    """
+    
     cmd_name = 'tweener'
     anim_cache = None
     
@@ -198,6 +209,10 @@ class TweenerCmd(om.MPxCommand):
 
 
 class KeyHammerCmd(om.MPxCommand):
+    """
+    keyhammer command
+    """
+    
     cmd_name = 'keyHammer'
     anim_cache = None
     

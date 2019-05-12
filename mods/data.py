@@ -16,6 +16,10 @@ def maya_useNewAPI():
 
 
 def prepare(t_type):
+    """
+    Prepares the dictionary of animation curves along with values before/after required to interpolate.
+    """
+    
     global anim_cache
     global curve_key_values
     
@@ -152,12 +156,15 @@ def prepare(t_type):
                 if next_index >= num_keys:
                     next_index = num_keys - 1
                 
-            
             add_to_key_group(curve_fn, current_index, prev_index, next_index, key_group)
             curve_key_values[curve_fn] = key_group
 
 
 def add_to_key_group(curve_fn, index, prev_index, next_index, key_group):
+    """
+    Adds a single curve function object to the collection of keys we wish to manipulate.
+    """
+    
     value = curve_fn.value(index)
     prev_val = curve_fn.value(prev_index)
     next_val = curve_fn.value(next_index)
@@ -180,6 +187,7 @@ def add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index,
     :param next_index: Key index for the animation curve function
     :param index: Key index for the animation curve function
     """
+    
     if index is None:
         key_group.has_two_segments.append(False)
         # comma to indicate tuple (my_value,)
