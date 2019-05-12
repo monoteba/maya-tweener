@@ -14,16 +14,16 @@ def maya_useNewAPI():
 
 
 def interpolate(t, t_type):
-    if t_type == 'towards':
+    if t_type == 'Towards':
         interpolate_towards(t)
     
-    if t_type == 'between':
+    if t_type == 'Between':
         interpolate_between(t)
     
-    if t_type == 'curve':
+    if t_type == 'Curve':
         interpolate_curve_tangent(t)
     
-    if t_type == 'default':
+    if t_type == 'Default':
         interpolate_default(t)
 
 

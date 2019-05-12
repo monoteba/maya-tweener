@@ -27,8 +27,8 @@ def prepare(t_type):
         curves = utils.get_anim_curves_from_objects(nodes)
     
     # get prev and next values so we can use them to blend while dragging slider
-    is_default = bool(t_type == 'default')
-    is_curve_tangent = bool(t_type == 'curve')
+    is_default = bool(t_type == 'Default')
+    is_curve_tangent = bool(t_type == 'Curve')
     
     curve_key_values = {}
     time_range = utils.get_time_slider_range()

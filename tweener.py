@@ -5,7 +5,6 @@ favouring adjacent keys and can speed-up the animation process.
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
-# todo: fix bug that causes crash when hiding all docked windows with ctrl + space, and Tweener is docked
 # todo: support for animation layers
 # todo: should we traverse down to inputs? -> yes in case of anim layers
 # todo: hammer keys (set key on every key)
