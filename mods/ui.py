@@ -33,9 +33,7 @@ def get_main_maya_window():
 
 
 def show():
-    if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
-        cmds.deleteUI('tweenerUIWindowWorkspaceControl')
-    
+    close()  # close existing, seems safer to recreate
     TweenerUIScript()
     
     # global tweener_window
@@ -47,12 +45,10 @@ def show():
     # tweener_window.activateWindow()  # set focus to it
 
 
-def delete():
-    global tweener_window
-    if tweener_window is not None:
-        tweener_window.deleteLater()
-        tweener_window = None
-
+def close():
+    if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
+        cmds.deleteUI('tweenerUIWindowWorkspaceControl')
+        
 
 def add_shelf_button(path=None):
     if not path:
@@ -88,7 +84,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         else:
             self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
         
-        self.setProperty("saveWindowPref", True)  # maya's automatic window management
+        # maya's automatic window management, maybe not needed after workspace control
+        # self.setProperty("saveWindowPref", True)
         
         # variables
         self.idle_callback = None
@@ -252,7 +249,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         self.load_preferences()
         self.set_mode_button()
-    
+        
     def slider_pressed(self):
         slider_value = self.slider.value()
         
@@ -387,16 +384,16 @@ def TweenerUIScript(restore=False):
     if restore:
         restored_control = omui.MQtUtil.getCurrentPanel()
     
-    if tweener_window is None:
-        tweener_window = TweenerUI()
-        tweener_window.setObjectName("tweenerUIWindow")
+    tweener_window = TweenerUI()
+    tweener_window.setObjectName("tweenerUIWindow")
     
     if restore:
         mixin_ptr = omui.MQtUtil.findControl(tweener_window.objectName())
         omui.MQtUtil.addWidgetToMayaLayout(long(mixin_ptr), long(restored_control))
     else:
-        tweener_window.show(dockable=True, retain=False, uiScript="TweenerUIScript(restore=True)")
+        tweener_window.show(dockable=True, retain=True, uiScript="tweener.TweenerUIScript(restore=True)")
     
+    # assume this is passed back to the workspace control through the uiScript
     return tweener_window
 
 
