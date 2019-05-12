@@ -82,3 +82,12 @@ import maya.cmds as cmds
 cmds.loadPlugin(tweener.py, q=True)
 cmds.tweener()
 ```
+
+## Uninstall
+Tweener installs a few files in your local Maya preferences directory. The typical locations are:
+
+**Windows:** `C:/Users/<username>/Documents/maya/`
+
+**macOS:** `~/Library/Preferences/Autodesk/maya/`
+
+Remove the `tweener.mod` inside the `Modules` folder, and the `tweener` folder inside the `Plug-ins` folder.
