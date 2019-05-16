@@ -146,3 +146,15 @@ def lerp_towards(a, b, t, current):
         return lerp_between(current, b, tRemapped)
     else:
         return current
+
+
+def tick_draw_special(special=True):
+    """
+    Makes the currently selected keyframes use the special tick color
+    """
+    
+    if utils.is_graph_editor():
+        cmds.keyframe(tds=special)
+    else:
+        time_range = utils.get_time_slider_range()
+        cmds.keyframe(tds=special, t=time_range)

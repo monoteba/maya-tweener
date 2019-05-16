@@ -19,6 +19,7 @@ from shiboken2 import wrapInstance
 
 import globals as g
 import tween
+import utils
 
 tweener_window = None
 
@@ -48,7 +49,7 @@ def show():
 def close():
     if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
         cmds.deleteUI('tweenerUIWindowWorkspaceControl')
-        
+
 
 def add_shelf_button(path=None):
     """
@@ -95,7 +96,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.idle_callback = None
         
         # define window dimensions
-        self.setMinimumWidth(360)
+        self.setMinimumWidth(350)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         
         # style
@@ -170,8 +171,18 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.keyhammer_btn.clicked.connect(self.keyhammer_button_clicked)
         self.keyhammer_btn.setToolTip('Hammer Keys')
         
+        self.tick_draw_special_btn = ModeButton(icon='icons/tick-special.svg', is_checkable=False, mini_button=True)
+        self.tick_draw_special_btn.clicked.connect(self.tick_draw_special_clicked)
+        self.tick_draw_special_btn.setToolTip('Set special tick color for keyframe')
+
+        self.tick_draw_normal_btn = ModeButton(icon='icons/tick-normal.svg', is_checkable=False, mini_button=True)
+        self.tick_draw_normal_btn.clicked.connect(self.tick_draw_normal_clicked)
+        self.tick_draw_normal_btn.setToolTip('Set normal tick color for keyframe')
+        
         misc_button_layout.addWidget(self.overshoot_btn)
         misc_button_layout.addWidget(self.keyhammer_btn)
+        misc_button_layout.addWidget(self.tick_draw_special_btn)
+        misc_button_layout.addWidget(self.tick_draw_normal_btn)
         
         # slider
         slider_layout = QVBoxLayout(main_widget)
@@ -253,7 +264,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         self.load_preferences()
         self.set_mode_button()
-        
+    
     def slider_pressed(self):
         slider_value = self.slider.value()
         
@@ -365,6 +376,12 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     def keyhammer_button_clicked(self):
         cmds.keyHammer()
     
+    def tick_draw_special_clicked(self):
+        tween.tick_draw_special(special=True)
+    
+    def tick_draw_normal_clicked(self):
+        tween.tick_draw_special(special=False)
+    
     @staticmethod
     def v_separator_layout():
         layout = QVBoxLayout()
@@ -411,16 +428,24 @@ class ModeButton(QPushButton):
     Subclass for creating the mode buttons (between, towards, curve, default...)
     """
     
-    def __init__(self, label='', icon=None, is_checkable=True):
+    def __init__(self, label='', icon=None, is_checkable=True, mini_button=False):
         super(ModeButton, self).__init__(label)
         
-        self.setMinimumSize(55, 20)
+        if mini_button:
+            self.setMinimumSize(30, 20)
+        else:
+            self.setMinimumSize(50, 20)
+            
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.setCheckable(is_checkable)
         self.setStyleSheet("font: 10px;")
         
         if icon:
-            self.setFixedSize(40, 20)
+            if mini_button:
+                self.setFixedSize(20, 20)
+            else:
+                self.setFixedSize(40, 20)
+                
             self.setContentsMargins(0, 0, 0, 0)
             path = g.plugin_path + icon
             qicon = QIcon(path)
