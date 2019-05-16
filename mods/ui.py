@@ -200,7 +200,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         version_label = QLabel(g.version)
         version_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        version_label.setStyleSheet('color: rgba(255, 255, 255, 54);')
+        version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: 10px;')
         
         slider_label_layout.addWidget(QWidget())  # empty widget to balance layout
         slider_label_layout.addWidget(self.slider_label)
@@ -414,9 +414,10 @@ class ModeButton(QPushButton):
     def __init__(self, label='', icon=None, is_checkable=True):
         super(ModeButton, self).__init__(label)
         
-        self.setMinimumSize(65, 20)
+        self.setMinimumSize(55, 20)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         self.setCheckable(is_checkable)
+        self.setStyleSheet("font: 10px;")
         
         if icon:
             self.setFixedSize(40, 20)

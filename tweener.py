@@ -5,6 +5,7 @@ favouring adjacent keys and can speed-up the animation process.
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
+# todo: average interpolation
 # todo: support for animation layers
 
 # todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
