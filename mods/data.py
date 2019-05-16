@@ -112,7 +112,7 @@ def prepare(t_type):
                 
                 if is_curve_tangent:
                     for idx in grp:
-                        add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index)
+                        add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, index=idx)
             
             curve_key_values[curve_fn] = key_group
         else:
@@ -132,7 +132,8 @@ def prepare(t_type):
                     next_index = num_keys - 1
                 
                 # key exists, so two curve tangent segments
-                add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, current_index)
+                if is_curve_tangent:
+                    add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, current_index)
             else:
                 if (closest_time.value - mtime_range[0].value) <= 0:
                     prev_index = closest_index
@@ -144,9 +145,6 @@ def prepare(t_type):
                 if prev_index < 0:
                     prev_index = 0
                 
-                # there isn't any key yet, so we only have one tangent segment and thus index=None
-                add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, index=None)
-                
                 # add new key
                 value = curve_fn.evaluate(mtime_range[0])
                 current_index = curve_fn.addKey(mtime_range[0], value, change=anim_cache)
@@ -155,6 +153,10 @@ def prepare(t_type):
                 num_keys = curve_fn.numKeys
                 if next_index >= num_keys:
                     next_index = num_keys - 1
+                    
+                # there isn't any key yet, so we only have one tangent segment and thus index=None
+                if is_curve_tangent:
+                    add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, index=current_index)
                 
             add_to_key_group(curve_fn, current_index, prev_index, next_index, key_group)
             curve_key_values[curve_fn] = key_group
