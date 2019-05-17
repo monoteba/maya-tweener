@@ -28,33 +28,52 @@ def do():
     else:
         nodes = utils.get_selected_objects()
         curves = utils.get_anim_curves_from_objects(nodes)
-    
+        
     # get curve functions
     curve_fns = []
     for curve_node in curves:
         curve_fns.append(oma.MFnAnimCurve(curve_node.object()))
+
+    # get time range
+    time_range = utils.get_time_slider_range()
+    is_range = time_range[0] - time_range[1] != 0
     
     # get time for keyframes
     times = set()
-    for curve_fn in curve_fns:
-        for i in range(curve_fn.numKeys):
-            times.add(curve_fn.input(i).value)
     
+    if is_range:
+        min_time = om.MTime(time_range[0], om.MTime.uiUnit())
+        max_time = om.MTime(time_range[1], om.MTime.uiUnit())
+        for curve_fn in curve_fns:
+            start_index = max(0, curve_fn.findClosest(min_time) - 1)  # -1 just to be safe
+            end_index = min(curve_fn.numKeys, curve_fn.findClosest(max_time) + 1)  # +1 just to be safe
+            for i in range(start_index, end_index):
+                times.add(curve_fn.input(i).value)
+    else:
+        for curve_fn in curve_fns:
+            for i in range(curve_fn.numKeys):
+                times.add(curve_fn.input(i).value)
+                
     # determine total number of operations
     cmds.progressBar(gMainProgressBar, e=True, maxValue=len(curve_fns))
-    
+
     # convert to MTime()
     m_times = []
     unit = om.MTime.uiUnit()
-    for t in times:
-        m_times.append(om.MTime(t, unit))
+    if is_range:
+        for t in times:
+            if time_range[0] <= t <= time_range[1]:
+                m_times.append(om.MTime(t, unit))
+    else:
+        for t in times:
+            m_times.append(om.MTime(t, unit))
     
     # add keys
     for curve_fn in curve_fns:
         ts = []
         vs = []
         for mt in m_times:
-            if not curve_fn.find(mt):
+            if curve_fn.find(mt) is None:
                 ts.append(mt)
                 vs.append(curve_fn.evaluate(mt))
         
