@@ -1,6 +1,7 @@
 """
 ui module
 """
+import math
 
 import maya.api.OpenMaya as om
 import maya.OpenMayaUI as omui
@@ -106,7 +107,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             'QPushButton { padding: 0; border-radius: %spx; background-color: rgb(93, 93, 93); }'
             'QPushButton:hover { background-color: rgb(112, 112, 112); }'
             'QPushButton:pressed { background-color: rgb(29, 29, 29); }'
-            'QPushButton:checked { background-color: rgb(82, 133, 166); }' % (apply_dpi_scaling(3), apply_dpi_scaling(2), apply_dpi_scaling(1))
+            'QPushButton:checked { background-color: rgb(82, 133, 166); }' % (
+                apply_dpi_scaling(3), apply_dpi_scaling(2), apply_dpi_scaling(1))
         )
         
         widget_height = apply_dpi_scaling(16)
@@ -203,7 +205,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         slider_layout.setSpacing(apply_dpi_scaling(4))
         
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setFixedHeight(widget_height)
+        self.slider.setFixedHeight(widget_height + apply_dpi_scaling(3))
         self.slider.setFixedWidth(apply_dpi_scaling(300))
         self.slider.setValue(0)
         self.slider.setMinimum(-100)
@@ -214,11 +216,13 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.slider.sliderReleased.connect(self.slider_released)
         
         groove_height = apply_dpi_scaling(10)
-        groove_border_radius = groove_height / 2.0 - 1
+        groove_border_radius = int(groove_height / 2.0)
         groove_margin = apply_dpi_scaling(4)
-        handle_margin = apply_dpi_scaling(-3)
-        handle_width = groove_height - 2 * handle_margin
-        handle_border_radius = handle_width / 2.0 - 1
+        handle_border = apply_dpi_scaling(1)
+        handle_margin = apply_dpi_scaling(-3) - handle_border
+        handle_width = groove_height - 2 * handle_margin - 2 * handle_border
+        handle_border_radius = int((handle_width + handle_border * 2) / 2.0)
+        
         self.slider.setStyleSheet("QSlider::groove:horizontal {"
                                   "background-color: #2B2B2B;"
                                   "border: 0px solid #2B2B2B;"
@@ -229,10 +233,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
                                   "QSlider::handle:horizontal {"
                                   "background: #BDBDBD;"
                                   "width: %spx;"  # groove height = 10, plus margin -3px * 2 === 16px
+                                  "border: %spx solid #2b2b2b;"
                                   "border-radius: %spx;"
                                   "margin: %spx 0; padding: 0;"  # negative margin expands outside groove
-                                  "}" % (groove_height, groove_border_radius, groove_margin, 
-                                  		 handle_width, handle_border_radius, handle_margin))
+                                  "}" % (groove_height, groove_border_radius, groove_margin,
+                                         handle_width, handle_border, handle_border_radius, handle_margin))
         
         slider_layout.setAlignment(self.slider, Qt.AlignCenter)
         slider_layout.addWidget(self.slider)
@@ -512,7 +517,7 @@ class PresetButton(QPushButton):
         self.rect = QRect(self.padding_x, self.padding_y + stroke_w, self.pie_rect_size, self.pie_rect_size)
         
         # self.setFixedWidth(radius + self.padding_x * 2 + stroke_w)
-        self.setFixedHeight(radius + apply_dpi_scaling(3) * stroke_w + self.padding_y * 2)
+        self.setFixedHeight(radius + 3 * stroke_w + self.padding_y * 2)
         # self.setFixedSize(radius + self.padding_x * 2 + stroke_w, radius + 3 * stroke_w + self.padding_y * 2)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         
@@ -523,7 +528,7 @@ class PresetButton(QPushButton):
         self.accent_color = QColor(0, 0, 0)
         self.accent_color.setNamedColor('#DF6E41')  # maya orange
         self.dark_color = QColor(0, 0, 0)
-        self.dark_color.setNamedColor('#2A2A2A')  # semi dark gray
+        self.dark_color.setNamedColor('#3A3A3A')  # old #2a2a2a
     
     def paintEvent(self, event):
         # draw the normal button
@@ -544,12 +549,12 @@ class PresetButton(QPushButton):
         
         # highlighted area
         if 0 < abs(self.angle) < 360:
-            painter.setPen(QPen(self.stroke_color, 1))
+            painter.setPen(QPen(self.stroke_color, apply_dpi_scaling(1)))
         painter.setBrush(self.accent_color)
         painter.drawPie(self.rect, 90.0 * 16, self.angle * -16)
         
         # stroke
-        painter.setPen(QPen(self.stroke_color, 1))
+        painter.setPen(QPen(self.stroke_color, apply_dpi_scaling(1)))
         painter.setBrush(Qt.NoBrush)
         painter.drawEllipse(self.rect)
         
@@ -565,9 +570,14 @@ class PresetButton(QPushButton):
             self.update()
 
 
-def apply_dpi_scaling(value):
+def apply_dpi_scaling(value, asfloat=False):
     if hasattr(cmds, 'mayaDpiSetting'):
         scale = cmds.mayaDpiSetting(q=True, realScaleValue=True)
-        return int(scale * value)
+        result = scale * value
     else:
-        return int(value)
+        result = value
+    
+    if asfloat:
+        return result
+    else:
+        return int(round(result))
