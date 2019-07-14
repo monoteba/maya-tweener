@@ -61,38 +61,6 @@ def interpolate_average(t):
     Interpolate towards or away from the average value
     """
     
-    # calculate slope
-    # for curve_fn, key_group in data.curve_key_values.iteritems():
-    #     a = 0
-    #     n = len(key_group.key_index)
-    #     for i in range(n):
-    #         index = key_group.key_index[i]
-    #         a = a + curve_fn.input(index).value * key_group.value[i]
-    #         print(curve_fn.input(index).value * key_group.value[i])
-    #     a = n * a
-    #     print("a", a)
-    #
-    #     sumx = 0
-    #     sumy = 0
-    #     for i in range(n):
-    #         sumx = sumx + curve_fn.input(key_group.key_index[i]).value
-    #         sumy = sumy + key_group.value[i]
-    #     b = sumx * sumy
-    #     print("b", b)
-    #
-    #     c = 0
-    #     for i in range(n):
-    #         x = curve_fn.input(key_group.key_index[i]).value
-    #         c = c + x * x
-    #     c = n * c
-    #     print("c", c)
-    #
-    #     d = sumx * sumx
-    #     print("d", d)
-    #
-    #     slope = (a - b) / (c - d)
-    #     print(curve_fn.name(), slope)
-    
     for curve_fn, key_group in data.curve_key_values.iteritems():
         length = len(key_group.key_index)
         is_single = length < 2
