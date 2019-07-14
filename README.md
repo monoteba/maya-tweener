@@ -26,16 +26,16 @@ If you prefer to manually install the plug-in, refer to "Manual Installation" fu
 ## Description
 
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
-explore each type. See the description of each mode under __Tween Modes__.
+explore each type. See the description of each mode below.
 
 ### Tween Modes
 
-| Mode | Description |
-| :--- | :--- |
-| Between | Interpolates between two adjacent keys, ignoring the current key. |
-| Towards | Interpolates towards two adjacent keys based on the current key. |
-| Curve | Interpolates along the curve formed by the two adjacent keys' tangents. |
-| Default | Interpolates towards or away from the default value of each attribute. |
+| Icon | Mode | Description |
+| :---: | :--- | :--- |
+| <img src="icons/between.svg" width="20" height="20"> | Between | Interpolates between two adjacent keys, ignoring the current key. |
+| <img src="icons/towards.svg" width="20" height="20"> | Towards | Interpolates towards two adjacent keys based on the current key. |
+| <img src="icons/curve.svg" width="20" height="20"> | Curve | Interpolates along the curve formed by the two adjacent keys' tangents. |
+| <img src="icons/default.svg" width="20" height="20"> | Default | Interpolates towards or away from the default value of each attribute. |
 
 ### Additional Buttons
 

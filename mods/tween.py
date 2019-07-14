@@ -18,17 +18,31 @@ def interpolate(t, t_type):
     Gateway for calling the function based on interpolation type.
     """
     
-    if t_type == 'Towards':
-        interpolate_towards(t)
-    
     if t_type == 'Between':
         interpolate_between(t)
+    
+    if t_type == 'Towards':
+        interpolate_towards(t)
+        
+    if t_type == 'Average':
+        interpolate_average(t)
     
     if t_type == 'Curve':
         interpolate_curve_tangent(t)
     
     if t_type == 'Default':
         interpolate_default(t)
+
+
+def interpolate_between(t):
+    """
+    Linearly interpolate between neighbouring values.
+    """
+    
+    for curve_fn, key_group in data.curve_key_values.iteritems():
+        for i in range(len(key_group.key_index)):
+            new_value = lerp_between(key_group.prev_value[i], key_group.next_value[i], t)
+            curve_fn.setValue(key_group.key_index[i], new_value, change=data.anim_cache)
 
 
 def interpolate_towards(t):
@@ -42,14 +56,54 @@ def interpolate_towards(t):
             curve_fn.setValue(key_group.key_index[i], new_value, change=data.anim_cache)
 
 
-def interpolate_between(t):
+def interpolate_average(t):
     """
-    Linearly interpolate between neighbouring values.
+    Interpolate towards or away from the average value
     """
     
+    # calculate slope
+    # for curve_fn, key_group in data.curve_key_values.iteritems():
+    #     a = 0
+    #     n = len(key_group.key_index)
+    #     for i in range(n):
+    #         index = key_group.key_index[i]
+    #         a = a + curve_fn.input(index).value * key_group.value[i]
+    #         print(curve_fn.input(index).value * key_group.value[i])
+    #     a = n * a
+    #     print("a", a)
+    #
+    #     sumx = 0
+    #     sumy = 0
+    #     for i in range(n):
+    #         sumx = sumx + curve_fn.input(key_group.key_index[i]).value
+    #         sumy = sumy + key_group.value[i]
+    #     b = sumx * sumy
+    #     print("b", b)
+    #
+    #     c = 0
+    #     for i in range(n):
+    #         x = curve_fn.input(key_group.key_index[i]).value
+    #         c = c + x * x
+    #     c = n * c
+    #     print("c", c)
+    #
+    #     d = sumx * sumx
+    #     print("d", d)
+    #
+    #     slope = (a - b) / (c - d)
+    #     print(curve_fn.name(), slope)
+    
     for curve_fn, key_group in data.curve_key_values.iteritems():
-        for i in range(len(key_group.key_index)):
-            new_value = lerp_between(key_group.prev_value[i], key_group.next_value[i], t)
+        length = len(key_group.key_index)
+        is_single = length < 2
+        avg_val = 0
+        if not is_single:
+            avg_val = sum(key_group.value) / length
+        for i in range(length):
+            if is_single:
+                avg_val = (key_group.prev_value[i] + key_group.next_value[i]) * 0.5
+            prev_val = key_group.value[i] * 2 - avg_val
+            new_value = lerp_towards(prev_val, avg_val, t, key_group.value[i])
             curve_fn.setValue(key_group.key_index[i], new_value, change=data.anim_cache)
 
 

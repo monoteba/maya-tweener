@@ -28,12 +28,12 @@ def do():
     else:
         nodes = utils.get_selected_objects()
         curves = utils.get_anim_curves_from_objects(nodes)
-        
+    
     # get curve functions
     curve_fns = []
     for curve_node in curves:
         curve_fns.append(oma.MFnAnimCurve(curve_node.object()))
-
+    
     # get time range
     time_range = utils.get_time_slider_range()
     is_range = time_range[0] - time_range[1] != 0
@@ -53,10 +53,10 @@ def do():
         for curve_fn in curve_fns:
             for i in range(curve_fn.numKeys):
                 times.add(curve_fn.input(i).value)
-                
+    
     # determine total number of operations
     cmds.progressBar(gMainProgressBar, e=True, maxValue=len(curve_fns))
-
+    
     # convert to MTime()
     m_times = []
     unit = om.MTime.uiUnit()

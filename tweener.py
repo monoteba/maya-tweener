@@ -5,8 +5,10 @@ favouring adjacent keys and can speed-up the animation process.
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
-# todo: average interpolation
 # todo: support for animation layers
+# todo: key hammer should not include locked attributes
+# todo: key hammer should act on graph editor selections (selected curve keys)
+# todo: create svg for preset buttons
 
 # todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
 # todo: add/remove inbetween buttons --> maybe separate tool (name: nudger)
