@@ -100,13 +100,13 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         # style
         self.setStyleSheet(
-            'QLineEdit { padding: 0 3px; border-radius: 2px; }'
+            'QLineEdit { padding: 0 %spx; border-radius: %spx; }'
             'QLineEdit:disabled { color: rgb(128, 128, 128); background-color: rgb(64, 64, 64); }'
             'QLabel:disabled { background-color: none; }'
-            'QPushButton { padding: 0; border-radius: 1px; background-color: rgb(93, 93, 93); }'
+            'QPushButton { padding: 0; border-radius: %spx; background-color: rgb(93, 93, 93); }'
             'QPushButton:hover { background-color: rgb(112, 112, 112); }'
             'QPushButton:pressed { background-color: rgb(29, 29, 29); }'
-            'QPushButton:checked { background-color: rgb(82, 133, 166); }'
+            'QPushButton:checked { background-color: rgb(82, 133, 166); }' % (apply_dpi_scaling(3), apply_dpi_scaling(2), apply_dpi_scaling(1))
         )
         
         widget_height = apply_dpi_scaling(16)
@@ -213,19 +213,26 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.slider.sliderPressed.connect(self.slider_pressed)
         self.slider.sliderReleased.connect(self.slider_released)
         
+        groove_height = apply_dpi_scaling(10)
+        groove_border_radius = groove_height / 2.0 - 1
+        groove_margin = apply_dpi_scaling(4)
+        handle_margin = apply_dpi_scaling(-3)
+        handle_width = groove_height - 2 * handle_margin
+        handle_border_radius = handle_width / 2.0 - 1
         self.slider.setStyleSheet("QSlider::groove:horizontal {"
                                   "background-color: #2B2B2B;"
                                   "border: 0px solid #2B2B2B;"
-                                  "height: 10px;"
-                                  "border-radius: 5px;"
-                                  "margin: 0 4px; padding: 0;"
+                                  "height: %spx;"
+                                  "border-radius: %spx;"
+                                  "margin: 0 %spx; padding: 0;"
                                   "}"
                                   "QSlider::handle:horizontal {"
                                   "background: #BDBDBD;"
-                                  "width: 16px;"  # # groove height = 10, plus margin -3px * 2 === 16px
-                                  "border-radius: 8px;"
-                                  "margin: -3px 0; padding: 0;"  # negative margin expands outside groove
-                                  "}")
+                                  "width: %spx;"  # groove height = 10, plus margin -3px * 2 === 16px
+                                  "border-radius: %spx;"
+                                  "margin: %spx 0; padding: 0;"  # negative margin expands outside groove
+                                  "}" % (groove_height, groove_border_radius, groove_margin, 
+                                  		 handle_width, handle_border_radius, handle_margin))
         
         slider_layout.setAlignment(self.slider, Qt.AlignCenter)
         slider_layout.addWidget(self.slider)
@@ -240,7 +247,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         version_label = QLabel(g.version)
         version_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: 10px;')
+        version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: %spx;' % (apply_dpi_scaling(10)))
         
         slider_label_layout.addWidget(QWidget())  # empty widget to balance layout
         slider_label_layout.addWidget(self.slider_label)
@@ -249,15 +256,16 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # fraction buttons
         fraction_layout = QHBoxLayout(main_widget)
         fraction_layout.setSpacing(apply_dpi_scaling(2))
-        self.preset_0_000_btn = PresetButton(radius=12, fraction=0.0)
-        self.preset_0_167_btn = PresetButton(radius=12, fraction=0.167)
-        self.preset_0_250_btn = PresetButton(radius=12, fraction=0.25)
-        self.preset_0_333_btn = PresetButton(radius=12, fraction=0.333)
-        self.preset_0_500_btn = PresetButton(radius=12, fraction=0.5)
-        self.preset_0_667_btn = PresetButton(radius=12, fraction=0.667)
-        self.preset_0_750_btn = PresetButton(radius=12, fraction=0.75)
-        self.preset_0_833_btn = PresetButton(radius=12, fraction=0.833)
-        self.preset_1_000_btn = PresetButton(radius=12, fraction=1.0)
+        rad = apply_dpi_scaling(12)
+        self.preset_0_000_btn = PresetButton(radius=rad, fraction=0.0)
+        self.preset_0_167_btn = PresetButton(radius=rad, fraction=0.167)
+        self.preset_0_250_btn = PresetButton(radius=rad, fraction=0.25)
+        self.preset_0_333_btn = PresetButton(radius=rad, fraction=0.333)
+        self.preset_0_500_btn = PresetButton(radius=rad, fraction=0.5)
+        self.preset_0_667_btn = PresetButton(radius=rad, fraction=0.667)
+        self.preset_0_750_btn = PresetButton(radius=rad, fraction=0.75)
+        self.preset_0_833_btn = PresetButton(radius=rad, fraction=0.833)
+        self.preset_1_000_btn = PresetButton(radius=rad, fraction=1.0)
         
         self.preset_0_000_btn.clicked.connect(lambda: self.fraction_clicked(0.0))
         self.preset_0_167_btn.clicked.connect(lambda: self.fraction_clicked(0.167))
