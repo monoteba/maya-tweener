@@ -3,7 +3,7 @@
 # Tweener
 
 <p align="center">
-<img src="tweener-screenshot.png" width="476">
+<img src="tweener-screenshot.png" width="50%" height="auto">
 </p>
 
 Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens or adjust 
