@@ -81,53 +81,7 @@ def get_anim_curves_from_objects(nodes=[]):
                         curve_node = om.MFnDependencyNode(conn_node)
                         curve_list.append(curve_node)
     
-    # todo: experimental, not yet implemented
-    # attempt getting curves from anim layers
-    # test_list = []
-    # for node in nodes:
-    #     # get all attributes
-    #     attr_count = node.attributeCount()
-    #     for index in range(attr_count):
-    #         attr = node.attribute(index)
-    #         plug = node.findPlug(attr, True)
-    #         connections = plug.connectedTo(True, False)
-    #
-    #         # if the attribute has a connection
-    #         if connections:
-    #             conn_node = connections[0].node()
-    #
-    #             # if the connection is of type kAnimCurve
-    #             if conn_node.hasFn(om.MFn.kAnimCurve):
-    #                 # filter out attributes not selected in channelbox
-    #                 if channelbox_attr:
-    #                     attr_name = om.MFnAttribute(attr).shortName
-    #                     if attr_name not in channelbox_attr:
-    #                         continue
-    #
-    #                 # add the node if it matches one of the types we want
-    #                 curve_type = conn_node.apiType()
-    #                 if curve_type == om.MFn.kAnimCurveTimeToAngular or \
-    #                         curve_type == om.MFn.kAnimCurveTimeToDistance or \
-    #                         curve_type == om.MFn.kAnimCurveTimeToUnitless or \
-    #                         curve_type == om.MFn.kAnimCurveTimeToTime:
-    #                     curve_node = om.MFnDependencyNode(conn_node)
-    #                     test_list.append(curve_node)
-    #             elif conn_node.hasFn(om.MFn.kBlendNodeBase):
-    #                 pass
-    #
-    # print(test_list)
-    # todo: end of experiment
-    
     return curve_list
-
-
-def get_best_layer(attr, selected_layer):
-    """
-    
-    :param attr:
-    :param selected_layer:
-    :return:
-    """
 
 
 def get_selected_anim_curves():
