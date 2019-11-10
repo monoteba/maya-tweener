@@ -5,7 +5,7 @@
 <p align="center">
 <img src="tweener-screenshot.png" width="50%" height="auto">
 </p>
-Tweener has nothing to do with young people, basketball or that tennis move between your legs (except the icon).
+Tweener has nothing to do with young people, basketball or that tennis move between your legs (except maybe the icon).
 
 Instead, Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens or adjust 
 existing keys by interpolating towards adjacent keyframes, and can speed-up your workflow when creating breakdowns and 
@@ -94,11 +94,7 @@ MAYA_PLUG_IN_PATH +:=
 
 ### Restart Maya
 
-**Restart Maya after copying the files.** 
-
-You can verify the installation of the plug-in by seeing if `tweener.py` shows up in the Plug-in Manager.
-
-All plug-in paths can be found using the following Python code in the Script Editor:
+You need to restart Maya after copying the files. You can verify the installation of the plug-in by seeing if `tweener.py` shows up in the Plug-in Manager. All plug-in paths can be found using the following Python code in the Script Editor:
 
 ```python
 import maya.mel
