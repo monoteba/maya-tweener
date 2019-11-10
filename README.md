@@ -5,7 +5,8 @@
 <p align="center">
 <img src="tweener-screenshot.png" width="50%" height="auto">
 </p>
-Tweener has nothing to do with young people, basketball or that tennis move between your legs (except maybe the icon).
+
+Tweener has nothing to do with young people, basketball or that tennis move between your legs.
 
 Instead, Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens or adjust 
 existing keys by interpolating towards adjacent keyframes, and can speed-up your workflow when creating breakdowns and 
@@ -56,11 +57,11 @@ The tool is still at an early stage and there are few limitations to be aware of
 
 ## Manual Installation
 
-### Download
+### 1. Download
 
 Download the latest release from the [Releases](https://github.com/mortenblaa/maya-tweener/releases) page. 
 
-### Copy to plug-ins folder
+### 2. Copy to plug-ins folder
 
 Unzip the file and copy the contents to a folder named **tweener** inside your Maya's plug-ins folder.
 
@@ -72,7 +73,7 @@ Typical locations for the plug-ins folder:
 
 In some cases the plug-ins folder will not exists, in which case you can just create it.
 
-### Create module file
+### 3. Create module file
 
 Go to the **modules** folder inside your Maya preferences directory. Again, if it doesn't exist you need to create it.
 
@@ -92,7 +93,7 @@ macOS example:
 MAYA_PLUG_IN_PATH +:= 
 ```
 
-### Restart Maya
+### 4. Restart Maya
 
 You need to restart Maya after copying the files. You can verify the installation of the plug-in by seeing if `tweener.py` shows up in the Plug-in Manager. All plug-in paths can be found using the following Python code in the Script Editor:
 
@@ -103,7 +104,7 @@ for p in paths:
     print p
 ```
 
-### Launching Tweener and adding a shelf button
+### 5. Launch Tweener and add a shelf button
 
 After the plug-in is succesfully installed, execute the following three lines as Python or add them to a shelf button:
 
@@ -118,8 +119,8 @@ The icon is located in the **icons** folder where you installed the plug-in.
 ## Uninstall
 Tweener installs a few files in your local Maya preferences directory. The typical locations are:
 
-**Windows:** `C:/Users/<username>/Documents/maya/`
+**Windows:** `C:\Users\<username>\Documents\maya\`
 
 **macOS:** `~/Library/Preferences/Autodesk/maya/`
 
-Remove the `tweener.mod` inside the `Modules` folder, and the `tweener` folder inside the `Plug-ins` folder.
+Remove the `tweener.mod` inside the `modules` folder, and the `tweener` folder inside the `plug-ins` folder.
