@@ -1,4 +1,4 @@
-# <img src="icons/tweener-icon.svg" width="32px" height="32px">Tweener
+# Tweener <img src="icons/tweener-icon.svg" width="32px" height="32px">
 
 <p align="center">
 <img src="tweener-screenshot.png" width="50%" height="auto">
