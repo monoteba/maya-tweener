@@ -4,7 +4,7 @@
 <img src="tweener-screenshot.png" width="50%" height="auto">
 </p>
 
-Tweener has nothing to do with young people, basketball or that tennis move between your legs.
+Tweener has nothing to do with young people, basketball or [that tennis move between your legs](https://en.wikipedia.org/wiki/Tweener_(tennis)).
 
 Instead, Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens or adjust 
 existing keys by interpolating towards adjacent keyframes, and can speed-up your workflow when creating breakdowns and 
