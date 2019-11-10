@@ -36,7 +36,8 @@ def prepare(t_type):
     
     curve_key_values = {}
     time_range = utils.get_time_slider_range()
-    mtime_range = (om.MTime(time_range[0]), om.MTime(time_range[1]))
+    unit = om.MTime.uiUnit()
+    mtime_range = (om.MTime(time_range[0], unit), om.MTime(time_range[1], unit))
     
     for curve_node in curves:
         curve_fn = oma.MFnAnimCurve(curve_node.object())
