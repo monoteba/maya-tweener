@@ -64,7 +64,7 @@ def add_shelf_button(path=None):
     else:
         icon_path = path + '/'
     
-    icon_path = icon_path + 'icons/tweener-icon.svg'
+    icon_path = icon_path + 'icons/tweener-icon@2x.png'
     
     gShelfTopLevel = mel.eval('$tmpVar=$gShelfTopLevel')
     tabs = cmds.tabLayout(gShelfTopLevel, q=True, childArray=True)

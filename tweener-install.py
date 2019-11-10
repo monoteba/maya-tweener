@@ -7,26 +7,52 @@ import uuid
 import zipfile
 import maya.cmds as cmds
 import maya.mel as mel
+import maya.utils as utils
+
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+from shiboken2 import wrapInstance
 
 github_url = 'https://api.github.com/repos/mortenblaa/maya-tweener/releases/latest'
+gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
 
 
 def onMayaDroppedPythonFile(*args):
+    qApp.processEvents()
+    utils.executeDeferred(main)
+
+
+def main():
+    result = cmds.confirmDialog(t='Tweener Installation',
+                                m='Would you like to download and install Tweener?',
+                                button=['Yes', 'No'],
+                                db='Yes',
+                                cb='No',
+                                ds='No')
+    
+    if result == 'No':
+        return
+    
     sys.stdout.write('# Downloading Tweener...\n')
+    
+    qApp.processEvents()
     zip_path = download()
+    
     plugin_path = install(zip_path)
     load(plugin_path)
 
 
 def download():
     # get zip url from github
-    response = urllib2.urlopen(github_url, timeout=60)
+    response = urllib2.urlopen(github_url, timeout=5)
     data = json.load(response)
     
     assets = data['assets']
     if assets is None or len(assets) == 0:
-        sys.stderr.write('# Could not locate .zip')
-        return
+        sys.stderr.write('# Could not locate zip from url %s' % github_url)
+        cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
+        exit(1)
     
     asset = assets[0]
     zip_url = asset['browser_download_url']
@@ -36,17 +62,46 @@ def download():
     dir_path = os.path.dirname(__file__)
     zip_path = dir_path + '/' + name
     
+    # url
+    f = urllib2.urlopen(zip_url, timeout=5)
+    
+    # try to get file size
     try:
-        f = urllib2.urlopen(zip_url, timeout=120)
-        
+        total_size = f.info().getheader('Content-Length').strip()
+        header = True
+    except AttributeError:
+        header = False  # a response doesn't always include the "Content-Length" header
+    
+    if header:
+        total_size = int(total_size)
+    else:
+        total_size = 1
+    
+    cmds.progressBar(gMainProgressBar,
+                     edit=True,
+                     beginProgress=True,
+                     isInterruptable=False,
+                     status='"Downloading Tweener...',
+                     maxValue=total_size)
+    
+    try:
         with open(zip_path, 'wb') as local_file:
-            local_file.write(f.read())
+            while True:
+                chunk = f.read(4096)
+                if not chunk:
+                    break
+                cmds.progressBar(gMainProgressBar, e=True, step=len(chunk))
+                local_file.write(chunk)
+                qApp.processEvents()
+    
     except Exception as e:
         sys.stderr.write('%s\n' % e)
+        cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
         exit(1)
     finally:
         sys.stdout.write('# Download successful, installing...\n')
     
+    cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
     return zip_path
 
 
@@ -62,6 +117,7 @@ def install(zip_path):
             os.makedirs(maya_plug_in_dir)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
+            cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
             exit(2)
     
     # extract zip
@@ -72,6 +128,7 @@ def install(zip_path):
             shutil.rmtree(extract_path)  # remove existing folder
         except Exception as e:
             sys.stderr.write('%s\n' % e)
+            cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
             exit(3)
         finally:
             sys.stdout.write('# Removed old installation!\n')
@@ -86,6 +143,7 @@ def install(zip_path):
             os.makedirs(maya_modules_dir)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
+            cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
             exit(4)
     
     try:
@@ -94,6 +152,7 @@ def install(zip_path):
             f.write('MAYA_PLUG_IN_PATH +:= \n')
     except Exception as e:
         sys.stderr.write('%s\n' % e)
+        cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
         exit(5)
     finally:
         sys.stdout.write('# Created module file at "%s"\n' % maya_modules_dir)
@@ -104,6 +163,7 @@ def install(zip_path):
         os.remove(zip_path)
     except Exception as e:
         sys.stderr.write('%s\n' % e)
+        cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
         exit(6)
     finally:
         sys.stdout.write('\t# Removed %s\n' % zip_path)
@@ -116,7 +176,7 @@ def load(plugin_path):
         env_path = ';%s' % plugin_path
     else:
         env_path = ':%s' % plugin_path
-        
+    
     maya_plugin_path = mel.eval('getenv "MAYA_PLUG_IN_PATH"')
     
     if plugin_path not in maya_plugin_path:
@@ -127,9 +187,9 @@ def load(plugin_path):
             cmds.unloadPlugin('tweener.py', force=True)
         except:
             pass
-
+    
     sys.path.append(plugin_path)
-
+    
     try:
         import tweener
         reload(tweener)
@@ -154,5 +214,5 @@ def load(plugin_path):
             tweener.ui.add_shelf_button(path=plugin_path)
         except Exception as e:
             sys.stderr.write('%s\n' % e)
-
+    
     sys.stdout.write('# Tweener install completed! See the Script Editor for more information.\n')
