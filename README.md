@@ -55,4 +55,4 @@ The tool is still at an early stage and there are few limitations to be aware of
 
 ## Wiki
 
-Refer to the [wiki](wiki) for more details.
+Refer to the [wiki](/wiki) for more details.
