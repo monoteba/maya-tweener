@@ -48,11 +48,13 @@ explore each type. See the description of each mode below.
 | <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
 
 
-## Known Limitations
+## Known Limitations and Issues
 The tool is still at an early stage and there are few limitations to be aware of. 
 
 - Does not work with animation layers!
 
-## Wiki
+Refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page for known issues.
 
-Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more details.
+## Additional Information
+
+Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more information.
