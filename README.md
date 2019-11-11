@@ -52,3 +52,7 @@ explore each type. See the description of each mode below.
 The tool is still at an early stage and there are few limitations to be aware of. 
 
 - Does not work with animation layers!
+
+## Wiki
+
+Refer to the [[wiki]] for more details.
