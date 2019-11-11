@@ -4,6 +4,7 @@ import maya.cmds as cmds
 from collections import namedtuple
 
 import mods.utils as utils
+import mods.options as options
 
 anim_cache = None
 curve_key_values = {}
@@ -15,7 +16,7 @@ def maya_useNewAPI():
     pass
 
 
-def prepare(t_type):
+def prepare(mode):
     """
     Prepares the dictionary of animation curves along with values before/after required to interpolate.
     """
@@ -31,8 +32,8 @@ def prepare(t_type):
         curves = utils.get_anim_curves_from_objects(nodes)
     
     # get prev and next values so we can use them to blend while dragging slider
-    is_default = bool(t_type == 'Default')
-    is_curve_tangent = bool(t_type == 'Curve')
+    is_default = bool(mode == options.mode.default)
+    is_curve_tangent = bool(mode == options.mode.curve)
     
     curve_key_values = {}
     time_range = utils.get_time_slider_range()

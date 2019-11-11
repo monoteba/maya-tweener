@@ -6,9 +6,9 @@
 
 Tweener has nothing to do with young people, basketball or [that tennis move between your legs](https://en.wikipedia.org/wiki/Tweener_(tennis)).
 
-Instead, Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens or adjust 
+Instead, Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create in-betweens or adjust 
 existing keys by interpolating towards adjacent keyframes, and can speed-up your workflow when creating breakdowns and 
-inbetweens.
+in-betweens.
 
 I am an animator myself and so I very much tailor the tool to my own needs.
 
@@ -28,7 +28,7 @@ If you prefer to manually install the plug-in, refer to "Manual Installation" fu
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
 explore each type. See the description of each mode below.
 
-### Tween Modes
+### In-between Modes
 
 | Icon | Mode | Description |
 | :---: | :--- | :--- |

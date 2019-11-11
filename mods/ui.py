@@ -1,8 +1,6 @@
 """
 ui module
 """
-import math
-
 import maya.api.OpenMaya as om
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
@@ -20,6 +18,7 @@ from shiboken2 import wrapInstance
 
 import globals as g
 import tween
+import options
 
 tweener_window = None
 
@@ -94,6 +93,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         # variables
         self.idle_callback = None
+        self.dragging = False
+        self.busy = False
         
         # define window dimensions
         self.setMinimumWidth(apply_dpi_scaling(370))
@@ -131,14 +132,14 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         top_button_layout = QHBoxLayout(main_widget)
         
         # mode buttons
-        self.interpolation_mode = 'Between'
+        self.interpolation_mode = options.mode.between
         mode_layout = QHBoxLayout()
         mode_layout.setSpacing(apply_dpi_scaling(2))
-        mode_between_btn = Button(mode='Between', icon='icons/between.svg')
-        mode_towards_btn = Button(mode='Towards', icon='icons/towards.svg')
-        mode_average_btn = Button(mode='Average', icon='icons/average.svg')
-        mode_curve_tangent_btn = Button(mode='Curve', icon='icons/curve.svg')
-        mode_default_btn = Button(mode='Default', icon='icons/default.svg')
+        mode_between_btn = Button(mode=options.mode.between, icon='icons/between.svg')
+        mode_towards_btn = Button(mode=options.mode.towards, icon='icons/towards.svg')
+        mode_average_btn = Button(mode=options.mode.average, icon='icons/average.svg')
+        mode_curve_tangent_btn = Button(mode=options.mode.curve, icon='icons/curve.svg')
+        mode_default_btn = Button(mode=options.mode.default, icon='icons/default.svg')
         
         mode_between_btn.clicked.connect(self.set_mode_button)
         mode_between_btn.setChecked(True)
@@ -147,11 +148,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         mode_curve_tangent_btn.clicked.connect(self.set_mode_button)
         mode_default_btn.clicked.connect(self.set_mode_button)
         
-        mode_between_btn.setToolTip('Mode: Between')
-        mode_towards_btn.setToolTip('Mode: Towards')
-        mode_average_btn.setToolTip('Mode: Average')
-        mode_curve_tangent_btn.setToolTip('Mode: Curve Tangent')
-        mode_default_btn.setToolTip('Mode: Default')
+        mode_between_btn.setToolTip(options.mode.between.tooltip)
+        mode_towards_btn.setToolTip(options.mode.towards.tooltip)
+        mode_average_btn.setToolTip(options.mode.average.tooltip)
+        mode_curve_tangent_btn.setToolTip(options.mode.curve.tooltip)
+        mode_default_btn.setToolTip(options.mode.default.tooltip)
         
         self.mode_button_group = QButtonGroup()
         self.mode_button_group.addButton(mode_between_btn)
@@ -160,11 +161,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.mode_button_group.addButton(mode_curve_tangent_btn)
         self.mode_button_group.addButton(mode_default_btn)
         
-        self.mode_button_group.setId(mode_between_btn, 0)
-        self.mode_button_group.setId(mode_towards_btn, 1)
-        self.mode_button_group.setId(mode_average_btn, 2)
-        self.mode_button_group.setId(mode_curve_tangent_btn, 3)
-        self.mode_button_group.setId(mode_default_btn, 4)
+        self.mode_button_group.setId(mode_between_btn, options.mode.between.idx)
+        self.mode_button_group.setId(mode_towards_btn, options.mode.towards.idx)
+        self.mode_button_group.setId(mode_average_btn, options.mode.average.idx)
+        self.mode_button_group.setId(mode_curve_tangent_btn, options.mode.curve.idx)
+        self.mode_button_group.setId(mode_default_btn, options.mode.default.idx)
         
         mode_layout.addWidget(mode_between_btn)
         mode_layout.addWidget(mode_towards_btn)
@@ -213,6 +214,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.slider.setTickInterval(1)
         
         self.slider.sliderPressed.connect(self.slider_pressed)
+        self.slider.valueChanged.connect(self.slider_changed)
         self.slider.sliderReleased.connect(self.slider_released)
         
         groove_height = apply_dpi_scaling(10)
@@ -307,6 +309,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.set_mode_button()
     
     def slider_pressed(self):
+        self.dragging = True
         slider_value = self.slider.value()
         
         blend = slider_value / 100.0
@@ -314,37 +317,45 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
         # only update when maya is idle to prevent multiple calls without seeing the result
-        self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
+        # self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
         
         # disable undo on first call, so we don't get 2 undos in queue
         # both press and release add to the same cache, so it should be safe
         cmds.undoInfo(stateWithoutFlush=False)
-        cmds.tweener(t=blend, press=True, type=self.interpolation_mode)
+        cmds.tweener(t=blend, press=True, type=self.interpolation_mode.idx)
         cmds.undoInfo(stateWithoutFlush=True)
         
-        tween.interpolate(t=blend, t_type=self.interpolation_mode)
+        tween.interpolate(blend=blend, mode=self.interpolation_mode)
     
     def slider_changed(self, *args):
+        if not self.dragging or self.busy:
+            return
+        
+        self.busy = True
         slider_value = self.slider.value()
         
-        if self.interpolation_mode == 'Between':
+        if self.interpolation_mode == options.mode.between:
             self.slider_label.setText(str(int(slider_value * 0.5 + 50)))
-        elif self.interpolation_mode in ['Towards', 'Curve', 'Average', 'Default']:
+        elif self.interpolation_mode in [options.mode.towards, options.mode.average,
+                                         options.mode.curve, options.mode.default]:
             self.slider_label.setText(str(slider_value))
         
         blend = slider_value / 100.0
-        tween.interpolate(t=blend, t_type=self.interpolation_mode)
+        tween.interpolate(blend=blend, mode=self.interpolation_mode)
+        cmds.refresh(force=True)
+        self.busy = False
     
     def slider_released(self):
+        self.dragging = False
         slider_value = self.slider.value()
         
         blend = slider_value / 100.0
-        cmds.tweener(t=blend, press=False, type=self.interpolation_mode)
+        cmds.tweener(t=blend, press=False, type=self.interpolation_mode.idx)
         
         self.slider.setValue(0)
         self.slider_label.setText('')
         
-        om.MEventMessage.removeCallback(self.idle_callback)
+        # om.MEventMessage.removeCallback(self.idle_callback)
     
     def fraction_clicked(self, value):
         value = value * 2.0 - 1.0
@@ -352,35 +363,36 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # simulate slider press/release
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         cmds.undoInfo(stateWithoutFlush=False)
-        cmds.tweener(t=value, press=True, type=self.interpolation_mode)
+        cmds.tweener(t=value, press=True, type=self.interpolation_mode.idx)
         cmds.undoInfo(stateWithoutFlush=True)
-        cmds.tweener(t=value, press=False, type=self.interpolation_mode)
+        cmds.tweener(t=value, press=False, type=self.interpolation_mode.idx)
     
     def load_preferences(self):
         # set which mode button is checked
-        if cmds.optionVar(exists='tweener_interp_type'):
-            try:
-                button = self.mode_button_group.button(int(cmds.optionVar(q='tweener_interp_type')))
-                if button is not None:
-                    button.setChecked(True)
-            except Exception as e:
-                sys.stdout.write('# %s\n' % e)
+        try:
+            button = self.mode_button_group.button(options.load_interpolation_mode().idx)
+            if button is not None:
+                button.setChecked(True)
+        except Exception as e:
+            sys.stdout.write('# %s\n' % e)
+            for b in self.mode_button_group.buttons():
+                b.setChecked(True)
+                break
         
         # overshoot button checked state
-        if cmds.optionVar(exists='tweener_overshoot'):
-            try:
-                self.overshoot_btn.setChecked(bool(cmds.optionVar(q='tweener_overshoot')))
-            except Exception as e:
-                self.overshoot_btn.setChecked(False)
-                sys.stdout.write('# %s\n' % e)
+        try:
+            self.overshoot_btn.setChecked(options.load_overshoot())
+        except Exception as e:
+            self.overshoot_btn.setChecked(False)
+            sys.stdout.write('# %s\n' % e)
         
         self.overshoot_button_clicked()  # simulate button click to setup slider values
     
     def set_mode_button(self):
-        cmds.optionVar(iv=('tweener_interp_type', int(self.mode_button_group.checkedId())))
+        options.save_interpolation_mode(int(self.mode_button_group.checkedId()))
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
-        if self.interpolation_mode == 'Between':
+        if self.interpolation_mode == options.mode.between:
             self.preset_0_000_btn.set_fraction(0.0, tooltip="0 %", visible=True)
             self.preset_0_167_btn.set_fraction(0.167, tooltip="17 %", visible=True)
             self.preset_0_250_btn.set_fraction(0.25, tooltip="25 %", visible=True)
@@ -390,7 +402,10 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             self.preset_0_750_btn.set_fraction(0.75, tooltip="75 %", visible=True)
             self.preset_0_833_btn.set_fraction(0.833, tooltip="83 %", visible=True)
             self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %", visible=True)
-        elif self.interpolation_mode in ['Towards', 'Average', 'Curve', 'Default']:
+        elif self.interpolation_mode in [options.mode.towards,
+                                         options.mode.average,
+                                         options.mode.curve,
+                                         options.mode.default]:
             self.preset_0_000_btn.set_fraction(-1.0, tooltip="100 %", visible=True)
             self.preset_0_167_btn.set_fraction(-0.667, tooltip="67 %", visible=True)
             self.preset_0_250_btn.set_fraction(-0.5, tooltip="50 %", visible=True)
@@ -412,7 +427,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             self.slider.setMaximum(100)
         
         # save setting
-        cmds.optionVar(iv=('tweener_overshoot', int(checked)))
+        options.save_overshoot(checked)
     
     def keyhammer_button_clicked(self):
         cmds.keyHammer()

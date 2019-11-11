@@ -9,7 +9,7 @@ import maya.api.OpenMayaAnim as oma
 import mods.utils as utils
 import maya.cmds as cmds
 import maya.mel as mel
-import mods.data as data
+import mods.animdata as animdata
 
 
 def do():
@@ -79,7 +79,7 @@ def do():
                 vs.append(curve_fn.evaluate(mt))
         
         for t, v in zip(ts, vs):
-            curve_fn.addKey(t, v, change=data.anim_cache)
+            curve_fn.addKey(t, v, change=animdata.anim_cache)
         
         cmds.progressBar(gMainProgressBar, e=True, step=1)
     

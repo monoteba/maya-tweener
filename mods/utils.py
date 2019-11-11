@@ -308,3 +308,19 @@ def get_anim_curve_fn_from_name(anim_curve_name):
     node = sl.getDependNode(0)
     
     return oma.MFnAnimCurve(node)
+
+
+def clamp(value, min_value, max_value):
+    """
+    Clamp a value between min and max
+    :param value: Supplied numeric value
+    :param min_value: Lowest value
+    :param max_value: Highest value
+    :return: Value clamped between min and max
+    """
+    if value < min_value:
+        return min_value
+    elif value > max_value:
+        return max_value
+    else:
+        return value

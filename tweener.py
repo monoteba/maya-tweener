@@ -26,8 +26,10 @@ import maya.cmds as cmds
 import mods.globals as g
 import mods.ui as ui
 import mods.tween as tween
-import mods.data as data
+import mods.animdata as animdata
 import mods.keyhammer as keyhammer
+import mods.tool as tool
+import mods.options as options
 
 
 def maya_useNewAPI():
@@ -96,6 +98,18 @@ def initializePlugin(plugin):
     else:
         sys.stdout.write('# Successfully registered command %s\n' % KeyHammerCmd.cmd_name)
     
+    # register TweenerToolCmd
+    try:
+        plugin_fn.registerCommand(TweenerToolCmd.cmd_name, TweenerToolCmd.cmd_creator)
+    except:
+        sys.stderr.write("Failed to register command: %s\n" % TweenerToolCmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully registered command %s\n' % TweenerToolCmd.cmd_name)
+    
+    # setup context
+    tool.setup_context()
+    
     g.plugin_path = os.path.dirname(cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
 
 
@@ -123,6 +137,15 @@ def uninitializePlugin(plugin):
         raise
     else:
         sys.stdout.write('# Successfully unregistered command %s\n' % KeyHammerCmd.cmd_name)
+    
+    # deregister TweenerToolCmd
+    try:
+        plugin_fn.deregisterCommand(TweenerToolCmd.cmd_name)
+    except:
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerToolCmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully unregistered command %s\n' % TweenerToolCmd.cmd_name)
 
 
 """
@@ -165,7 +188,7 @@ class TweenerCmd(om.MPxCommand):
         # add flags
         syntax.addFlag(cls.interpolant_flag, cls.interpolant_flag_long, om.MSyntax.kDouble)
         syntax.addFlag(cls.press_flag, cls.press_flag_long, om.MSyntax.kBoolean)
-        syntax.addFlag(cls.type_flag, cls.type_flag_long, om.MSyntax.kString)
+        syntax.addFlag(cls.type_flag, cls.type_flag_long, om.MSyntax.kLong)
         return syntax
     
     def pass_args(self, args):
@@ -178,7 +201,7 @@ class TweenerCmd(om.MPxCommand):
             self.press_arg = arg_data.flagArgumentDouble(self.press_flag, 0)
         
         if arg_data.isFlagSet(self.type_flag):
-            self.type_arg = arg_data.flagArgumentString(self.type_flag, 0)
+            self.type_arg = arg_data.flagArgumentInt(self.type_flag, 0)
         
         return arg_data.numberOfFlagsUsed
     
@@ -194,12 +217,12 @@ class TweenerCmd(om.MPxCommand):
         if self.press_arg:
             # if press, then create a new cache
             self.anim_cache = oma.MAnimCurveChange()
-            data.anim_cache = self.anim_cache
-            data.prepare(t_type=self.type_arg)
+            animdata.anim_cache = self.anim_cache
+            animdata.prepare(mode=options.mode.get_mode_from_id(self.type_arg))
         else:
             # else use the existing stored at module level
-            self.anim_cache = data.anim_cache
-            tween.interpolate(t=self.blend_arg, t_type=self.type_arg)
+            self.anim_cache = animdata.anim_cache
+            tween.interpolate(blend=self.blend_arg, mode=options.mode.get_mode_from_id(self.type_arg))
     
     def redoIt(self):
         self.anim_cache.redoIt()
@@ -228,7 +251,7 @@ class KeyHammerCmd(om.MPxCommand):
     
     def doIt(self, args):
         self.anim_cache = oma.MAnimCurveChange()
-        data.anim_cache = self.anim_cache
+        animdata.anim_cache = self.anim_cache
         keyhammer.do()
     
     def redoIt(self):
@@ -239,3 +262,21 @@ class KeyHammerCmd(om.MPxCommand):
     
     def isUndoable(*args, **kwargs):
         return True
+
+
+class TweenerToolCmd(om.MPxCommand):
+    """
+    tool command
+    """
+    
+    cmd_name = 'tweenerTool'
+    
+    def __init__(self):
+        om.MPxCommand.__init__(self)
+    
+    @staticmethod
+    def cmd_creator():
+        return TweenerToolCmd()
+    
+    def doIt(self, args):
+        tool.activate()
