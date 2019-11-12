@@ -45,7 +45,7 @@ def main():
 
 def download():
     # get zip url from github
-    response = urllib2.urlopen(github_url, timeout=5)
+    response = urllib2.urlopen(github_url, timeout=10)
     data = json.load(response)
     
     assets = data['assets']
@@ -63,7 +63,7 @@ def download():
     zip_path = dir_path + '/' + name
     
     # url
-    f = urllib2.urlopen(zip_url, timeout=5)
+    f = urllib2.urlopen(zip_url, timeout=10)
     
     # try to get file size
     try:
