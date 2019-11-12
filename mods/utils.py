@@ -194,7 +194,22 @@ def is_graph_editor():
     
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
-    return not it.isDone()
+    
+    visible_panels = cmds.getPanel(vis=True)
+    graph_panels = cmds.getPanel(sty='graphEditor')
+    dope_panels = cmds.getPanel(sty='dopeSheetPanel')
+    
+    if graph_panels is not None:
+        graph_vis = any(x in graph_panels for x in visible_panels)
+    else:
+        graph_vis = False
+    
+    if dope_panels is not None:
+        dope_vis = any(x in dope_panels for x in visible_panels)
+    else:
+        dope_vis = False
+    
+    return not it.isDone() and (graph_vis or dope_vis)
 
 
 def get_time_slider_range():
