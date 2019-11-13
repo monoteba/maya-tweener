@@ -32,9 +32,9 @@ def get_main_maya_window():
     return wrapInstance(long(ptr), QMainWindow)
 
 
-def show():
-    close()  # close existing, seems safer to recreate
-    TweenerUIScript()
+def show(restore=False):
+    # close()  # close existing, seems safer to recreate
+    TweenerUIScript(restore=restore)
     
     # global tweener_window
     # if tweener_window is None:
@@ -99,7 +99,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # define window dimensions
         self.setMinimumWidth(apply_dpi_scaling(370))
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        
+
         # style
         self.setStyleSheet(
             'QLineEdit { padding: 0 %spx; border-radius: %spx; }'
@@ -307,7 +307,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         self.load_preferences()
         self.set_mode_button()
-    
+        
     def slider_pressed(self):
         self.dragging = True
         slider_value = self.slider.value()
@@ -462,18 +462,27 @@ def TweenerUIScript(restore=False):
     """
     
     global tweener_window
-    
     if restore:
-        restored_control = omui.MQtUtil.getCurrentPanel()
+        restored_control = omui.MQtUtil.getCurrentParent()
     
-    tweener_window = TweenerUI()
-    tweener_window.setObjectName("tweenerUIWindow")
+    if tweener_window is None:
+        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
+            cmds.deleteUI('tweenerUIWindowWorkspaceControl')
+        
+        tweener_window = TweenerUI()
+        tweener_window.setObjectName("tweenerUIWindow")
     
     if restore:
         mixin_ptr = omui.MQtUtil.findControl(tweener_window.objectName())
         omui.MQtUtil.addWidgetToMayaLayout(long(mixin_ptr), long(restored_control))
     else:
-        tweener_window.show(dockable=True, retain=True, uiScript="tweener.TweenerUIScript(restore=True)")
+        try:
+            tweener_window.show(dockable=True, retain=True,
+                                checksPlugins=True, requiredPlugin='tweener.py',
+                                uiScript="import maya.cmds as cmds;"
+                                         "cmds.evalDeferred('cmds.tweenerUI(restore=False)', lp=True)")
+        except Exception as e:
+            sys.stdout.write('Error occured when restoring UI window %s' % str(e))
     
     # assume this is passed back to the workspace control through the uiScript
     return tweener_window

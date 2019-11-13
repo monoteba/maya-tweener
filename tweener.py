@@ -78,7 +78,7 @@ def initializePlugin(plugin):
     Initialize plugin commands
     """
     
-    plugin_fn = om.MFnPlugin(plugin, "Morten Andersen", "1.0", "Any")
+    plugin_fn = om.MFnPlugin(plugin, "Morten Andersen", str(g.version), "Any")
     
     # register TweenerCmd
     try:
@@ -88,6 +88,15 @@ def initializePlugin(plugin):
         raise
     else:
         sys.stdout.write('# Successfully registered command %s\n' % TweenerCmd.cmd_name)
+
+    # register TweenerCmd
+    try:
+        plugin_fn.registerCommand(TweenerUICmd.cmd_name, TweenerUICmd.cmd_creator, TweenerUICmd.syntax_creator)
+    except:
+        sys.stderr.write("Failed to register command: %s\n" % TweenerUICmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully registered command %s\n' % TweenerUICmd.cmd_name)
     
     # register KeyHammerCmd
     try:
@@ -128,6 +137,15 @@ def uninitializePlugin(plugin):
         raise
     else:
         sys.stdout.write('# Successfully unregistered command %s\n' % TweenerCmd.cmd_name)
+
+    # deregister TweenerCmd
+    try:
+        plugin_fn.deregisterCommand(TweenerUICmd.cmd_name)
+    except:
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerUICmd.cmd_name)
+        raise
+    else:
+        sys.stdout.write('# Successfully unregistered command %s\n' % TweenerUICmd.cmd_name)
     
     # deregister KeyHammerCmd
     try:
@@ -198,7 +216,7 @@ class TweenerCmd(om.MPxCommand):
             self.blend_arg = arg_data.flagArgumentDouble(self.interpolant_flag, 0)
         
         if arg_data.isFlagSet(self.press_flag):
-            self.press_arg = arg_data.flagArgumentDouble(self.press_flag, 0)
+            self.press_arg = arg_data.flagArgumentBool(self.press_flag, 0)
         
         if arg_data.isFlagSet(self.type_flag):
             self.type_arg = arg_data.flagArgumentInt(self.type_flag, 0)
@@ -232,6 +250,53 @@ class TweenerCmd(om.MPxCommand):
     
     def isUndoable(*args, **kwargs):
         return True
+
+
+class TweenerUICmd(om.MPxCommand):
+    """
+    tweener ui command
+    """
+    
+    cmd_name = 'tweenerUI'
+    
+    # command flags
+    restore_flag = '-r'
+    restore_flag_lone = '-restore'
+    
+    # default command argument values
+    restore_arg = False
+    
+    def __init__(self):
+        om.MPxCommand.__init__(self)
+    
+    @staticmethod
+    def cmd_creator():
+        return TweenerUICmd()
+    
+    @classmethod
+    def syntax_creator(cls):
+        syntax = om.MSyntax()
+        syntax.addFlag(cls.restore_flag, cls.restore_flag_lone, om.MSyntax.kBoolean)
+        return syntax
+    
+    def pass_args(self, args):
+        arg_data = om.MArgParser(self.syntax(), args)
+        
+        if arg_data.isFlagSet(self.restore_flag):
+            self.restore_arg = arg_data.flagArgumentBool(self.restore_flag, 0)
+        
+        return arg_data.numberOfFlagsUsed
+    
+    def doIt(self, args):
+        # pass arguments, and if 0 flags are given, show the window
+        if self.pass_args(args) == 0:
+            ui.show()
+            return
+        
+        ui.show(restore=self.restore_arg)
+    
+    def isUndoable(*args, **kwargs):
+        return False
 
 
 class KeyHammerCmd(om.MPxCommand):
