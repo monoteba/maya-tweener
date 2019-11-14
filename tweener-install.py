@@ -17,6 +17,8 @@ from shiboken2 import wrapInstance
 github_url = 'https://api.github.com/repos/mortenblaa/maya-tweener/releases/latest'
 gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
 
+plugin_name = 'tweener.py'
+
 
 def onMayaDroppedPythonFile(*args):
     qApp.processEvents()
@@ -182,9 +184,9 @@ def load(plugin_path):
     if plugin_path not in maya_plugin_path:
         mel.eval('putenv "MAYA_PLUG_IN_PATH" "' + maya_plugin_path + env_path + '"')
     
-    if cmds.pluginInfo('tweener.py', q=True, r=True):
+    if cmds.pluginInfo(plugin_name, q=True, r=True):
         try:
-            cmds.unloadPlugin('tweener.py', force=True)
+            cmds.unloadPlugin(plugin_name, force=True)
         except:
             pass
     
@@ -197,11 +199,17 @@ def load(plugin_path):
     except Exception as e:
         sys.stderr.write('%s\n' % e)
     
-    cmds.loadPlugin('tweener.py')
-    cmds.tweener()
+    cmds.loadPlugin(plugin_name)
+    if cmds.pluginInfo(plugin_name, q=True, r=True):
+        cmds.pluginInfo(plugin_name, e=True, autoload=True)
+    
+    try:
+        cmds.tweener()
+    except Exception as e:
+        cmds.warning('Could not execute tweener command: %s' % str(e))
     
     answer = cmds.confirmDialog(t='Tweener Installed!',
-                                m='Tweener was successfully installed at:\n'
+                                m='Tweener was installed at:\n'
                                   '%s\n\n'
                                   'Would you like to add a shelf button to the current shelf?' % plugin_path,
                                 button=['Yes', 'No'],
@@ -213,6 +221,6 @@ def load(plugin_path):
         try:
             tweener.ui.add_shelf_button(path=plugin_path)
         except Exception as e:
-            sys.stderr.write('%s\n' % e)
+            sys.stderr.write('%s\n' % str(e))
     
     sys.stdout.write('# Tweener install completed! See the Script Editor for more information.\n')

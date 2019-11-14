@@ -480,6 +480,9 @@ def TweenerUIScript(restore=False):
             tweener_window.show(dockable=True, retain=True,
                                 checksPlugins=True, requiredPlugin='tweener.py',
                                 uiScript="import maya.cmds as cmds;"
+                                         "if cmds.pluginInfo('tweener.py', q=True, r=True) "
+                                         "and cmds.pluginInfo('tweener.py', q=True, loaded=True) == False: "
+                                         "cmds.loadPlugin('tweener.py', qt=True);"
                                          "cmds.evalDeferred('cmds.tweenerUI(restore=False)', lp=True)")
         except Exception as e:
             sys.stdout.write('Error occured when restoring UI window %s' % str(e))
