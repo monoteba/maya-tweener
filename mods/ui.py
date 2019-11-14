@@ -73,7 +73,12 @@ def add_shelf_button(path=None):
             cmds.shelfButton(parent=tab, ann='Open Tweener', label='Tweener',
                              image=icon_path,
                              useAlpha=True, style='iconOnly',
-                             command='import maya.cmds as cmds; cmds.loadPlugin("tweener.py", quiet=True); cmds.tweener();')
+                             command="import maya.cmds as cmds\n"
+                                     "if cmds.pluginInfo('tweener.py', q=True, r=True):\n"
+                                     "\tcmds.loadPlugin('tweener.py', quiet=True)\n"
+                                     "\tcmds.tweener()\n"
+                                     "else:\n"
+                                     "\tcmds.warning('tweener.py is not registered')")
 
 
 class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
