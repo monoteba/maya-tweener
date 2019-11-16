@@ -61,4 +61,8 @@ Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more in
 
 ## Support Development
 
+If this tool makes you happy, you can make me happy by sharing it with your friends or by buying me a cup of coffee with the button below.
+
 <a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" width="217px" height="51px"></a>
+
+Knowing that someone finds it useful keeps me motivated to continue work on this tool as well as future tools. 
