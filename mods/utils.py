@@ -1,5 +1,5 @@
 """
-utils
+mods.utils
 
 Functions for getting objects, curves, keys etc.
 """
@@ -12,6 +12,11 @@ from collections import namedtuple
 
 Point = namedtuple('Point', 'x y')
 
+ANIM_CURVE_TYPES = [om.MFn.kAnimCurveTimeToAngular,
+                    om.MFn.kAnimCurveTimeToDistance,
+                    om.MFn.kAnimCurveTimeToUnitless,
+                    om.MFn.kAnimCurveTimeToTime]
+
 
 def maya_useNewAPI():
     pass
@@ -20,8 +25,9 @@ def maya_useNewAPI():
 def get_selected_objects():
     """
     Gets the active selection filtered by MFn.kDependencyNode.
+    
     :return: List of selected objects' dependencyNode
-    :rtype: list
+    :rtype: list of om.MFnDependencyNode
     """
     
     nodes = []
@@ -43,9 +49,9 @@ def get_anim_curves_from_objects(nodes=[]):
     """
     Gets the animation curves connected to nodes.
     :param nodes: List with MFnDependencyNode
-    :type nodes: list
-    :return: List of nodes' animCurves as dependencyNodes
-    :rtype: list
+    :type nodes: list of om.MFnDependencyNode
+    :return: List of anim curves as dependency nodes
+    :rtype: list of om.MFnDependencyNode
     """
     
     curve_list = []
@@ -74,10 +80,7 @@ def get_anim_curves_from_objects(nodes=[]):
                     
                     # add the node if it matches one of the types we want
                     curve_type = conn_node.apiType()
-                    if curve_type == om.MFn.kAnimCurveTimeToAngular or \
-                            curve_type == om.MFn.kAnimCurveTimeToDistance or \
-                            curve_type == om.MFn.kAnimCurveTimeToUnitless or \
-                            curve_type == om.MFn.kAnimCurveTimeToTime:
+                    if curve_type in ANIM_CURVE_TYPES:
                         curve_node = om.MFnDependencyNode(conn_node)
                         curve_list.append(curve_node)
     
@@ -90,9 +93,10 @@ def get_selected_anim_curves():
 
     We only want to modify the following animCurve types: TL, TA, TU, TT
     - UL, UA, UU, UT are used for set driven keys
-    :return: dictionary with curve names as key and node as value
-    :rtype: dict
+    
+    :return: Dictionary with curve names as key and node as value
     """
+    # todo: just returns a list of dictionary values, is the dictionary needed?
     
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
@@ -106,10 +110,7 @@ def get_selected_anim_curves():
                 item == it.kDNselectionItem:
             obj = it.getDependNode()
             curve_type = obj.apiType()
-            if curve_type == om.MFn.kAnimCurveTimeToAngular or \
-                    curve_type == om.MFn.kAnimCurveTimeToDistance or \
-                    curve_type == om.MFn.kAnimCurveTimeToUnitless or \
-                    curve_type == om.MFn.kAnimCurveTimeToTime:
+            if curve_type in ANIM_CURVE_TYPES:
                 node = om.MFnDependencyNode(obj)
                 # add node to dict using absolute name to avoid duplicates -
                 # which happens when curves are selected
@@ -123,9 +124,11 @@ def get_selected_anim_curves():
 def get_anim_curve_default_value(anim_curve):
     """
     Get the default value of the given anim curve
+    
     :param anim_curve:
     :type anim_curve: om.MFn.
     :return: Default value of attribute curve is connected to.
+    :rtype: float or None
     """
     
     plug = anim_curve.findPlug('output', True)
@@ -159,8 +162,9 @@ def get_anim_curve_default_value(anim_curve):
 def get_channelbox_attributes():
     """
     Get the short names of attributes selected in the channel box.
+    
     :return: Set of attributes short name as strings or None
-    :rtype: set, None
+    :rtype: set of string or None
     """
     
     attr = set()
@@ -188,6 +192,7 @@ def get_channelbox_attributes():
 def is_graph_editor():
     """
     Determine if keys are selected in the Graph Editor or Dope Sheet.
+    
     :returns: True or False whether keys are selected in the Graph Editor or Dope Sheet
     :rtype: bool
     """
@@ -215,8 +220,9 @@ def is_graph_editor():
 def get_time_slider_range():
     """
     Get the time range selected on the Time Slider.
+    
     :return: time range start and end
-    :rtype: tuple
+    :rtype: tuple of (float, float)
     """
     
     # get time slider range
@@ -231,6 +237,7 @@ def get_time_slider_range():
 def get_curve_tangents_bezier_points(curve_fn, start_index, end_index):
     """
     Determines the 4 points that form the bezier curve between start_index and end_index for a given animation curve.
+    
     :param curve_fn: MFnAnimCurve
     :param start_index: Key index for the animation curve function
     :param end_index: Key index for the animation curve function
@@ -250,88 +257,15 @@ def get_curve_tangents_bezier_points(curve_fn, start_index, end_index):
     return p1, p2, p3, p4
 
 
-def scene_has_anim_layers():
-    """
-    Determines if the current scene contains anim layers.
-    :return: True if scene has anim layers, False if not
-    """
-    
-    # must contain at least 2 items, otherwise it is only the root layer
-    if len(cmds.ls(type="animLayer")) > 1:
-        return True
-    
-    return False
-
-
-def object_in_anim_layer(obj, anim_layer):
-    """
-    Determine if the given obj is in the anim layer.
-    :return: True if obj is in anim layer, False if not
-    :rtype: bool
-    """
-    
-    obj_layers = cmds.animLayer([obj], q=True, affectedLayers=True) or []
-    if anim_layer in obj_layers:
-        return True
-    
-    return False
-
-
-def get_anim_curve_for_layer(attr):
-    """
-    Find the anim curve for the given attribute on the given layer.
-    """
-    
-    # todo: rewrite this to be more performant and return MFnAnimCurve instead of string
-    
-    # get best (fit for new keys) anim layer
-    anim_layer = cmds.animLayer(attr, q=True, bestLayer=True)
-    
-    if not object_in_anim_layer(attr, anim_layer):
-        return None
-    
-    if anim_layer == cmds.animLayer(q=True, root=True):
-        # For the base animation layer, traverse the chain of animBlendNodes all
-        # the way to the end.  The plug will be "inputA" on that last node.
-        blend_node = cmds.listConnections(attr, type='animBlendNodeBase', s=True, d=False)[0]
-        history = cmds.listHistory(blend_node)
-        last_anim_blend_node = cmds.ls(history, type='animBlendNodeBase')[-1]
-        if cmds.objectType(last_anim_blend_node, isa='animBlendNodeAdditiveRotation'):
-            letter_xyz = attr[-1]
-            plug = '{0}.inputA{1}'.format(last_anim_blend_node, letter_xyz.upper())
-        else:
-            plug = '{0}.inputA'.format(last_anim_blend_node)
-    else:
-        # For every layer other than the base animation layer, we can just use
-        # the "animLayer" command.
-        plug = cmds.animLayer(anim_layer, q=True, layeredPlug=attr)
-    
-    conns = cmds.listConnections(plug, s=True, d=False)
-    if conns:
-        return conns[0]
-    else:
-        return None
-
-
-def get_anim_curve_fn_from_name(anim_curve_name):
-    """
-    Get a MFnAnimCurve() object from a string name
-    """
-    
-    sl = om.MSelectionList()
-    sl.add(anim_curve_name)
-    node = sl.getDependNode(0)
-    
-    return oma.MFnAnimCurve(node)
-
-
 def clamp(value, min_value, max_value):
     """
-    Clamp a value between min and max
+    Clamp a value between min and max.
+    
     :param value: Supplied numeric value
     :param min_value: Lowest value
     :param max_value: Highest value
     :return: Value clamped between min and max
+    :rtype: float
     """
     if value < min_value:
         return min_value
