@@ -65,4 +65,4 @@ If this tool makes you happy, you can make me happy by sharing it with your frie
 
 <a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" width="217px" height="51px"></a>
 
-Knowing that someone finds it useful keeps me motivated to continue work on this tool as well as future tools. 
+Knowing that someone finds it useful greatly motivates me :)
