@@ -58,3 +58,7 @@ Refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page fo
 ## Additional Information
 
 Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more information.
+
+## Support Development
+
+<a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
