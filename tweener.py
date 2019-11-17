@@ -83,7 +83,7 @@ def initializePlugin(plugin):
         raise
     else:
         sys.stdout.write('# Successfully registered command %s\n' % TweenerCmd.cmd_name)
-
+    
     # register TweenerCmd
     try:
         plugin_fn.registerCommand(TweenerUICmd.cmd_name, TweenerUICmd.cmd_creator, TweenerUICmd.syntax_creator)
@@ -132,7 +132,7 @@ def uninitializePlugin(plugin):
         raise
     else:
         sys.stdout.write('# Successfully unregistered command %s\n' % TweenerCmd.cmd_name)
-
+    
     # deregister TweenerCmd
     try:
         plugin_fn.deregisterCommand(TweenerUICmd.cmd_name)

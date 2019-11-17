@@ -5,9 +5,9 @@ tool module
 import os
 import maya.cmds as cmds
 
+import options
 import tween
 import utils
-import options
 
 tool = None
 

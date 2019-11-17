@@ -3,8 +3,8 @@ import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 from collections import namedtuple
 
-import mods.utils as utils
-import mods.options as options
+import options
+import utils
 
 anim_cache = None
 curve_key_values = {}

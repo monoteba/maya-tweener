@@ -1,25 +1,25 @@
 """
-animlayers module
+mods.animlayers
 """
 
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 
-# todo: import utils when done testing, use ANIM_CURVE_TYPES from there
-# import mods.utils as utils
+import utils
 
-# todo: change how animation curve is found, now that we can get the best layer for any given attribute
+
+def maya_useNewAPI():
+    pass
+
+
+# todo: implement into general tween
+# todo: [DONE] change how animation curve is found, now that we can get the best layer for any given attribute
 # todo: [DONE] check if all layers are locked
 # todo: [DONE] get the "best layer" for a given attribute
 # todo: [DONE] when getting scene layers, only return ones that are not locked
 # todo: [DONE] get the animation curve for a given layer (blend node -> check layer -> get input B : get input A)
 
-
-ANIM_CURVE_TYPES = [om.MFn.kAnimCurveTimeToAngular,
-                    om.MFn.kAnimCurveTimeToDistance,
-                    om.MFn.kAnimCurveTimeToUnitless,
-                    om.MFn.kAnimCurveTimeToTime]
 
 BLEND_NODE_TYPES = [om.MFn.kBlendNodeDoubleLinear,
                     om.MFn.kBlendNodeAdditiveRotation,
@@ -35,162 +35,119 @@ BLEND_NODE_TYPES = [om.MFn.kBlendNodeDoubleLinear,
                     om.MFn.kBlendNodeInt32,
                     om.MFn.kBlendNodeBase]
 
-
-def maya_useNewAPI():
-    pass
+BLEND_NODE_ROTATION_TYPES = [om.MFn.kBlendNodeAdditiveRotation]
 
 
-# def scene_has_anim_layers():
-#     """
-#     Determines if the current scene contains anim layers.
-#
-#     :return: True if scene has anim layers, False if not
-#     """
-#
-#     # must contain at least 2 items, otherwise it is only the root layer
-#     if len(cmds.ls(type="animLayer")) > 1:
-#         return True
-#
-#     return False
-#
-#
-# def object_in_anim_layer(obj, anim_layer):
-#     """
-#     Determine if the given obj is in the anim layer.
-#
-#     :return: True if obj is in anim layer, False if not
-#     :rtype: bool
-#     """
-#
-#     obj_layers = cmds.animLayer([obj], q=True, affectedLayers=True) or []
-#     if anim_layer in obj_layers:
-#         return True
-#
-#     return False
-#
-#
-# def get_anim_curve_for_layer(attr):
-#     """
-#     Find the anim curve for the given attribute on the given layer.
-#     """
-#
-#     # todo: rewrite this to be more performant and return MFnAnimCurve instead of string
-#
-#     # get best (fit for new keys) anim layer
-#     anim_layer = cmds.animLayer(attr, q=True, bestLayer=True)
-#
-#     if not object_in_anim_layer(attr, anim_layer):
-#         return None
-#
-#     if anim_layer == cmds.animLayer(q=True, root=True):
-#         # For the base animation layer, traverse the chain of animBlendNodes all
-#         # the way to the end.  The plug will be "inputA" on that last node.
-#         blend_node = cmds.listConnections(attr, type='animBlendNodeBase', s=True, d=False)[0]
-#         history = cmds.listHistory(blend_node)
-#         last_anim_blend_node = cmds.ls(history, type='animBlendNodeBase')[-1]
-#         if cmds.objectType(last_anim_blend_node, isa='animBlendNodeAdditiveRotation'):
-#             letter_xyz = attr[-1]
-#             plug = '{0}.inputA{1}'.format(last_anim_blend_node, letter_xyz.upper())
-#         else:
-#             plug = '{0}.inputA'.format(last_anim_blend_node)
-#     else:
-#         # For every layer other than the base animation layer, we can just use
-#         # the "animLayer" command.
-#         plug = cmds.animLayer(anim_layer, q=True, layeredPlug=attr)
-#
-#     conns = cmds.listConnections(plug, s=True, d=False)
-#     if conns:
-#         return conns[0]
-#     else:
-#         return None
+class AnimationLayer:
+    def __init__(self, layer=None, selected=False, locked=False):
+        """ Representation of animation layer.
+        
+        :param layer: Animation layer
+        :param selected: Is the layer selected?
+        :param locked: Is the layer locked?
+        :type layer: om.MObject or None
+        :type selected: bool
+        :type locked: bool
+        """
+        self.layer = layer
+        self.selected = selected
+        self.locked = locked
+    
+    def reset_selected(self):
+        """ Resets the selected state to the current scene state.
+        """
+        if self.layer is None:
+            self.selected = False
+            return
+        
+        node = om.MFnDependencyNode(self.layer)
+        plug = node.findPlug('selected', True)
+        self.selected = plug and plug.asBool()
+    
+    def reset_locked(self):
+        """ Resets the locked state to the current scene state.
+        """
+        if self.layer is None:
+            self.locked = False
+            return
+        
+        node = om.MFnDependencyNode(self.layer)
+        plug = node.findPlug('lock', True)
+        self.locked = plug and plug.asBool()
 
 
-# def find_anim_curve_recursive(animBlendNode=None):
-#     if animBlendNode is not None:
-#         return
-#
-#     # get the selected nodes
-#     nodes = []
-#     sl_list = om.MGlobal.getActiveSelectionList()
-#     sl_filter = om.MFn.kDependencyNode
-#     it = om.MItSelectionList(sl_list, sl_filter)
-#
-#     while not it.isDone():
-#         item = it.itemType()
-#         if item == it.kDagSelectionItem or item == it.kDNselectionItem:
-#             nodes.append(om.MFnDependencyNode(it.getDependNode()))
-#
-#         it.next()
-#
-#     # get curves
-#     curve_list = []
-#     for node in nodes:
-#         # get all attributes
-#         attr_count = node.attributeCount()
-#         for index in range(attr_count):
-#             attr = node.attribute(index)
-#             plug = node.findPlug(attr, True)
-#             connections = plug.connectedTo(True, False)
-#
-#             # if the attribute has a connection
-#             if connections:
-#                 conn_node = connections[0].node()
-#
-#                 print('attribute: %s' % om.MFnAttribute(attr).shortName)
-#                 print('node type: %s' % om.MFnDependencyNode(conn_node).typeName)
-#
-#                 # try to get blend node
-#                 if conn_node.apiType() in BLEND_NODE_TYPES:
-#                     # is the api type one of the kBlendNode types
-#                     # get the node connected to the attribute (blend node or anim curve)
-#                     print('conn_node name: %s ' % om.MFnDependencyNode(conn_node).name())
-#
-#                     blend_node = om.MFnDependencyNode(conn_node)  # the anim blend node
-#
-#                     # anim curves are attached to input B
-#                     # additional layers are attached to input A
-#                     # except for the last layer, where input A is the anim curve of the base animation
-#                     input_a_plug = blend_node.findPlug('inputA', True)
-#                     input_b_plug = blend_node.findPlug('inputB', True)
-#
-#                     input_a_conn = input_a_plug.connectedTo(True, False)
-#                     if input_a_conn:
-#                         input_a_conn = input_a_conn[0].node()
-#
-#                     input_b_conn = input_b_plug.connectedTo(True, False)
-#                     if input_b_conn:
-#                         input_b_conn = input_b_conn[0].node()
-#
-#                     if input_a_conn.apiType() in ANIM_CURVE_TYPES:
-#                         print('input A is an anim curve')
-#                     elif input_a_conn.apiType() in BLEND_NODE_TYPES:
-#                         print('input A is a blend node')
-#
-#                     if input_b_conn.apiType() in ANIM_CURVE_TYPES:
-#                         print('input B is an anim curve')
-#                     elif input_b_conn.apiType() in BLEND_NODE_TYPES:
-#                         print('input B is a blend node')
-#
-#                     # find the AnimLayer node to compare against
-#                     weight_plug = blend_node.findPlug('weightA', True)
-#                     conns = weight_plug.connectedTo(True, False)
-#                     if conns:
-#                         conn = conns[0].node()
-#                         print('anim layer: %s' % om.MFnDependencyNode(conn).name())  # AnimLayer node
-#
-#                 print('\n')
-#                 # if the connection is of type kAnimCurve
-#                 if conn_node.hasFn(om.MFn.kAnimCurve):
-#                     # add the node if it matches one of the types we want
-#                     curve_type = conn_node.apiType()
-#                     # todo: replace ANIM_CURVE_TYPES with utils.ANIM_CURVE_TYPES
-#                     if curve_type in ANIM_CURVE_TYPES:
-#                         curve_node = om.MFnDependencyNode(conn_node)
-#                         curve_list.append(curve_node)
+class Cache:
+    """ Static class that stores the current scene layers, the selected layers and the locked layers. """
+    
+    def __init__(self):
+        self._scene_layers = None
+        self._selected_layers = None
+        self._locked_layers = None
+        self._unlocked_layers = None
+        self._root = None
+        
+        self.reset()
+    
+    def reset(self):
+        """ Resets the cache to the current scene state. """
+        self._scene_layers = get_scene_layers(locked=True)
+        self._selected_layers = get_selected_layers()
+        self._locked_layers = get_locked_layers(layers=self._scene_layers)
+        self._unlocked_layers = get_scene_layers(locked=False)
+        
+        self._root = AnimationLayer(layer=get_root_layer())
+        self._root.reset_selected()
+        self._root.reset_locked()
+    
+    @property
+    def root(self):
+        """ Get the root layer as an AnimationLayer.
+        
+        :return: AnimationLayer object
+        :rtype: AnimationLayer
+        """
+        return self._root
+    
+    @property
+    def scene_layers(self):
+        """ Get the scene animation layers stored in the cache.
+        
+        :return: List of animation layers
+        :rtype: list of om.MObject or None
+        """
+        return self._scene_layers
+    
+    @property
+    def selected_layers(self):
+        """ Get the selected animation layers stored in the cache. Excludes locked layers.
+        
+        :return: List of animation layers
+        :rtype: list of om.MObject or None
+        """
+        return self._selected_layers
+    
+    @property
+    def locked_layers(self):
+        """ Get the locked animation layers stored in the cache.
+        
+        :return: List of animation layers
+        :rtype: list of om.MObject or None
+        """
+        return self._locked_layers
+    
+    @property
+    def unlocked_layers(self):
+        """ Get the unlocked animation layers stored in the cache.
+
+        :return: List of animation layers
+        :rtype: list of om.MObject or None
+        """
+        return self._unlocked_layers
+
 
 def has_anim_layers():
-    """
-    Function that checks whether we have any anim layers
+    """ Checks whether the scene has any animation layers.
+    Also returns False if only the root layer exists.
     
     :return: True if the scene contains anim layers otherwise False
     :rtype: bool
@@ -208,13 +165,12 @@ def has_anim_layers():
 
 
 def all_layers_locked():
-    """
-    Returns whether all animation layers are locked or not.
+    """ Returns whether all animation layers are locked or not.
     
     :return: True if all animation layers are locked, otherwise False
     :rtype: bool
     """
-    for layer in get_scene_layers(filtered=False):
+    for layer in cache.scene_layers:
         node_fn = om.MFnDependencyNode(layer)
         plug = node_fn.findPlug('lock', True)
         if plug and not plug.asBool():
@@ -224,8 +180,7 @@ def all_layers_locked():
 
 
 def get_root_layer():
-    """
-    Get the root animation layer if it exists.
+    """ Get the root animation layer if it exists.
 
     :return: Root layer or None
     :rtype: om.MObject or None
@@ -243,29 +198,27 @@ def get_root_layer():
     return root_layer
 
 
-def get_scene_layers(filtered=False):
-    """
-    Gets all nodes of type kAnimLayer and returns them as MObjects.
+def get_scene_layers(locked=False):
+    """ Gets all nodes of type kAnimLayer and returns them as MObjects.
     This is important as MObjects can be compared for equality unlike function sets.
     
     Returns an empty list if there are no anim layers in the scene.
     
     May in some cases return a list of 1 element, which may be the base animation layer.
     
-    :param filtered: Filter the list to only include editable layers (unlocked layers)
-    :type filtered: bool
+    :param locked: Include locked layers
+    :type locked: bool
     :return: list of MObject of anim layers in scene
-    :rtype: list of om.MObject
+    :rtype: list of om.MObject or None
     """
-    layers = []
     root_layer = get_root_layer()
     
     if not root_layer:
-        return layers
+        return None
     
     root_dep_node = om.MFnDependencyNode(root_layer)
     
-    layers.append(root_layer)
+    layers = [root_layer]
     
     # get the child layers from the root, so we get them in order
     plug = root_dep_node.findPlug('childrenLayers', True)
@@ -274,10 +227,11 @@ def get_scene_layers(filtered=False):
         if conn:
             layers.append(conn[0].node())
     
-    if not filtered:
+    # include locked layers?
+    if locked:
         return layers
     
-    editable_layers = []
+    unlocked_layers = []
     for layer in layers:
         node = om.MFnDependencyNode(layer)
         
@@ -285,39 +239,66 @@ def get_scene_layers(filtered=False):
         if lock_plug and lock_plug.asBool():
             continue
         
-        editable_layers.append(layer)
+        unlocked_layers.append(layer)
     
-    return editable_layers
+    return unlocked_layers
 
 
-def get_selected_layer(layers=None):
-    """
-    Get the top-most selected anim layer.
+def get_selected_layers(layers=None):
+    """ Get all selected layers ordered from top to bottom.
+    Excludes locked layers unless a list of layers is passed.
     
     :param layers: Optional list of animation layer objects
-    :type layers: list of om.MObject
+    :type layers: list of om.MObject or None
     :return: Selected anim layer
-    :rtype: om.MObject or None
+    :rtype: list of om.MObject
     """
     
     if layers is None:
-        layers = get_scene_layers(filtered=False)
+        layers = get_scene_layers(locked=False)
     
     if not layers:
         return None
+    
+    selected_layers = []
     
     for layer in layers:
         node = om.MFnDependencyNode(layer)
         plug = node.findPlug('selected', True)
         if plug and plug.asBool():
-            return layer
+            selected_layers.append(layer)
     
-    return None
+    return selected_layers
 
 
-def get_anim_curve(plug, layers=None):
+def get_locked_layers(layers=None):
+    """ Get the locked animation layers from top to bottom.
+
+    :param layers: Optional list of animation layer objects
+    :type layers: list of om.MObject or None
+    :return: Locked animation layers
+    :rtype: list of om.MObject
     """
-    Get the anim curve for the given attribute plug.
+    
+    if layers is None:
+        layers = get_scene_layers(locked=True)
+    
+    if not layers:
+        return None
+    
+    locked_layers = []
+    
+    for layer in layers:
+        node = om.MFnDependencyNode(layer)
+        plug = node.findPlug('lock', True)
+        if plug and plug.asBool():
+            locked_layers.append(layer)
+    
+    return locked_layers
+
+
+def get_anim_curve(plug, layer):
+    """ Get the anim curve for the given attribute plug.
     
     The best layer is the top-most selected layer if the attribute is on it and it is not locked.
     Otherwise it is the top-most layer that contains the attribute, which is not locked.
@@ -326,162 +307,143 @@ def get_anim_curve(plug, layers=None):
     If all layers are locked, there is nothing for us to do.
     
     :param plug: The attribute plug
-    :param layers: Animation layers in scene.
+    :param layer: The animation layer to retrieve the curve from
     :type plug: om.MPlug
-    :type layers: list of om.MObject
-    :return: Anim curve on the "best layer"
+    :type layer: om.MObject
+    :return: Animation curve on the best layer
     :rtype: oma.MFnAnimCurve or None
     """
-    if layers is None:
-        layers = get_scene_layers(filtered=True)
+    # special case for root layer
+    if cache.root.layer and layer == cache.root.layer:
+        is_root = True
+    else:
+        is_root = False
+    it = om.MItDependencyGraph(plug, om.MFn.kDependencyNode,
+                               direction=om.MItDependencyGraph.kUpstream,
+                               traversal=om.MItDependencyGraph.kBreadthFirst,
+                               level=om.MItDependencyGraph.kNodeLevel)
     
-    if not layers:
-        return None
+    target_blend = None
     
-    return find_anim_curve(plug, layers)
-
-
-def find_anim_curve(plug, layers):
-    """
-    Recursive function that tries to find the anim curve on the "best layer".
+    while not it.isDone():
+        current_node = it.currentNode()
+        it.next()
+        if current_node.apiType() in BLEND_NODE_TYPES:
+            # iterate to the last node if is root
+            if is_root:
+                target_blend = current_node
+                continue
+            # otherwise check if the layer connected to weightA is the desired layer
+            node_fn = om.MFnDependencyNode(current_node)
+            layer_plug = node_fn.findPlug('wa', True)  # weightA
+            if layer_plug:
+                if layer == layer_plug.source().node():
+                    target_blend = current_node
+                    break
     
-    :param plug: The attribute plug
-    :param layers: Animation layers in scene.
-    :type plug: om.MPlug
-    :type layers: list of om.MObject
-    :return: Anim curve on the "best layer"
-    :rtype: oma.MFnAnimCurve or None
-    """
-    
-    connections = plug.connectedTo(True, False)
-    
-    if not connections:
-        cmds.warning('Did not find any connections')
-        return None
-    
-    conn_node = connections[0].node()
-    
-    # if the connected node is of type anim curve, return it
-    if conn_node.apiType() in ANIM_CURVE_TYPES:
-        print('Found curve! But not in layers')
-        return oma.MFnAnimCurve(conn_node)
-    
-    # if the connected node is a blend node, check if
-    if conn_node.apiType() in BLEND_NODE_TYPES:
-        dep_node = om.MFnDependencyNode(conn_node)
+    if target_blend:
+        node_fn = om.MFnDependencyNode(target_blend)
         
-        # get the possible layer connected to weight A, both weight A and B should be connected to the anim layer
-        layer_node = None
-        weight_plug = dep_node.findPlug('weightA', True)
-        if weight_plug:
-            weight_conns = weight_plug.connectedTo(True, False)
-            if weight_conns:
-                weight_node = weight_conns[0].node()
-                if weight_node.hasFn(om.MFn.kAnimLayer):
-                    layer_node = weight_node
-        
-        # is the current layer in the list of possible layers?
-        if layer_node:
-            if layer_node in layers:
-                input_b_plug = dep_node.findPlug('inputB', True)
-                if input_b_plug:
-                    b_conns = input_b_plug.connectedTo(True, False)
-                    if b_conns:
-                        anim_curve = b_conns[0].node()
-                        if anim_curve.hasFn(om.MFn.kAnimCurve):
-                            print('Found anim curve %s on layer %s' % (oma.MFnAnimCurve(anim_curve).name(),
-                                                                       om.MFnDependencyNode(layer_node).name()))
-                            return oma.MFnAnimCurve(anim_curve)
-                        else:
-                            cmds.warning('Unexpected: Anim curve was not attached to inputB (1)')
-                            return None
-                    else:
-                        cmds.warning('Animation curve was not found on %s' % om.MFnDependencyNode(layer_node).name())
-                        return None
+        if is_root:
+            input_plug = node_fn.findPlug('ia', True)  # inputA
         else:
-            cmds.warning('Layer was not found on weightA')
+            input_plug = node_fn.findPlug('ib', True)  # inputB
         
-        input_a_plug = dep_node.findPlug('inputA', True)
-        if input_a_plug:
-            return find_anim_curve(input_a_plug, layers)
+        # is the blend node a rotation type?
+        if target_blend.apiType() in BLEND_NODE_ROTATION_TYPES:
+            idx = 0
+            # find which index we come from
+            if plug.isChild:
+                parent = plug.parent()
+                for i in range(parent.numChildren()):
+                    if parent.child(i) == plug:
+                        idx = i
+            
+            # try to get the same index from the input
+            if input_plug.isCompound and idx < input_plug.numChildren():
+                input_plug = input_plug.child(idx)
+                curve_node = input_plug.source().node()
+                if curve_node and curve_node.apiType() in utils.ANIM_CURVE_TYPES:
+                    return curve_node
         
-        cmds.warning('Nothing was attached to inputA')
-        return None
+        elif input_plug:
+            curve_node = input_plug.source().node()
+            if curve_node and curve_node.apiType() in utils.ANIM_CURVE_TYPES:
+                return curve_node
+    
+    return None
 
 
 def get_best_layer(plug):
-    """
-    Traverse the attribute plug hiearchy in search of anim layers and find the best candidate.
+    """ Traverse the attribute plug hiearchy in search of animation layers and find the best candidate.
     
     :param plug: MPlug for where to start the search
     :type plug: om.MPlug
     :return: Best layer or None
     :rtype: om.MObject or None
     """
-    root_layer = get_root_layer()
+    root = cache.root
+    sel_layers = cache.selected_layers
     
-    if not root_layer:
-        return None
+    # if root layer is selected and not locked, use that
+    if root.locked:
+        root.layer = None
+    elif root.selected and not len(sel_layers) > 1:
+        return root.layer
     
-    # if root layer is selected, use that
-    root_fn = om.MFnDependencyNode(root_layer)
-    lock_plug = root_fn.findPlug('lock', True)
-    if lock_plug and not lock_plug.asBool():
-        sel_plug = root_fn.findPlug('selected', True)
-        if sel_plug and sel_plug.asBool():
-            return root_layer
-    
-    sel_layer = get_selected_layer()
-    node_fn = om.MFnDependencyNode(sel_layer)
-    lock_plug = node_fn.findPlug('lock', True)
-    sel_layer_locked = lock_plug and lock_plug.asBool()
-    print('selected layer locked: %s' % sel_layer_locked)
+    # default value is the root layer, which may be None if it is locked
+    best_layer = root.layer
     
     # iterate over the hiearchy to find the first
     it = om.MItDependencyGraph(plug, om.MFn.kAnimLayer,
                                direction=om.MItDependencyGraph.kDownstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst)
     
-    last_layer = None
+    if sel_layers:
+        while not it.isDone():
+            # store the node, and move iterator immediately
+            layer = it.currentNode()
+            it.next()
+            
+            if layer in sel_layers:
+                best_layer = layer
+    
+    # found a selected layers which was not locked
+    if best_layer:
+        return best_layer
+    
+    it.reset()
+    unlocked_layers = cache.unlocked_layers
     
     while not it.isDone():
         # store the node, and move iterator immediately
         layer = it.currentNode()
         it.next()
         
-        # skip if locked
-        node_fn = om.MFnDependencyNode(layer)
-        lock_plug = node_fn.findPlug('lock', True)
-        if lock_plug and lock_plug.asBool():
-            continue
-        
-        # return layer if selected
-        if layer == sel_layer:
-            return layer
-        
-        # only return the layer at the end, because we traverse down stream
-        last_layer = layer
+        # only add if unlocked
+        if layer in unlocked_layers:
+            best_layer = layer
     
-    return last_layer
+    # only return at the end of the iteration, because we traverse downstream
+    return best_layer
 
 
-print('\n\n\n\n==== NEW RUN ====\n')
+cache = Cache()
 
-# a = get_scene_layers()
-# l = get_selected_layer(a)
-# # print(om.MFnDependencyNode(l).name())
-
-sl = om.MSelectionList()
-sl.add('pCube1')
-mobj = sl.getDependNode(0)
-mobj_fn = om.MFnDependencyNode(mobj)
-attr = mobj_fn.findPlug('tx', True)
-get_anim_curve(attr)
-
-best_layer = get_best_layer(attr)
-if best_layer:
-    print('best layer: %s' % om.MFnDependencyNode(best_layer).name())
-else:
-    print('no layer available!')
-
-print('\n==== END RUN ====\n')
+# print('\n\n\n\n==== NEW RUN ====\n')
+#
+# # test specific object and attribute
+# sl = om.MSelectionList()
+# sl.add('pCube1')
+# mobj = sl.getDependNode(0)
+# mobj_fn = om.MFnDependencyNode(mobj)
+# attr = mobj_fn.findPlug('tx', True)
+# bl = get_best_layer(attr)
+# get_anim_curve(attr, bl)
+#
+# if bl:
+#     print('Best layer is: %s' % om.MFnDependencyNode(bl).name())
+# else:
+#     print('No layer available!')
+#
+# print('\n==== END RUN ====\n')

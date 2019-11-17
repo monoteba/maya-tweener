@@ -10,6 +10,8 @@ import maya.cmds as cmds
 import maya.mel as mel
 from collections import namedtuple
 
+import animlayers
+
 Point = namedtuple('Point', 'x y')
 
 ANIM_CURVE_TYPES = [om.MFn.kAnimCurveTimeToAngular,
@@ -45,9 +47,9 @@ def get_selected_objects():
     return nodes
 
 
-def get_anim_curves_from_objects(nodes=[]):
-    """
-    Gets the animation curves connected to nodes.
+def get_anim_curves_from_objects(nodes):
+    """ Gets the animation curves connected to nodes.
+    
     :param nodes: List with MFnDependencyNode
     :type nodes: list of om.MFnDependencyNode
     :return: List of anim curves as dependency nodes
@@ -56,6 +58,12 @@ def get_anim_curves_from_objects(nodes=[]):
     
     curve_list = []
     channelbox_attr = get_channelbox_attributes()
+    
+    animlayers.cache.reset()  # always reset cache before querying for animation layers!
+    has_anim_layers = animlayers.has_anim_layers()
+    
+    if has_anim_layers and animlayers.all_layers_locked():
+        cmds.warning('All animation layers are locked!')
     
     # get curves
     for node in nodes:
@@ -70,8 +78,8 @@ def get_anim_curves_from_objects(nodes=[]):
             if connections:
                 conn_node = connections[0].node()
                 
-                # if the connection is of type kAnimCurve
-                if conn_node.hasFn(om.MFn.kAnimCurve):
+                api = conn_node.apiType()
+                if api in ANIM_CURVE_TYPES:
                     # filter out attributes not selected in channelbox
                     if channelbox_attr:
                         attr_name = om.MFnAttribute(attr).shortName
@@ -79,10 +87,30 @@ def get_anim_curves_from_objects(nodes=[]):
                             continue
                     
                     # add the node if it matches one of the types we want
-                    curve_type = conn_node.apiType()
-                    if curve_type in ANIM_CURVE_TYPES:
-                        curve_node = om.MFnDependencyNode(conn_node)
-                        curve_list.append(curve_node)
+                    curve_list.append(om.MFnDependencyNode(conn_node))
+                
+                # find curve in animation layer
+                elif has_anim_layers and api in animlayers.BLEND_NODE_TYPES:
+                    # filter out attributes not selected in channelbox
+                    if channelbox_attr:
+                        attr_name = om.MFnAttribute(attr).shortName
+                        if attr_name not in channelbox_attr:
+                            continue
+                    
+                    print('Attribute: %s' % plug)
+                    best_layer = animlayers.get_best_layer(plug)
+                    
+                    if not best_layer:
+                        continue
+                    
+                    try:
+                        print('-> Best layer is %s' % (om.MFnDependencyNode(best_layer).name()))
+                    except Exception as e:
+                        pass
+                    
+                    curve_node = animlayers.get_anim_curve(plug, best_layer)
+                    if curve_node:
+                        curve_list.append(om.MFnDependencyNode(curve_node))
     
     return curve_list
 
