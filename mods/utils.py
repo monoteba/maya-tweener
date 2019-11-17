@@ -11,6 +11,7 @@ import maya.mel as mel
 from collections import namedtuple
 
 import animlayers
+import sys
 
 Point = namedtuple('Point', 'x y')
 
@@ -115,6 +116,7 @@ def get_anim_curves_from_objects(nodes):
                     if curve_node:
                         curve_list.append(om.MFnDependencyNode(curve_node))
     
+    sys.stdout.write('# Benchmark time: %.4f\n' % animlayers.cache.benchmark)
     return curve_list
 
 

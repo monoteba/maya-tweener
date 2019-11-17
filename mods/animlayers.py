@@ -8,6 +8,8 @@ import maya.cmds as cmds
 
 import utils
 
+import time
+
 
 def maya_useNewAPI():
     pass
@@ -87,6 +89,7 @@ class Cache:
         self._root = None
         
         self.reset()
+        self.benchmark = 0.0  # todo: remove when done testing
     
     def reset(self):
         """ Resets the cache to the current scene state. """
@@ -98,6 +101,8 @@ class Cache:
         self._root = AnimationLayer(layer=get_root_layer())
         self._root.reset_selected()
         self._root.reset_locked()
+        
+        self.benchmark = 0.0  # todo: remove when done testing
     
     @property
     def root(self):
@@ -318,6 +323,7 @@ def get_anim_curve(plug, layer):
         is_root = True
     else:
         is_root = False
+        
     it = om.MItDependencyGraph(plug, om.MFn.kDependencyNode,
                                direction=om.MItDependencyGraph.kUpstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst,
@@ -382,6 +388,7 @@ def get_best_layer(plug):
     :return: Best layer or None
     :rtype: om.MObject or None
     """
+    benchmark_start = time.clock()  # todo: remove when done testing
     root = cache.root
     sel_layers = cache.selected_layers
     
@@ -389,27 +396,29 @@ def get_best_layer(plug):
     if root.locked:
         root.layer = None
     elif root.selected and not len(sel_layers) > 1:
+        cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
         return root.layer
-    
-    # default value is the root layer, which may be None if it is locked
-    best_layer = root.layer
     
     # iterate over the hiearchy to find the first
     it = om.MItDependencyGraph(plug, om.MFn.kAnimLayer,
                                direction=om.MItDependencyGraph.kDownstream,
-                               traversal=om.MItDependencyGraph.kBreadthFirst)
+                               traversal=om.MItDependencyGraph.kBreadthFirst,
+                               level=om.MItDependencyGraph.kNodeLevel)
+    
+    best_layer = None
     
     if sel_layers:
         while not it.isDone():
             # store the node, and move iterator immediately
             layer = it.currentNode()
-            it.next()
+            it.next()  # todo: this takes 90-95% of the total time!
             
             if layer in sel_layers:
                 best_layer = layer
     
     # found a selected layers which was not locked
     if best_layer:
+        cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
         return best_layer
     
     it.reset()
@@ -418,32 +427,19 @@ def get_best_layer(plug):
     while not it.isDone():
         # store the node, and move iterator immediately
         layer = it.currentNode()
-        it.next()
+        it.next()  # todo: this takes 90-95% of the total time!
         
         # only add if unlocked
         if layer in unlocked_layers:
             best_layer = layer
     
+    # default value is the root layer, which may be None if it is locked
+    if not best_layer:
+        best_layer = root.layer
+    
     # only return at the end of the iteration, because we traverse downstream
+    cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
     return best_layer
 
 
 cache = Cache()
-
-# print('\n\n\n\n==== NEW RUN ====\n')
-#
-# # test specific object and attribute
-# sl = om.MSelectionList()
-# sl.add('pCube1')
-# mobj = sl.getDependNode(0)
-# mobj_fn = om.MFnDependencyNode(mobj)
-# attr = mobj_fn.findPlug('tx', True)
-# bl = get_best_layer(attr)
-# get_anim_curve(attr, bl)
-#
-# if bl:
-#     print('Best layer is: %s' % om.MFnDependencyNode(bl).name())
-# else:
-#     print('No layer available!')
-#
-# print('\n==== END RUN ====\n')
