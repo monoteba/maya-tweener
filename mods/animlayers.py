@@ -89,7 +89,7 @@ class Cache:
         self._root = None
         
         self.reset()
-        self.benchmark = 0.0  # todo: remove when done testing
+        # self.benchmark = 0.0  # todo: remove when done testing
     
     def reset(self):
         """ Resets the cache to the current scene state. """
@@ -102,7 +102,7 @@ class Cache:
         self._root.reset_selected()
         self._root.reset_locked()
         
-        self.benchmark = 0.0  # todo: remove when done testing
+        # self.benchmark = 0.0  # todo: remove when done testing
     
     @property
     def root(self):
@@ -323,7 +323,7 @@ def get_anim_curve(plug, layer):
         is_root = True
     else:
         is_root = False
-        
+    
     it = om.MItDependencyGraph(plug, om.MFn.kDependencyNode,
                                direction=om.MItDependencyGraph.kUpstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst,
@@ -388,7 +388,26 @@ def get_best_layer(plug):
     :return: Best layer or None
     :rtype: om.MObject or None
     """
-    benchmark_start = time.clock()  # todo: remove when done testing
+    # benchmark_start = time.clock()  # todo: remove when done testing
+    
+    # use cmds to get the animation layer from the full path to the attribute
+    node = om.MFnDagNode(plug.node())  # Benchmark time: 0.0265
+    attr = node.fullPathName() + '.' + plug.partialName()  # Benchmark time: 0.0568
+    best_layer = cmds.animLayer(attr, q=True, bestLayer=True)  # Benchmark time: 0.4305
+    
+    # convert the animation layer to an mobject
+    sl_list = om.MSelectionList()  # Benchmark time: 0.0215
+    sl_list.add(best_layer)  # Benchmark time: 0.0426
+    best_layer = sl_list.getDependNode(0)  # Benchmark time: 0.0220
+    
+    # cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
+    
+    return best_layer
+    
+    # --- OLD IMPLEMENTATION ---
+    # below method is too slow because the graph traversal goes too deep
+    # maybe try manually traversing the graph, but stick with cmds for now...
+    
     root = cache.root
     sel_layers = cache.selected_layers
     
@@ -396,10 +415,11 @@ def get_best_layer(plug):
     if root.locked:
         root.layer = None
     elif root.selected and not len(sel_layers) > 1:
-        cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
         return root.layer
     
     # iterate over the hiearchy to find the first
+    # the graph network grows very fast, because all nodes share the same animlayer nodes,
+    # making the search tree very large
     it = om.MItDependencyGraph(plug, om.MFn.kAnimLayer,
                                direction=om.MItDependencyGraph.kDownstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst,
@@ -418,7 +438,6 @@ def get_best_layer(plug):
     
     # found a selected layers which was not locked
     if best_layer:
-        cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
         return best_layer
     
     it.reset()
@@ -427,7 +446,7 @@ def get_best_layer(plug):
     while not it.isDone():
         # store the node, and move iterator immediately
         layer = it.currentNode()
-        it.next()  # todo: this takes 90-95% of the total time!
+        it.next()  # todo: this takes 90-95% of the total time! Even though it may only be called once
         
         # only add if unlocked
         if layer in unlocked_layers:
@@ -438,8 +457,16 @@ def get_best_layer(plug):
         best_layer = root.layer
     
     # only return at the end of the iteration, because we traverse downstream
-    cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
     return best_layer
+
+
+def get_plug_layers(plug):
+    """ Get all the layers that
+    
+    :param plug:
+    :return:
+    """
+    pass
 
 
 cache = Cache()

@@ -63,6 +63,6 @@ Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more in
 
 If this tool brings you joy, you can share it with your friends or buy me a coffee with the button below.
 
-<a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" width="217px" height="51px"></a>
+<a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="51px" width="217px"></a>
 
 Knowing that someone finds it useful greatly motivates me :)
