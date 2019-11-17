@@ -2,6 +2,7 @@
 ui module
 """
 import maya.api.OpenMaya as om
+import maya.api.OpenMayaUI as omui2
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import maya.mel as mel
@@ -347,7 +348,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         blend = slider_value / 100.0
         tween.interpolate(blend=blend, mode=self.interpolation_mode)
-        cmds.refresh(force=True)
+        
+        view = omui2.M3dView()
+        view = view.active3dView()
+        view.refresh()
+        
         self.busy = False
     
     def slider_released(self):
