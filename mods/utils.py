@@ -97,16 +97,19 @@ def get_anim_curves_from_objects(nodes):
                         if attr_name not in channelbox_attr:
                             continue
                     
-                    print('Attribute: %s' % plug)
+                    # for testing purposes
+                    # print('Attribute: %s' % plug)
+                    
                     best_layer = animlayers.get_best_layer(plug)
                     
                     if not best_layer:
                         continue
                     
-                    try:
-                        print('-> Best layer is %s' % (om.MFnDependencyNode(best_layer).name()))
-                    except Exception as e:
-                        pass
+                    # for testing purposes
+                    # try:
+                    #     print('-> Best layer is %s' % (om.MFnDependencyNode(best_layer).name()))
+                    # except Exception as e:
+                    #     pass
                     
                     curve_node = animlayers.get_anim_curve(plug, best_layer)
                     if curve_node:
