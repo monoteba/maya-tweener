@@ -55,8 +55,6 @@ explore each type. See the description of each mode below.
 
 ## Known Issues
 
-The tool is still at an early stage and there are few limitations to be aware of. 
-
 Please refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page for known issues.
 
 ## Licensing
