@@ -1,6 +1,7 @@
 """
 ui module
 """
+import maya.api.OpenMaya as om
 import maya.api.OpenMayaUI as omui2
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
@@ -322,7 +323,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
         # only update when maya is idle to prevent multiple calls without seeing the result
-        # self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
+        self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
         
         # disable undo on first call, so we don't get 2 undos in queue
         # both press and release add to the same cache, so it should be safe
@@ -365,7 +366,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.slider.setValue(0)
         self.slider_label.setText('')
         
-        # om.MEventMessage.removeCallback(self.idle_callback)
+        om.MEventMessage.removeCallback(self.idle_callback)
     
     def fraction_clicked(self, value):
         value = value * 2.0 - 1.0

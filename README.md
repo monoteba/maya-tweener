@@ -42,22 +42,24 @@ explore each type. See the description of each mode below.
 
 | Icon | Name | Description |
 | :---: | :--- | :--- |
-| <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-200:200]` and allows you to go past the target. |
+| <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-300:300]` and allows you to go past the target. |
 | <img src="icons/keyhammer.svg" width="20" height="20"> | Key Hammer | Adds a key for every attribute for any key on selected objects. The manual equivalent method would be to go to the first key and press `S`, go to the next keyframe and press `S`, go to the next keyframe and press `S` etc. for every keyframe. |
 | <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. |
 | <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
 
+## Documentation
 
-## Known Limitations and Issues
+Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
+
+## Known Issues
+
 The tool is still at an early stage and there are few limitations to be aware of. 
 
-- Does not work with animation layers!
+Please refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page for known issues.
 
-Refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page for known issues.
+## Licensing
 
-## Additional Information
-
-Refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki) for more information.
+The plug-in is licensed under the GNU General Public License v3.0. See the [license file](LICENSE) for more information.
 
 ## Support Development
 

@@ -79,6 +79,10 @@ def get_anim_curves_from_objects(nodes):
         for index in range(attr_count):
             attr = node.attribute(index)
             plug = node.findPlug(attr, True)
+            
+            if plug.isLocked or not plug.isKeyable:
+                continue
+            
             connections = plug.connectedTo(True, False)
             
             # if the attribute has a connection
