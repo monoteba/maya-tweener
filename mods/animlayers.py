@@ -89,7 +89,7 @@ class Cache:
         self._root = None
         
         self.reset()
-        # self.benchmark = 0.0  # todo: remove when done testing
+        self.benchmark = 0.0  # todo: remove when done testing
     
     def reset(self):
         """ Resets the cache to the current scene state. """
@@ -102,7 +102,7 @@ class Cache:
         self._root.reset_selected()
         self._root.reset_locked()
         
-        # self.benchmark = 0.0  # todo: remove when done testing
+        self.benchmark = 0.0  # todo: remove when done testing
     
     @property
     def root(self):
@@ -324,7 +324,9 @@ def get_anim_curve(plug, layer):
     else:
         is_root = False
     
-    it = om.MItDependencyGraph(plug, om.MFn.kDependencyNode,
+    scene_layers = cache.scene_layers
+    
+    it = om.MItDependencyGraph(plug, om.MFn.kInvalid,
                                direction=om.MItDependencyGraph.kUpstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst,
                                level=om.MItDependencyGraph.kNodeLevel)
@@ -333,6 +335,10 @@ def get_anim_curve(plug, layer):
     
     while not it.isDone():
         current_node = it.currentNode()
+        
+        if current_node in scene_layers:
+            it.prune()
+        
         it.next()
         if current_node.apiType() in BLEND_NODE_TYPES:
             # iterate to the last node if is root
@@ -388,28 +394,9 @@ def get_best_layer(plug):
     :return: Best layer or None
     :rtype: om.MObject or None
     """
-    # benchmark_start = time.clock()  # todo: remove when done testing
-    
-    # use cmds to get the animation layer from the full path to the attribute
-    node = om.MFnDagNode(plug.node())  # Benchmark time: 0.0265
-    attr = node.fullPathName() + '.' + plug.partialName()  # Benchmark time: 0.0568
-    best_layer = cmds.animLayer(attr, q=True, bestLayer=True)  # Benchmark time: 0.4305
-    
-    # convert the animation layer to an mobject
-    sl_list = om.MSelectionList()  # Benchmark time: 0.0215
-    sl_list.add(best_layer)  # Benchmark time: 0.0426
-    best_layer = sl_list.getDependNode(0)  # Benchmark time: 0.0220
-    
-    # cache.benchmark += time.clock() - benchmark_start  # todo: remove when done testing
-    
-    return best_layer
-    
-    # --- OLD IMPLEMENTATION ---
-    # below method is too slow because the graph traversal goes too deep
-    # maybe try manually traversing the graph, but stick with cmds for now...
-    
     root = cache.root
     sel_layers = cache.selected_layers
+    scene_layers = cache.scene_layers
     
     # if root layer is selected and not locked, use that
     if root.locked:
@@ -417,24 +404,24 @@ def get_best_layer(plug):
     elif root.selected and not len(sel_layers) > 1:
         return root.layer
     
-    # iterate over the hiearchy to find the first
-    # the graph network grows very fast, because all nodes share the same animlayer nodes,
-    # making the search tree very large
     it = om.MItDependencyGraph(plug, om.MFn.kAnimLayer,
                                direction=om.MItDependencyGraph.kDownstream,
                                traversal=om.MItDependencyGraph.kBreadthFirst,
                                level=om.MItDependencyGraph.kNodeLevel)
-    
+    # it.pruningOnFilter = True
     best_layer = None
     
     if sel_layers:
         while not it.isDone():
             # store the node, and move iterator immediately
             layer = it.currentNode()
-            it.next()  # todo: this takes 90-95% of the total time!
             
-            if layer in sel_layers:
-                best_layer = layer
+            if layer in scene_layers:
+                it.prune()
+                if layer in sel_layers:
+                    best_layer = layer
+            
+            it.next()
     
     # found a selected layers which was not locked
     if best_layer:
@@ -446,11 +433,14 @@ def get_best_layer(plug):
     while not it.isDone():
         # store the node, and move iterator immediately
         layer = it.currentNode()
-        it.next()  # todo: this takes 90-95% of the total time! Even though it may only be called once
         
         # only add if unlocked
-        if layer in unlocked_layers:
-            best_layer = layer
+        if layer in scene_layers:
+            it.prune()
+            if layer in unlocked_layers:
+                best_layer = layer
+        
+        it.next()
     
     # default value is the root layer, which may be None if it is locked
     if not best_layer:
@@ -458,15 +448,6 @@ def get_best_layer(plug):
     
     # only return at the end of the iteration, because we traverse downstream
     return best_layer
-
-
-def get_plug_layers(plug):
-    """ Get all the layers that
-    
-    :param plug:
-    :return:
-    """
-    pass
 
 
 cache = Cache()

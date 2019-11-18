@@ -430,8 +430,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         checked = self.overshoot_btn.isChecked()
         
         if checked:
-            self.slider.setMinimum(-200)
-            self.slider.setMaximum(200)
+            self.slider.setMinimum(-300)
+            self.slider.setMaximum(300)
         else:
             self.slider.setMinimum(-100)
             self.slider.setMaximum(100)

@@ -12,6 +12,7 @@ from collections import namedtuple
 
 import animlayers
 import sys
+import time
 
 Point = namedtuple('Point', 'x y')
 
@@ -101,8 +102,8 @@ def get_anim_curves_from_objects(nodes):
                     # for testing purposes
                     # print('Attribute: %s' % plug)
                     
+                    # benchmark_start = time.clock()
                     best_layer = animlayers.get_best_layer(plug)
-                    
                     if not best_layer:
                         continue
                     
@@ -113,10 +114,11 @@ def get_anim_curves_from_objects(nodes):
                     #     pass
                     
                     curve_node = animlayers.get_anim_curve(plug, best_layer)
+                    # animlayers.cache.benchmark += time.clock() - benchmark_start
                     if curve_node:
                         curve_list.append(om.MFnDependencyNode(curve_node))
     
-    # sys.stdout.write('# Benchmark time: %.4f\n' % animlayers.cache.benchmark)
+    # sys.stdout.write('# Retrieved %d curves in %.4f sec\n' % (len(curve_list), animlayers.cache.benchmark))
     return curve_list
 
 
