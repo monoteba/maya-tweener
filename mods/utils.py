@@ -4,15 +4,13 @@ mods.utils
 Functions for getting objects, curves, keys etc.
 """
 
-import maya.api.OpenMaya as om
-import maya.api.OpenMayaAnim as oma
-import maya.cmds as cmds
-import maya.mel as mel
 from collections import namedtuple
 
+import maya.api.OpenMaya as om
+import maya.cmds as cmds
+import maya.mel as mel
+
 import animlayers
-import sys
-import time
 
 Point = namedtuple('Point', 'x y')
 
@@ -20,6 +18,13 @@ ANIM_CURVE_TYPES = [om.MFn.kAnimCurveTimeToAngular,
                     om.MFn.kAnimCurveTimeToDistance,
                     om.MFn.kAnimCurveTimeToUnitless,
                     om.MFn.kAnimCurveTimeToTime]
+
+OBJECT_SELECTION_ITEMS = [om.MItSelectionList.kDagSelectionItem,
+                          om.MItSelectionList.kDNselectionItem]
+
+ANIM_CURVE_SELECTION_ITEMS = [om.MItSelectionList.kDagSelectionItem,
+                              om.MItSelectionList.kAnimSelectionItem,
+                              om.MItSelectionList.kDNselectionItem]
 
 
 def maya_useNewAPI():
@@ -41,7 +46,7 @@ def get_selected_objects():
     
     while not it.isDone():
         item = it.itemType()
-        if item == it.kDagSelectionItem or item == it.kDNselectionItem:
+        if item in OBJECT_SELECTION_ITEMS:
             nodes.append(om.MFnDependencyNode(it.getDependNode()))
         
         it.next()
@@ -131,7 +136,6 @@ def get_selected_anim_curves():
     
     :return: Dictionary with curve names as key and node as value
     """
-    # todo: just returns a list of dictionary values, is the dictionary needed?
     
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
@@ -140,9 +144,7 @@ def get_selected_anim_curves():
     
     while not it.isDone():
         item = it.itemType()
-        if item == it.kDagSelectionItem or \
-                item == it.kAnimSelectionItem or \
-                item == it.kDNselectionItem:
+        if item in ANIM_CURVE_SELECTION_ITEMS:
             obj = it.getDependNode()
             curve_type = obj.apiType()
             if curve_type in ANIM_CURVE_TYPES:

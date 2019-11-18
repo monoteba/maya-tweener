@@ -8,19 +8,9 @@ import maya.cmds as cmds
 
 import utils
 
-import time
-
 
 def maya_useNewAPI():
     pass
-
-
-# todo: implement into general tween
-# todo: [DONE] change how animation curve is found, now that we can get the best layer for any given attribute
-# todo: [DONE] check if all layers are locked
-# todo: [DONE] get the "best layer" for a given attribute
-# todo: [DONE] when getting scene layers, only return ones that are not locked
-# todo: [DONE] get the animation curve for a given layer (blend node -> check layer -> get input B : get input A)
 
 
 BLEND_NODE_TYPES = [om.MFn.kBlendNodeDoubleLinear,
@@ -89,7 +79,7 @@ class Cache:
         self._root = None
         
         self.reset()
-        self.benchmark = 0.0  # todo: remove when done testing
+        # self.benchmark = 0.0
     
     def reset(self):
         """ Resets the cache to the current scene state. """
@@ -102,7 +92,7 @@ class Cache:
         self._root.reset_selected()
         self._root.reset_locked()
         
-        self.benchmark = 0.0  # todo: remove when done testing
+        # self.benchmark = 0.0
     
     @property
     def root(self):

@@ -3,6 +3,7 @@ tool module
 """
 
 import os
+
 import maya.cmds as cmds
 
 import options

@@ -4,15 +4,13 @@ keyhammer
 Creates a key on every attribute for every object, for any key on any attribute
 """
 
-# todo: key hammer should not include locked attributes
-# todo: key hammer should act on graph editor selections (selected curve keys)
-
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import mods.utils as utils
 import maya.cmds as cmds
 import maya.mel as mel
-import mods.animdata as animdata
+
+import animdata as animdata
 
 
 def do():

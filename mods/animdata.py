@@ -1,7 +1,8 @@
+from collections import namedtuple
+
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
-from collections import namedtuple
 
 import options
 import utils

@@ -5,9 +5,6 @@ favouring adjacent keys and can speed-up the animation process.
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """
 
-# todo: record/apply change --> maybe separate tool, incl. mirroring (name: poser)
-# todo: add/remove inbetween buttons --> maybe separate tool (name: nudger)
-
 # standard modules
 import sys
 import os

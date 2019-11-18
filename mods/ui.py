@@ -1,7 +1,6 @@
 """
 ui module
 """
-import maya.api.OpenMaya as om
 import maya.api.OpenMayaUI as omui2
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
@@ -18,8 +17,8 @@ from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
 import globals as g
-import tween
 import options
+import tween
 
 tweener_window = None
 
@@ -334,7 +333,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         tween.interpolate(blend=blend, mode=self.interpolation_mode)
     
     def slider_changed(self, *args):
-        if not self.dragging or self.busy:
+        if self.busy or not self.dragging:
             return
         
         self.busy = True
@@ -352,6 +351,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         view = omui2.M3dView()
         view = view.active3dView()
         view.refresh()
+        qApp.processEvents()
         
         self.busy = False
     
