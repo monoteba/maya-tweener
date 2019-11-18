@@ -23,7 +23,13 @@ the file into Maya's viewport.
 
 If you prefer to manually install the plug-in, refer to "Installation" page in the wiki.
 
-## Description
+## Documentation
+
+Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
+
+## Getting Started
+
+After installing Tweener, hit the shelf button and the tool window will popup. Alternatively, you execute `tweener` as a MEL command.
 
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
 explore each type. See the description of each mode below.
@@ -47,10 +53,6 @@ explore each type. See the description of each mode below.
 | <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. |
 | <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
 
-## Documentation
-
-Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
-
 ## Known Issues
 
 The tool is still at an early stage and there are few limitations to be aware of. 
@@ -59,11 +61,11 @@ Please refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) 
 
 ## Licensing
 
-The plug-in is licensed under the GNU General Public License v3.0. See the [license file](LICENSE) for more information.
+Tweener is licensed under the **GNU General Public License v3.0**. See the [license file](LICENSE) for more information.
 
 ## Support Development
 
-If this tool brings you joy, you can share it with your friends or buy me a coffee with the button below.
+If this tool brings you joy, you can share it with your friends or buy me a coffee with the button below.  
 
 <a href="https://www.buymeacoffee.com/O6Q5vN9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="51px" width="217px"></a>
 
