@@ -7,6 +7,7 @@ Functions for getting objects, curves, keys etc.
 from collections import namedtuple
 
 import maya.api.OpenMaya as om
+import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 import maya.mel as mel
 
@@ -139,6 +140,7 @@ def get_selected_anim_curves():
     - UL, UA, UU, UT are used for set driven keys
     
     :return: Dictionary with curve names as key and node as value
+    :rtype: list of om.MFnDependencyNode
     """
     
     sl_list = om.MGlobal.getActiveSelectionList()
@@ -147,14 +149,12 @@ def get_selected_anim_curves():
     curve_dict = {}
     
     while not it.isDone():
-        item = it.itemType()
-        if item in ANIM_CURVE_SELECTION_ITEMS:
+        if it.itemType() in ANIM_CURVE_SELECTION_ITEMS:
             obj = it.getDependNode()
-            curve_type = obj.apiType()
-            if curve_type in ANIM_CURVE_TYPES:
-                node = om.MFnDependencyNode(obj)
+            if obj.apiType() in ANIM_CURVE_TYPES:
                 # add node to dict using absolute name to avoid duplicates -
                 # which happens when curves are selected
+                node = om.MFnDependencyNode(obj)
                 curve_dict[node.absoluteName()] = node
         
         it.next()
@@ -162,40 +162,102 @@ def get_selected_anim_curves():
     return curve_dict.values()
 
 
-def get_anim_curve_default_value(anim_curve):
-    """
-    Get the default value of the given anim curve
+def get_attribute_default_value(plug):
+    """ Get the default value for the given plug
     
-    :param anim_curve:
-    :type anim_curve: om.MFn.
-    :return: Default value of attribute curve is connected to.
+    :param plug: Plug for the attribute
+    :type plug: om.MPlug
+    :return: Default value of the attribute found on the plug
     :rtype: float or None
     """
-    
-    plug = anim_curve.findPlug('output', True)
-    conn = plug.connectedTo(False, True)
-    
-    if conn:
-        conn_plug = conn[0]
-        attr_obj = conn_plug.attribute()
-    else:
-        return None
-    
-    api = attr_obj.apiType()
+    attr = plug.attribute()
+    api = attr.apiType()
     
     if api == om.MFn.kNumericAttribute:
-        typeFn = om.MFnNumericAttribute(attr_obj)
+        typeFn = om.MFnNumericAttribute(attr)
         return float(typeFn.default)
     
     if api in [om.MFn.kDoubleLinearAttribute, om.MFn.kFloatLinearAttribute]:
-        typeFn = om.MFnUnitAttribute(attr_obj)
+        typeFn = om.MFnUnitAttribute(attr)
         default = om.MDistance(typeFn.default)
         return default.value
     
     if api in [om.MFn.kDoubleAngleAttribute, om.MFn.kFloatAngleAttribute]:
-        typeFn = om.MFnUnitAttribute(attr_obj)
+        typeFn = om.MFnUnitAttribute(attr)
         default = om.MAngle(typeFn.default)
         return default.value
+    
+    return None
+
+
+def get_anim_curve_default_value(anim_curve):
+    """
+    Get the default value of the given anim curve
+    
+    :param anim_curve: Animation curve
+    :type anim_curve: oma.MFnAnimCurve
+    :return: Default value of attribute curve is connected to.
+    :rtype: float or None
+    """
+    
+    if not anim_curve.hasAttribute('output'):
+        return None
+    
+    plug = anim_curve.findPlug('output', True)
+    
+    if plug:
+        destinations = plug.destinations()
+        
+        if not destinations:
+            return None
+        
+        for dst_plug in destinations:
+            # if the first node we hit does not have an output, assume it is the node we want to animate
+            # all of this could maybe be simplified
+            if not om.MFnDependencyNode(dst_plug.node()).hasAttribute('output'):
+                return get_attribute_default_value(dst_plug)
+            
+            it = om.MItDependencyGraph(dst_plug, om.MFn.kInvalid,
+                                       direction=om.MItDependencyGraph.kDownstream,
+                                       traversal=om.MItDependencyGraph.kDepthFirst,
+                                       level=om.MItDependencyGraph.kNodeLevel)
+            
+            output_plug = None
+            
+            while not it.isDone():
+                current_node = it.currentNode()
+                
+                dep_node = om.MFnDependencyNode(current_node)
+                
+                if dep_node.hasAttribute('output'):
+                    op = dep_node.findPlug('output', True)
+                    if op:
+                        output_plug = op
+                else:
+                    it.prune()
+                    if output_plug:
+                        break
+                
+                it.next()
+            
+            if output_plug:
+                # resolve compound attribute (like rotation)
+                if dst_plug.isChild and output_plug.isCompound:
+                    parent = dst_plug.parent()
+                    idx = -1
+                    for i in range(parent.numChildren()):
+                        if parent.child(i) == dst_plug:
+                            idx = i
+                            break
+                    
+                    if output_plug.numChildren() > idx:
+                        for p in output_plug.child(idx).destinations():
+                            if p.isChild:
+                                return get_attribute_default_value(p)
+                # resolve non-compound attribute
+                else:
+                    for p in output_plug.destinations():
+                        return get_attribute_default_value(p)
     
     return None
 
