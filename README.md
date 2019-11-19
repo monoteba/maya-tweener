@@ -29,7 +29,10 @@ Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
 
 ## Getting Started
 
-After installing Tweener, hit the shelf button <img src="icons/tweener-icon.svg" width="32px" height="32px"> and the tool window will popup. Alternatively, you can execute `tweener` as a MEL command.
+After installing Tweener, click the shelf button
+<img src="icons/tweener-icon.svg" width="32px" height="32px">
+
+Alternatively, you can execute `tweener` as a MEL command.
 
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
 explore each type. See the description of each mode below.
