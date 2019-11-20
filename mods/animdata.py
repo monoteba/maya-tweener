@@ -26,11 +26,13 @@ def prepare(mode):
     global curve_key_values
     
     # get curves
+    
     if utils.is_graph_editor():
         curves = utils.get_selected_anim_curves()
+        plugs = None
     else:
         nodes = utils.get_selected_objects()
-        curves = utils.get_anim_curves_from_objects(nodes)  # todo: get plugs, so we can get the default directly
+        curves, plugs = utils.get_anim_curves_from_objects(nodes)
     
     # get prev and next values so we can use them to blend while dragging slider
     is_default = bool(mode == options.mode.default)
@@ -41,12 +43,15 @@ def prepare(mode):
     unit = om.MTime.uiUnit()
     mtime_range = (om.MTime(time_range[0], unit), om.MTime(time_range[1], unit))
     
-    for curve_node in curves:
+    for i, curve_node in enumerate(curves):
         curve_fn = oma.MFnAnimCurve(curve_node.object())
         
         default_val = None
         if is_default:
-            default_val = utils.get_anim_curve_default_value(curve_fn)
+            if plugs:
+                default_val = utils.get_attribute_default_value(plugs[i])
+            else:
+                default_val = utils.get_anim_curve_default_value(curve_fn)
         
         key_group = KeyGroup(key_index=[],
                              value=[],

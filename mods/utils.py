@@ -61,10 +61,11 @@ def get_anim_curves_from_objects(nodes):
     :param nodes: List with MFnDependencyNode
     :type nodes: list of om.MFnDependencyNode
     :return: List of anim curves as dependency nodes
-    :rtype: list of om.MFnDependencyNode
+    :rtype: (list of om.MFnDependencyNode, list of om.MPlug)
     """
     
-    curve_list = []
+    curves = []
+    plugs = []
     channelbox_attr = get_channelbox_attributes()
     
     animlayers.cache.reset()  # always reset cache before querying for animation layers!
@@ -99,7 +100,8 @@ def get_anim_curves_from_objects(nodes):
                             continue
                     
                     # add the node if it matches one of the types we want
-                    curve_list.append(om.MFnDependencyNode(conn_node))
+                    curves.append(om.MFnDependencyNode(conn_node))
+                    plugs.append(plug)
                 
                 # find curve in animation layer
                 elif has_anim_layers and api in animlayers.BLEND_NODE_TYPES:
@@ -126,10 +128,11 @@ def get_anim_curves_from_objects(nodes):
                     curve_node = animlayers.get_anim_curve(plug, best_layer)
                     # animlayers.cache.benchmark += time.clock() - benchmark_start
                     if curve_node:
-                        curve_list.append(om.MFnDependencyNode(curve_node))
+                        curves.append(om.MFnDependencyNode(curve_node))
+                        plugs.append(plug)
     
     # sys.stdout.write('# Retrieved %d curves in %.4f sec\n' % (len(curve_list), animlayers.cache.benchmark))
-    return curve_list
+    return curves, plugs
 
 
 def get_selected_anim_curves():
