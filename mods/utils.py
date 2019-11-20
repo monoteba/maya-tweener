@@ -198,13 +198,6 @@ def get_anim_curve_default_value(anim_curve):
     :return: Default value of attribute curve is connected to.
     :rtype: float or None
     """
-    # todo: May be better (and simpler) to look for kDagNode objects, though other objects may be relevant as well, like
-    #  polyCube1 or other input nodes. Maybe there is a way to know the end of a nodes effect? Probably not.
-    #  Then again, it is only difficult when a curve is selected and there are nodes in-between the anim curve and the
-    #  target attribute, so maybe it is a very rare edge case.
-    
-    if not anim_curve.hasAttribute('output'):
-        return None
     
     plug = anim_curve.findPlug('output', True)
     
@@ -216,50 +209,46 @@ def get_anim_curve_default_value(anim_curve):
         
         for dst_plug in destinations:
             # if the first node we hit does not have an output, assume it is the node we want to animate
-            if not om.MFnDependencyNode(dst_plug.node()).hasAttribute('output'):
+            if dst_plug.node().hasFn(om.MFn.kDagNode):
                 return get_attribute_default_value(dst_plug)
             
             it = om.MItDependencyGraph(dst_plug, om.MFn.kInvalid,
                                        direction=om.MItDependencyGraph.kDownstream,
                                        traversal=om.MItDependencyGraph.kDepthFirst,
-                                       level=om.MItDependencyGraph.kNodeLevel)
+                                       level=om.MItDependencyGraph.kPlugLevel)
             
-            output_plug = None
+            target_plug = None
             
+            # search through blend nodes and always grab the source plug of the node that comes after the blend node
             while not it.isDone():
-                current_node = it.currentNode()
-                
-                dep_node = om.MFnDependencyNode(current_node)
-                
-                if dep_node.hasAttribute('output'):
-                    op = dep_node.findPlug('output', True)
-                    if op:
-                        output_plug = op
-                else:
-                    it.prune()
-                    if output_plug:
-                        break
+                if it.currentNode().apiType() in animlayers.BLEND_NODE_TYPES:
+                    it.next()
+                    if not it.isDone():
+                        target_plug = it.currentPlug()  # should result in input of blend or the desired attribute
+                        it.next()
+                        continue
                 
                 it.next()
             
-            if output_plug:
-                # resolve compound attribute (like rotation)
-                if dst_plug.isChild and output_plug.isCompound:
-                    parent = dst_plug.parent()
-                    idx = -1
-                    for i in range(parent.numChildren()):
-                        if parent.child(i) == dst_plug:
-                            idx = i
-                            break
-                    
-                    if output_plug.numChildren() > idx:
-                        for p in output_plug.child(idx).destinations():
-                            if p.isChild:
-                                return get_attribute_default_value(p)
-                # resolve non-compound attribute
+            # if plug is compound then use same child index as the one we came from
+            if dst_plug.isChild and target_plug.isChild:
+                parent = dst_plug.parent()
+                idx = -1
+                for i in range(parent.numChildren()):
+                    if parent.child(i) == dst_plug:
+                        idx = i
+                        break
+                        
+                target_parent = target_plug.parent()
+                if target_parent.numChildren() > idx:
+                    p = target_parent.child(idx)
+                    return get_attribute_default_value(p)
                 else:
-                    for p in output_plug.destinations():
-                        return get_attribute_default_value(p)
+                    return None
+            
+            # resolve non-compound plugs
+            if target_plug:
+                return get_attribute_default_value(target_plug)
     
     return None
 
