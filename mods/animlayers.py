@@ -32,7 +32,8 @@ BLEND_NODE_ROTATION_TYPES = [om.MFn.kBlendNodeAdditiveRotation]
 
 class AnimationLayer(object):
     def __init__(self, layer=None, selected=False, locked=False):
-        """ Representation of animation layer.
+        """
+        Representation of animation layer.
         
         :param layer: Animation layer
         :param selected: Is the layer selected?
@@ -46,7 +47,8 @@ class AnimationLayer(object):
         self.locked = locked
     
     def reset_selected(self):
-        """ Resets the selected state to the current scene state.
+        """
+        Resets the selected state to the current scene state.
         """
         if self.layer is None:
             self.selected = False
@@ -57,7 +59,8 @@ class AnimationLayer(object):
         self.selected = plug and plug.asBool()
     
     def reset_locked(self):
-        """ Resets the locked state to the current scene state.
+        """
+        Resets the locked state to the current scene state.
         """
         if self.layer is None:
             self.locked = False
@@ -69,8 +72,9 @@ class AnimationLayer(object):
 
 
 class Cache(object):
-    """ Static class that stores the current scene layers, the selected layers and the locked layers. """
-    
+    """
+    Static class that stores the current scene layers, the selected layers and the locked layers.
+    """
     def __init__(self):
         self.__scene_layers = None
         self.__selected_layers = None
@@ -81,7 +85,9 @@ class Cache(object):
         self.reset()
     
     def reset(self):
-        """ Resets the cache to the current scene state. """
+        """
+        Resets the cache to the current scene state.
+        """
         self.__scene_layers = get_scene_layers(locked=True)
         self.__selected_layers = get_selected_layers()
         self.__locked_layers = get_locked_layers(layers=self.__scene_layers)
@@ -93,7 +99,8 @@ class Cache(object):
     
     @property
     def root(self):
-        """ Get the root layer as an AnimationLayer.
+        """
+        Get the root layer as an AnimationLayer.
         
         :return: AnimationLayer object
         :rtype: AnimationLayer
@@ -102,7 +109,8 @@ class Cache(object):
     
     @property
     def scene_layers(self):
-        """ Get the scene animation layers stored in the cache.
+        """
+        Get the scene animation layers stored in the cache.
         
         :return: List of animation layers
         :rtype: list of om.MObject or None
@@ -111,7 +119,8 @@ class Cache(object):
     
     @property
     def selected_layers(self):
-        """ Get the selected animation layers stored in the cache. Excludes locked layers.
+        """
+        Get the selected animation layers stored in the cache. Excludes locked layers.
         
         :return: List of animation layers
         :rtype: list of om.MObject or None
@@ -120,7 +129,8 @@ class Cache(object):
     
     @property
     def locked_layers(self):
-        """ Get the locked animation layers stored in the cache.
+        """
+        Get the locked animation layers stored in the cache.
         
         :return: List of animation layers
         :rtype: list of om.MObject or None
@@ -129,7 +139,8 @@ class Cache(object):
     
     @property
     def unlocked_layers(self):
-        """ Get the unlocked animation layers stored in the cache.
+        """
+        Get the unlocked animation layers stored in the cache.
 
         :return: List of animation layers
         :rtype: list of om.MObject or None
@@ -138,7 +149,8 @@ class Cache(object):
 
 
 def has_anim_layers():
-    """ Checks whether the scene has any animation layers.
+    """
+    Checks whether the scene has any animation layers.
     Also returns False if only the root layer exists.
     
     :return: True if the scene contains anim layers otherwise False
@@ -146,6 +158,7 @@ def has_anim_layers():
     """
     it = om.MItDependencyNodes(om.MFn.kAnimLayer)
     count = 0
+    
     while not it.isDone():
         if count > 0:
             return True
@@ -157,11 +170,13 @@ def has_anim_layers():
 
 
 def all_layers_locked():
-    """ Returns whether all animation layers are locked or not.
+    """
+    Returns whether all animation layers are locked or not.
     
     :return: True if all animation layers are locked, otherwise False
     :rtype: bool
     """
+    
     for layer in cache.scene_layers:
         node_fn = om.MFnDependencyNode(layer)
         plug = node_fn.findPlug('lock', True)
@@ -172,7 +187,8 @@ def all_layers_locked():
 
 
 def get_root_layer():
-    """ Get the root animation layer if it exists.
+    """
+    Get the root animation layer if it exists.
 
     :return: Root layer or None
     :rtype: om.MObject or None
@@ -191,7 +207,8 @@ def get_root_layer():
 
 
 def get_scene_layers(locked=False):
-    """ Gets all nodes of type kAnimLayer and returns them as MObjects.
+    """
+    Gets all nodes of type kAnimLayer and returns them as MObjects.
     This is important as MObjects can be compared for equality unlike function sets.
     
     Returns an empty list if there are no anim layers in the scene.
@@ -237,7 +254,8 @@ def get_scene_layers(locked=False):
 
 
 def get_selected_layers(layers=None):
-    """ Get all selected layers ordered from top to bottom.
+    """
+    Get all selected layers ordered from top to bottom.
     Excludes locked layers unless a list of layers is passed.
     
     :param layers: Optional list of animation layer objects
@@ -264,7 +282,8 @@ def get_selected_layers(layers=None):
 
 
 def get_locked_layers(layers=None):
-    """ Get the locked animation layers from top to bottom.
+    """
+    Get the locked animation layers from top to bottom.
 
     :param layers: Optional list of animation layer objects
     :type layers: list of om.MObject or None
@@ -290,7 +309,8 @@ def get_locked_layers(layers=None):
 
 
 def get_anim_curve(plug, layer):
-    """ Get the anim curve for the given attribute plug.
+    """
+    Get the anim curve for the given attribute plug.
     
     The best layer is the top-most selected layer if the attribute is on it and it is not locked.
     Otherwise it is the top-most layer that contains the attribute, which is not locked.
@@ -374,7 +394,8 @@ def get_anim_curve(plug, layer):
 
 
 def get_best_layer(plug):
-    """ Traverse the attribute plug hiearchy in search of animation layers and find the best candidate.
+    """
+    Traverse the attribute plug hiearchy in search of animation layers and find the best candidate.
     
     :param plug: MPlug for where to start the search
     :type plug: om.MPlug

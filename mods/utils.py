@@ -60,7 +60,7 @@ def get_anim_curves_from_objects(nodes):
     
     :param nodes: List with MFnDependencyNode
     :type nodes: list of om.MFnDependencyNode
-    :return: List of anim curves as dependency nodes
+    :return: Tuple of curves and plugs
     :rtype: (list of om.MFnDependencyNode, list of om.MPlug)
     """
     
@@ -319,7 +319,7 @@ def get_time_slider_range():
     Get the time range selected on the Time Slider.
     
     :return: time range start and end
-    :rtype: tuple of (float, float)
+    :rtype: (float, float)
     """
     
     # get time slider range

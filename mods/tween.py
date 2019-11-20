@@ -17,19 +17,19 @@ def interpolate(blend, mode):
     Gateway for calling the function based on interpolation type.
     """
     
-    if mode == options.mode.between:
+    if mode == options.BlendingMode.between:
         interpolate_between(blend)
     
-    elif mode == options.mode.towards:
+    elif mode == options.BlendingMode.towards:
         interpolate_towards(blend)
     
-    elif mode == options.mode.average:
+    elif mode == options.BlendingMode.average:
         interpolate_average(blend)
     
-    elif mode == options.mode.curve:
+    elif mode == options.BlendingMode.curve:
         interpolate_curve_tangent(blend)
     
-    elif mode == options.mode.default:
+    elif mode == options.BlendingMode.default:
         interpolate_default(blend)
 
 

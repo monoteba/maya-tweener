@@ -60,11 +60,9 @@ def add_shelf_button(path=None):
         path = g.plugin_path
     
     if path.endswith('/'):
-        icon_path = path
-    else:
-        icon_path = path + '/'
+        path = path[:-1]
     
-    icon_path = icon_path + 'icons/tweener-icon.png'
+    icon_path = path + '/icons/tweener-icon.png'
     
     gShelfTopLevel = mel.eval('$tmpVar=$gShelfTopLevel')
     tabs = cmds.tabLayout(gShelfTopLevel, q=True, childArray=True)
@@ -105,7 +103,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # define window dimensions
         self.setMinimumWidth(apply_dpi_scaling(370))
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-
+        
         # style
         self.setStyleSheet(
             'QLineEdit { padding: 0 %spx; border-radius: %spx; }'
@@ -115,7 +113,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             'QPushButton:hover { background-color: rgb(112, 112, 112); }'
             'QPushButton:pressed { background-color: rgb(29, 29, 29); }'
             'QPushButton:checked { background-color: rgb(82, 133, 166); }' % (
-                apply_dpi_scaling(3), apply_dpi_scaling(2), apply_dpi_scaling(1))
+                apply_dpi_scaling(3), apply_dpi_scaling(2),
+                apply_dpi_scaling(1))
         )
         
         widget_height = apply_dpi_scaling(16)
@@ -138,14 +137,19 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         top_button_layout = QHBoxLayout(main_widget)
         
         # mode buttons
-        self.interpolation_mode = options.mode.between
+        self.interpolation_mode = options.BlendingMode.between
         mode_layout = QHBoxLayout()
         mode_layout.setSpacing(apply_dpi_scaling(2))
-        mode_between_btn = Button(mode=options.mode.between, icon='icons/between.svg')
-        mode_towards_btn = Button(mode=options.mode.towards, icon='icons/towards.svg')
-        mode_average_btn = Button(mode=options.mode.average, icon='icons/average.svg')
-        mode_curve_tangent_btn = Button(mode=options.mode.curve, icon='icons/curve.svg')
-        mode_default_btn = Button(mode=options.mode.default, icon='icons/default.svg')
+        mode_between_btn = Button(mode=options.BlendingMode.between,
+                                  icon='icons/between.svg')
+        mode_towards_btn = Button(mode=options.BlendingMode.towards,
+                                  icon='icons/towards.svg')
+        mode_average_btn = Button(mode=options.BlendingMode.average,
+                                  icon='icons/average.svg')
+        mode_curve_tangent_btn = Button(mode=options.BlendingMode.curve,
+                                        icon='icons/curve.svg')
+        mode_default_btn = Button(mode=options.BlendingMode.default,
+                                  icon='icons/default.svg')
         
         mode_between_btn.clicked.connect(self.set_mode_button)
         mode_between_btn.setChecked(True)
@@ -154,11 +158,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         mode_curve_tangent_btn.clicked.connect(self.set_mode_button)
         mode_default_btn.clicked.connect(self.set_mode_button)
         
-        mode_between_btn.setToolTip(options.mode.between.tooltip)
-        mode_towards_btn.setToolTip(options.mode.towards.tooltip)
-        mode_average_btn.setToolTip(options.mode.average.tooltip)
-        mode_curve_tangent_btn.setToolTip(options.mode.curve.tooltip)
-        mode_default_btn.setToolTip(options.mode.default.tooltip)
+        mode_between_btn.setToolTip(options.BlendingMode.between.tooltip)
+        mode_towards_btn.setToolTip(options.BlendingMode.towards.tooltip)
+        mode_average_btn.setToolTip(options.BlendingMode.average.tooltip)
+        mode_curve_tangent_btn.setToolTip(options.BlendingMode.curve.tooltip)
+        mode_default_btn.setToolTip(options.BlendingMode.default.tooltip)
         
         self.mode_button_group = QButtonGroup()
         self.mode_button_group.addButton(mode_between_btn)
@@ -167,11 +171,16 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.mode_button_group.addButton(mode_curve_tangent_btn)
         self.mode_button_group.addButton(mode_default_btn)
         
-        self.mode_button_group.setId(mode_between_btn, options.mode.between.idx)
-        self.mode_button_group.setId(mode_towards_btn, options.mode.towards.idx)
-        self.mode_button_group.setId(mode_average_btn, options.mode.average.idx)
-        self.mode_button_group.setId(mode_curve_tangent_btn, options.mode.curve.idx)
-        self.mode_button_group.setId(mode_default_btn, options.mode.default.idx)
+        self.mode_button_group.setId(mode_between_btn,
+                                     options.BlendingMode.between.idx)
+        self.mode_button_group.setId(mode_towards_btn,
+                                     options.BlendingMode.towards.idx)
+        self.mode_button_group.setId(mode_average_btn,
+                                     options.BlendingMode.average.idx)
+        self.mode_button_group.setId(mode_curve_tangent_btn,
+                                     options.BlendingMode.curve.idx)
+        self.mode_button_group.setId(mode_default_btn,
+                                     options.BlendingMode.default.idx)
         
         mode_layout.addWidget(mode_between_btn)
         mode_layout.addWidget(mode_towards_btn)
@@ -187,22 +196,31 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.overshoot_btn.clicked.connect(self.overshoot_button_clicked)
         self.overshoot_btn.setToolTip('Toggle Overshoot')
         
-        self.keyhammer_btn = Button(icon='icons/keyhammer.svg', is_checkable=False)
+        self.keyhammer_btn = Button(icon='icons/keyhammer.svg',
+                                    is_checkable=False)
         self.keyhammer_btn.clicked.connect(self.keyhammer_button_clicked)
         self.keyhammer_btn.setToolTip('Hammer Keys')
         
-        self.tick_draw_special_btn = Button(icon='icons/tick-special.svg', is_checkable=False, mini_button=True)
-        self.tick_draw_special_btn.clicked.connect(self.tick_draw_special_clicked)
-        self.tick_draw_special_btn.setToolTip('Set special tick color for keyframe')
+        self.tick_draw_special_btn = Button(icon='icons/tick-special.svg',
+                                            is_checkable=False,
+                                            mini_button=True)
+        self.tick_draw_special_btn.clicked.connect(
+            self.tick_draw_special_clicked)
+        self.tick_draw_special_btn.setToolTip(
+            'Set special tick color for keyframe')
         
-        self.tick_draw_normal_btn = Button(icon='icons/tick-normal.svg', is_checkable=False, mini_button=True)
+        self.tick_draw_normal_btn = Button(icon='icons/tick-normal.svg',
+                                           is_checkable=False, mini_button=True)
         self.tick_draw_normal_btn.clicked.connect(self.tick_draw_normal_clicked)
-        self.tick_draw_normal_btn.setToolTip('Set normal tick color for keyframe')
+        self.tick_draw_normal_btn.setToolTip(
+            'Set normal tick color for keyframe')
         
         misc_button_layout.addWidget(self.overshoot_btn)
-        misc_button_layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        misc_button_layout.addSpacerItem(
+            QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
         misc_button_layout.addWidget(self.keyhammer_btn)
-        misc_button_layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        misc_button_layout.addSpacerItem(
+            QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
         misc_button_layout.addWidget(self.tick_draw_special_btn)
         misc_button_layout.addWidget(self.tick_draw_normal_btn)
         
@@ -244,8 +262,10 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
                                   "border: %spx solid #2b2b2b;"
                                   "border-radius: %spx;"
                                   "margin: %spx 0; padding: 0;"  # negative margin expands outside groove
-                                  "}" % (groove_height, groove_border_radius, groove_margin,
-                                         handle_width, handle_border, handle_border_radius, handle_margin))
+                                  "}" % (groove_height, groove_border_radius,
+                                         groove_margin,
+                                         handle_width, handle_border,
+                                         handle_border_radius, handle_margin))
         
         slider_layout.setAlignment(self.slider, Qt.AlignCenter)
         slider_layout.addWidget(self.slider)
@@ -258,11 +278,14 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.slider_label = QLabel('')
         self.slider_label.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
         
-        version_label = QLabel(g.version)
+        version_label = QLabel(g.plugin_version)
         version_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: %spx;' % (apply_dpi_scaling(10)))
+        version_label.setStyleSheet(
+            'color: rgba(255, 255, 255, 54); font-size: %spx;' % (
+                apply_dpi_scaling(10)))
         
-        slider_label_layout.addWidget(QWidget())  # empty widget to balance layout
+        slider_label_layout.addWidget(
+            QWidget())  # empty widget to balance layout
         slider_label_layout.addWidget(self.slider_label)
         slider_label_layout.addWidget(version_label)
         
@@ -280,15 +303,24 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.preset_0_833_btn = PresetButton(radius=rad, fraction=0.833)
         self.preset_1_000_btn = PresetButton(radius=rad, fraction=1.0)
         
-        self.preset_0_000_btn.clicked.connect(lambda: self.fraction_clicked(0.0))
-        self.preset_0_167_btn.clicked.connect(lambda: self.fraction_clicked(0.167))
-        self.preset_0_250_btn.clicked.connect(lambda: self.fraction_clicked(0.25))
-        self.preset_0_333_btn.clicked.connect(lambda: self.fraction_clicked(0.3333))
-        self.preset_0_500_btn.clicked.connect(lambda: self.fraction_clicked(0.5))
-        self.preset_0_667_btn.clicked.connect(lambda: self.fraction_clicked(0.6667))
-        self.preset_0_750_btn.clicked.connect(lambda: self.fraction_clicked(0.75))
-        self.preset_0_833_btn.clicked.connect(lambda: self.fraction_clicked(0.833))
-        self.preset_1_000_btn.clicked.connect(lambda: self.fraction_clicked(1.0))
+        self.preset_0_000_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.0))
+        self.preset_0_167_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.167))
+        self.preset_0_250_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.25))
+        self.preset_0_333_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.3333))
+        self.preset_0_500_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.5))
+        self.preset_0_667_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.6667))
+        self.preset_0_750_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.75))
+        self.preset_0_833_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.833))
+        self.preset_1_000_btn.clicked.connect(
+            lambda: self.fraction_clicked(1.0))
         
         fraction_layout.addWidget(self.preset_0_000_btn)
         fraction_layout.addWidget(self.preset_0_167_btn)
@@ -307,13 +339,14 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         layout.addLayout(top_button_layout)
         layout.addLayout(fraction_layout)
-        layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.Maximum, QSizePolicy.MinimumExpanding))
+        layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.Maximum,
+                                         QSizePolicy.MinimumExpanding))
         layout.addLayout(slider_layout)
         layout.addLayout(slider_label_layout)
         
         self.load_preferences()
         self.set_mode_button()
-        
+    
     def slider_pressed(self):
         self.dragging = True
         slider_value = self.slider.value()
@@ -323,7 +356,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
         # only update when maya is idle to prevent multiple calls without seeing the result
-        self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
+        self.idle_callback = om.MEventMessage.addEventCallback('idle',
+                                                               self.slider_changed)
         
         # disable undo on first call, so we don't get 2 undos in queue
         # both press and release add to the same cache, so it should be safe
@@ -340,10 +374,12 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.busy = True
         slider_value = self.slider.value()
         
-        if self.interpolation_mode == options.mode.between:
+        if self.interpolation_mode == options.BlendingMode.between:
             self.slider_label.setText(str(int(slider_value * 0.5 + 50)))
-        elif self.interpolation_mode in [options.mode.towards, options.mode.average,
-                                         options.mode.curve, options.mode.default]:
+        elif self.interpolation_mode in [options.BlendingMode.towards,
+                                         options.BlendingMode.average,
+                                         options.BlendingMode.curve,
+                                         options.BlendingMode.default]:
             self.slider_label.setText(str(slider_value))
         
         blend = slider_value / 100.0
@@ -381,7 +417,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     def load_preferences(self):
         # set which mode button is checked
         try:
-            button = self.mode_button_group.button(options.load_interpolation_mode().idx)
+            button = self.mode_button_group.button(
+                options.load_interpolation_mode().idx)
             if button is not None:
                 button.setChecked(True)
         except Exception as e:
@@ -403,29 +440,45 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         options.save_interpolation_mode(int(self.mode_button_group.checkedId()))
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
-        if self.interpolation_mode == options.mode.between:
+        if self.interpolation_mode == options.BlendingMode.between:
             self.preset_0_000_btn.set_fraction(0.0, tooltip="0 %", visible=True)
-            self.preset_0_167_btn.set_fraction(0.167, tooltip="17 %", visible=True)
-            self.preset_0_250_btn.set_fraction(0.25, tooltip="25 %", visible=True)
-            self.preset_0_333_btn.set_fraction(0.333, tooltip="33 %", visible=True)
-            self.preset_0_500_btn.set_fraction(0.5, tooltip="50 %", visible=True)
-            self.preset_0_667_btn.set_fraction(0.667, tooltip="67 %", visible=True)
-            self.preset_0_750_btn.set_fraction(0.75, tooltip="75 %", visible=True)
-            self.preset_0_833_btn.set_fraction(0.833, tooltip="83 %", visible=True)
-            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %", visible=True)
-        elif self.interpolation_mode in [options.mode.towards,
-                                         options.mode.average,
-                                         options.mode.curve,
-                                         options.mode.default]:
-            self.preset_0_000_btn.set_fraction(-1.0, tooltip="100 %", visible=True)
-            self.preset_0_167_btn.set_fraction(-0.667, tooltip="67 %", visible=True)
-            self.preset_0_250_btn.set_fraction(-0.5, tooltip="50 %", visible=True)
-            self.preset_0_333_btn.set_fraction(-0.333, tooltip="33 %", visible=True)
+            self.preset_0_167_btn.set_fraction(0.167, tooltip="17 %",
+                                               visible=True)
+            self.preset_0_250_btn.set_fraction(0.25, tooltip="25 %",
+                                               visible=True)
+            self.preset_0_333_btn.set_fraction(0.333, tooltip="33 %",
+                                               visible=True)
+            self.preset_0_500_btn.set_fraction(0.5, tooltip="50 %",
+                                               visible=True)
+            self.preset_0_667_btn.set_fraction(0.667, tooltip="67 %",
+                                               visible=True)
+            self.preset_0_750_btn.set_fraction(0.75, tooltip="75 %",
+                                               visible=True)
+            self.preset_0_833_btn.set_fraction(0.833, tooltip="83 %",
+                                               visible=True)
+            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %",
+                                               visible=True)
+        elif self.interpolation_mode in [options.BlendingMode.towards,
+                                         options.BlendingMode.average,
+                                         options.BlendingMode.curve,
+                                         options.BlendingMode.default]:
+            self.preset_0_000_btn.set_fraction(-1.0, tooltip="100 %",
+                                               visible=True)
+            self.preset_0_167_btn.set_fraction(-0.667, tooltip="67 %",
+                                               visible=True)
+            self.preset_0_250_btn.set_fraction(-0.5, tooltip="50 %",
+                                               visible=True)
+            self.preset_0_333_btn.set_fraction(-0.333, tooltip="33 %",
+                                               visible=True)
             self.preset_0_500_btn.set_fraction(0.0, tooltip="0 %", visible=True)
-            self.preset_0_667_btn.set_fraction(0.333, tooltip="33 %", visible=True)
-            self.preset_0_750_btn.set_fraction(0.5, tooltip="50 %", visible=True)
-            self.preset_0_833_btn.set_fraction(0.67, tooltip="67 %", visible=True)
-            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %", visible=True)
+            self.preset_0_667_btn.set_fraction(0.333, tooltip="33 %",
+                                               visible=True)
+            self.preset_0_750_btn.set_fraction(0.5, tooltip="50 %",
+                                               visible=True)
+            self.preset_0_833_btn.set_fraction(0.67, tooltip="67 %",
+                                               visible=True)
+            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %",
+                                               visible=True)
     
     def overshoot_button_clicked(self):
         checked = self.overshoot_btn.isChecked()
@@ -453,7 +506,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     def v_separator_layout():
         layout = QVBoxLayout()
         
-        layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Fixed, QSizePolicy.Fixed))
+        layout.addSpacerItem(
+            QSpacerItem(8, 1, QSizePolicy.Fixed, QSizePolicy.Fixed))
         
         frame = QFrame()
         frame.setFrameShape(QFrame.VLine)
@@ -461,7 +515,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         layout.setAlignment(Qt.AlignCenter)
         layout.addWidget(frame)
         
-        layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Fixed, QSizePolicy.Fixed))
+        layout.addSpacerItem(
+            QSpacerItem(8, 1, QSizePolicy.Fixed, QSizePolicy.Fixed))
         
         return layout
 
@@ -477,7 +532,8 @@ def TweenerUIScript(restore=False):
         restored_control = omui.MQtUtil.getCurrentParent()
     
     if tweener_window is None:
-        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
+        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl',
+                                 exists=True):
             cmds.deleteUI('tweenerUIWindowWorkspaceControl')
         
         tweener_window = TweenerUI()
@@ -485,7 +541,8 @@ def TweenerUIScript(restore=False):
     
     if restore:
         mixin_ptr = omui.MQtUtil.findControl(tweener_window.objectName())
-        omui.MQtUtil.addWidgetToMayaLayout(long(mixin_ptr), long(restored_control))
+        omui.MQtUtil.addWidgetToMayaLayout(long(mixin_ptr),
+                                           long(restored_control))
     else:
         try:
             tweener_window.show(dockable=True, retain=True,
@@ -496,7 +553,8 @@ def TweenerUIScript(restore=False):
                                          "cmds.loadPlugin('tweener.py', qt=True);"
                                          "cmds.evalDeferred('cmds.tweenerUI(restore=False)', lp=True)")
         except Exception as e:
-            sys.stdout.write('Error occured when restoring UI window %s' % str(e))
+            sys.stdout.write(
+                'Error occured when restoring UI window %s' % str(e))
     
     # assume this is passed back to the workspace control through the uiScript
     return tweener_window
@@ -507,7 +565,8 @@ class Button(QPushButton):
     Subclass for creating the mode buttons (between, towards, curve, default...)
     """
     
-    def __init__(self, label='', icon=None, is_checkable=True, mini_button=False, mode=""):
+    def __init__(self, label='', icon=None, is_checkable=True,
+                 mini_button=False, mode=""):
         super(Button, self).__init__(label)
         self.interpolation_mode = mode
         
@@ -526,10 +585,11 @@ class Button(QPushButton):
                 self.setFixedSize(apply_dpi_scaling(40), apply_dpi_scaling(20))
             
             self.setContentsMargins(0, 0, 0, 0)
-            path = g.plugin_path + icon
+            path = g.plugin_path + '/' + icon
             qicon = QIcon(path)
             self.setIconSize(QSize(apply_dpi_scaling(20),
-                                   apply_dpi_scaling(20)))  # icons are designed to fit 16x16 but with 2px padding
+                                   apply_dpi_scaling(
+                                       20)))  # icons are designed to fit 16x16 but with 2px padding
             self.setIcon(qicon)
     
     def mode(self):
@@ -552,7 +612,8 @@ class PresetButton(QPushButton):
         self.padding_y = apply_dpi_scaling(3)
         self.padding_x = apply_dpi_scaling(3)
         self.pie_rect_size = radius + stroke_w
-        self.rect = QRect(self.padding_x, self.padding_y + stroke_w, self.pie_rect_size, self.pie_rect_size)
+        self.rect = QRect(self.padding_x, self.padding_y + stroke_w,
+                          self.pie_rect_size, self.pie_rect_size)
         
         # self.setFixedWidth(radius + self.padding_x * 2 + stroke_w)
         self.setFixedHeight(radius + 3 * stroke_w + self.padding_y * 2)
@@ -577,13 +638,15 @@ class PresetButton(QPushButton):
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
-        x = (self.geometry().width() - (self.padding_x * 2 + self.pie_rect_size)) / 2
+        x = (self.geometry().width() - (
+                self.padding_x * 2 + self.pie_rect_size)) / 2
         painter.translate(x, 0)
         
         # base area
         painter.setPen(Qt.NoPen)
         painter.setBrush(self.dark_color)
-        painter.drawPie(self.rect, (self.angle - 90.0) * -16, (360 - self.angle) * -16)
+        painter.drawPie(self.rect, (self.angle - 90.0) * -16,
+                        (360 - self.angle) * -16)
         
         # highlighted area
         if 0 < abs(self.angle) < 360:

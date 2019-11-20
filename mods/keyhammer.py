@@ -1,7 +1,5 @@
 """
 keyhammer
-
-Creates a key on every attribute for every object, for all key
 """
 
 import maya.api.OpenMaya as om
@@ -14,6 +12,9 @@ import animdata as animdata
 
 
 def do():
+    """
+    Creates a key on all attributes at any time-value, where a key exists in the curves list
+    """
     # get main progress bar start progress
     gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
     cmds.progressBar(gMainProgressBar,
@@ -28,7 +29,7 @@ def do():
         curves = utils.get_selected_anim_curves()
     else:
         nodes = utils.get_selected_objects()
-        curves = utils.get_anim_curves_from_objects(nodes)
+        curves, plugs = utils.get_anim_curves_from_objects(nodes)
     
     # get curve functions
     curve_fns = []

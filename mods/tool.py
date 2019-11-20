@@ -9,6 +9,7 @@ import os
 
 import maya.cmds as cmds
 
+import globals as g
 import options
 import tween
 import utils
@@ -16,16 +17,18 @@ import utils
 tool = None
 
 
-def setup_context():
+def reset():
+    """
+    Checks for existing tool contexts and initializes a new Tool object.
+    """
     if cmds.draggerContext('tweenerToolContext', q=True, exists=True):
         cmds.deleteUI('tweenerToolContext')
-    
-    global tool
-    if tool is None:
-        tool = Tool()
 
 
 def activate():
+    """
+    Activates the Tweener Tool in Maya.
+    """
     global tool
     if tool is None:
         tool = Tool()
@@ -34,15 +37,21 @@ def activate():
 
 
 class Tool:
+    """
+    Creates a dragger context in Maya with the required functions.
+    """
+    
     def __init__(self):
+        """
+        Initializes the instance variables and sets up the dragger context.
+        """
         self.press_position = [0, 0, 0]
         self.drag_position = [0, 0, 0]
         
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
         
-        plugin_path = os.path.dirname(cmds.pluginInfo('tweener', q=True, path=True))
-        icon_path = plugin_path + '/icons/tweener-icon.png'
+        icon_path = g.plugin_path + '/icons/tweener-icon.png'
         
         cmds.draggerContext('tweenerToolContext',
                             name='tweenerTool',
@@ -54,7 +63,15 @@ class Tool:
                             undoMode='step')
     
     def press(self):
-        self.press_position = cmds.draggerContext('tweenerToolContext', q=True, anchorPoint=True)
+        """
+        Dragger context press event handler.
+        
+        Gets the initial position and reads in the available options. An
+        initial interpolation is also performed.
+        """
+        self.press_position = cmds.draggerContext('tweenerToolContext',
+                                                  q=True,
+                                                  anchorPoint=True)
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
         
@@ -68,17 +85,37 @@ class Tool:
         cmds.refresh()
     
     def drag(self):
-        self.drag_position = cmds.draggerContext('tweenerToolContext', q=True, dragPoint=True)
+        """
+        Dragger context drag event handler.
+        """
+        self.blend()
+    
+    def release(self):
+        """
+        Dragger context release event handler.
+        """
+        self.blend()
+    
+    def blend(self):
+        """
+        Updates the drag position, gets the blend value and calls for an
+        interpolation.
+        """
+        self.drag_position = cmds.draggerContext('tweenerToolContext',
+                                                 q=True,
+                                                 dragPoint=True)
         
         blend = self.get_blend()
         tween.interpolate(blend=blend, mode=self.interpolation_mode)
         cmds.refresh()
     
-    def release(self):
-        blend = self.get_blend()
-        cmds.tweener(t=blend, press=False, type=self.interpolation_mode.idx)
-    
     def get_blend(self):
+        """
+        Calculates the blend value based on the distance dragged.
+        
+        :return: Blend value
+        :rtype: float
+        """
         # calculate distance dragged
         x = self.drag_position[0] - self.press_position[0]
         
@@ -88,3 +125,6 @@ class Tool:
             blend = utils.clamp(blend, -1.0, 1.0)
         
         return blend
+
+
+reset()
