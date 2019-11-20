@@ -253,12 +253,12 @@ class TweenerCmd(om.MPxCommand):
             # if press, then create a new cache
             self.anim_cache = oma.MAnimCurveChange()
             animdata.anim_cache = self.anim_cache
-            animdata.prepare(mode=options.mode.get_mode_from_id(self.type_arg))
+            animdata.prepare(mode=options.BlendingMode.get_mode_from_id(self.type_arg))
         else:
             # else use the existing stored at module level
             self.anim_cache = animdata.anim_cache
             tween.interpolate(blend=self.blend_arg,
-                              mode=options.mode.get_mode_from_id(self.type_arg))
+                              mode=options.BlendingMode.get_mode_from_id(self.type_arg))
     
     def redoIt(self):
         self.anim_cache.redoIt()
