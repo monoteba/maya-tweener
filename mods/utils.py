@@ -152,8 +152,7 @@ def get_selected_anim_curves():
         if it.itemType() in ANIM_CURVE_SELECTION_ITEMS:
             obj = it.getDependNode()
             if obj.apiType() in ANIM_CURVE_TYPES:
-                # add node to dict using absolute name to avoid duplicates -
-                # which happens when curves are selected
+                # add node to dict using absolute name to avoid duplicates - which happens when curves are selected
                 node = om.MFnDependencyNode(obj)
                 curve_dict[node.absoluteName()] = node
         
@@ -199,6 +198,10 @@ def get_anim_curve_default_value(anim_curve):
     :return: Default value of attribute curve is connected to.
     :rtype: float or None
     """
+    # todo: May be better (and simpler) to look for kDagNode objects, though other objects may be relevant as well, like
+    #  polyCube1 or other input nodes. Maybe there is a way to know the end of a nodes effect? Probably not.
+    #  Then again, it is only difficult when a curve is selected and there are nodes in-between the anim curve and the
+    #  target attribute, so maybe it is a very rare edge case.
     
     if not anim_curve.hasAttribute('output'):
         return None
@@ -213,7 +216,6 @@ def get_anim_curve_default_value(anim_curve):
         
         for dst_plug in destinations:
             # if the first node we hit does not have an output, assume it is the node we want to animate
-            # all of this could maybe be simplified
             if not om.MFnDependencyNode(dst_plug.node()).hasAttribute('output'):
                 return get_attribute_default_value(dst_plug)
             

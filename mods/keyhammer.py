@@ -1,7 +1,7 @@
 """
 keyhammer
 
-Creates a key on every attribute for every object, for any key on any attribute
+Creates a key on every attribute for every object, for all key
 """
 
 import maya.api.OpenMaya as om

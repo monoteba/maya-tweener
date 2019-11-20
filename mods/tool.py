@@ -1,5 +1,8 @@
 """
-tool module
+Tool
+
+- Allows Tweener to be used as a Maya tool using mouse drag.
+- The tool can also be assigned a hotkey using the tweenerTool command.
 """
 
 import os
@@ -14,8 +17,8 @@ tool = None
 
 
 def setup_context():
-    if cmds.draggerContext('tweenerContext', q=True, exists=True):
-        cmds.deleteUI('tweenerContext')
+    if cmds.draggerContext('tweenerToolContext', q=True, exists=True):
+        cmds.deleteUI('tweenerToolContext')
     
     global tool
     if tool is None:
@@ -27,7 +30,7 @@ def activate():
     if tool is None:
         tool = Tool()
     
-    cmds.setToolTo('tweenerContext')
+    cmds.setToolTo('tweenerToolContext')
 
 
 class Tool:
@@ -39,9 +42,10 @@ class Tool:
         self.overshoot = options.load_overshoot()
         
         plugin_path = os.path.dirname(cmds.pluginInfo('tweener', q=True, path=True))
-        icon_path = plugin_path + '/icons/tweener-icon@2x.png'
+        icon_path = plugin_path + '/icons/tweener-icon.png'
         
-        cmds.draggerContext('tweenerContext',
+        cmds.draggerContext('tweenerToolContext',
+                            name='tweenerTool',
                             pressCommand=self.press,
                             dragCommand=self.drag,
                             releaseCommand=self.release,
@@ -50,7 +54,7 @@ class Tool:
                             undoMode='step')
     
     def press(self):
-        self.press_position = cmds.draggerContext('tweenerContext', q=True, anchorPoint=True)
+        self.press_position = cmds.draggerContext('tweenerToolContext', q=True, anchorPoint=True)
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
         
@@ -64,7 +68,7 @@ class Tool:
         cmds.refresh()
     
     def drag(self):
-        self.drag_position = cmds.draggerContext('tweenerContext', q=True, dragPoint=True)
+        self.drag_position = cmds.draggerContext('tweenerToolContext', q=True, dragPoint=True)
         
         blend = self.get_blend()
         tween.interpolate(blend=blend, mode=self.interpolation_mode)

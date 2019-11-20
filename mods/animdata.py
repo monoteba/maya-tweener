@@ -30,7 +30,7 @@ def prepare(mode):
         curves = utils.get_selected_anim_curves()
     else:
         nodes = utils.get_selected_objects()
-        curves = utils.get_anim_curves_from_objects(nodes)
+        curves = utils.get_anim_curves_from_objects(nodes)  # todo: get plugs, so we can get the default directly
     
     # get prev and next values so we can use them to blend while dragging slider
     is_default = bool(mode == options.mode.default)

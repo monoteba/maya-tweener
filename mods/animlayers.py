@@ -30,7 +30,7 @@ BLEND_NODE_TYPES = [om.MFn.kBlendNodeDoubleLinear,
 BLEND_NODE_ROTATION_TYPES = [om.MFn.kBlendNodeAdditiveRotation]
 
 
-class AnimationLayer:
+class AnimationLayer(object):
     def __init__(self, layer=None, selected=False, locked=False):
         """ Representation of animation layer.
         
@@ -68,31 +68,28 @@ class AnimationLayer:
         self.locked = plug and plug.asBool()
 
 
-class Cache:
+class Cache(object):
     """ Static class that stores the current scene layers, the selected layers and the locked layers. """
     
     def __init__(self):
-        self._scene_layers = None
-        self._selected_layers = None
-        self._locked_layers = None
-        self._unlocked_layers = None
-        self._root = None
+        self.__scene_layers = None
+        self.__selected_layers = None
+        self.__locked_layers = None
+        self.__unlocked_layers = None
+        self.__root = None
         
         self.reset()
-        # self.benchmark = 0.0
     
     def reset(self):
         """ Resets the cache to the current scene state. """
-        self._scene_layers = get_scene_layers(locked=True)
-        self._selected_layers = get_selected_layers()
-        self._locked_layers = get_locked_layers(layers=self._scene_layers)
-        self._unlocked_layers = get_scene_layers(locked=False)
+        self.__scene_layers = get_scene_layers(locked=True)
+        self.__selected_layers = get_selected_layers()
+        self.__locked_layers = get_locked_layers(layers=self.__scene_layers)
+        self.__unlocked_layers = get_scene_layers(locked=False)
         
-        self._root = AnimationLayer(layer=get_root_layer())
-        self._root.reset_selected()
-        self._root.reset_locked()
-        
-        # self.benchmark = 0.0
+        self.__root = AnimationLayer(layer=get_root_layer())
+        self.__root.reset_selected()
+        self.__root.reset_locked()
     
     @property
     def root(self):
@@ -101,7 +98,7 @@ class Cache:
         :return: AnimationLayer object
         :rtype: AnimationLayer
         """
-        return self._root
+        return self.__root
     
     @property
     def scene_layers(self):
@@ -110,7 +107,7 @@ class Cache:
         :return: List of animation layers
         :rtype: list of om.MObject or None
         """
-        return self._scene_layers
+        return self.__scene_layers
     
     @property
     def selected_layers(self):
@@ -119,7 +116,7 @@ class Cache:
         :return: List of animation layers
         :rtype: list of om.MObject or None
         """
-        return self._selected_layers
+        return self.__selected_layers
     
     @property
     def locked_layers(self):
@@ -128,7 +125,7 @@ class Cache:
         :return: List of animation layers
         :rtype: list of om.MObject or None
         """
-        return self._locked_layers
+        return self.__locked_layers
     
     @property
     def unlocked_layers(self):
@@ -137,7 +134,7 @@ class Cache:
         :return: List of animation layers
         :rtype: list of om.MObject or None
         """
-        return self._unlocked_layers
+        return self.__unlocked_layers
 
 
 def has_anim_layers():
