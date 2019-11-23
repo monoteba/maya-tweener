@@ -2,6 +2,8 @@
 keyhammer
 """
 
+import sys
+
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import mods.utils as utils
@@ -48,8 +50,10 @@ def do():
         min_time = om.MTime(time_range[0], unit)
         max_time = om.MTime(time_range[1], unit)
         for curve_fn in curve_fns:
-            start_index = max(0, curve_fn.findClosest(min_time) - 1)  # -1 just to be safe
-            end_index = min(curve_fn.numKeys, curve_fn.findClosest(max_time) + 1)  # +1 just to be safe
+            start_index = max(0, curve_fn.findClosest(
+                min_time) - 1)  # -1 just to be safe
+            end_index = min(curve_fn.numKeys, curve_fn.findClosest(
+                max_time) + 1)  # +1 just to be safe
             for i in range(start_index, end_index):
                 times.add(curve_fn.input(i).value)
     else:
@@ -72,6 +76,7 @@ def do():
             m_times.append(om.MTime(t, unit))
     
     # add keys
+    key_count = 0
     for curve_fn in curve_fns:
         ts = []
         vs = []
@@ -82,7 +87,11 @@ def do():
         
         for t, v in zip(ts, vs):
             curve_fn.addKey(t, v, change=animdata.anim_cache)
+            key_count += 1
         
         cmds.progressBar(gMainProgressBar, e=True, step=1)
     
     cmds.progressBar(gMainProgressBar, e=True, endProgress=True)
+    
+    sys.stdout.write(
+        '# Added %d key%s\n' % (key_count, '' if key_count == 1 else 's'))

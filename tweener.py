@@ -124,7 +124,6 @@ def initializePlugin(plugin):
         sys.stdout.write(
             '# Successfully registered command %s\n' % TweenerToolCmd.cmd_name)
     
-    g.plugin_name = plugin_fn.name()
     g.plugin_path = os.path.dirname(
         cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
 

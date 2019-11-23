@@ -5,8 +5,6 @@ Tool
 - The tool can also be assigned a hotkey using the tweenerTool command.
 """
 
-import os
-
 import maya.cmds as cmds
 
 import globals as g
@@ -51,6 +49,9 @@ class Tool:
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
         
+        if not g.plugin_path:
+            g.refresh_plug_in_path()
+        
         icon_path = g.plugin_path + '/icons/tweener-icon.png'
         
         cmds.draggerContext('tweenerToolContext',
@@ -58,6 +59,7 @@ class Tool:
                             pressCommand=self.press,
                             dragCommand=self.drag,
                             releaseCommand=self.release,
+                            finalize=self.finalize,
                             space='screen',
                             image1=icon_path,
                             undoMode='step')
@@ -88,19 +90,6 @@ class Tool:
         """
         Dragger context drag event handler.
         """
-        self.blend()
-    
-    def release(self):
-        """
-        Dragger context release event handler.
-        """
-        self.blend()
-    
-    def blend(self):
-        """
-        Updates the drag position, gets the blend value and calls for an
-        interpolation.
-        """
         self.drag_position = cmds.draggerContext('tweenerToolContext',
                                                  q=True,
                                                  dragPoint=True)
@@ -108,6 +97,22 @@ class Tool:
         blend = self.get_blend()
         tween.interpolate(blend=blend, mode=self.interpolation_mode)
         cmds.refresh()
+    
+    def release(self):
+        """
+        Dragger context release event handler.
+        """
+        blend = self.get_blend()
+        cmds.tweener(t=blend, press=False, type=self.interpolation_mode.idx)
+        cmds.refresh()
+        
+    def finalize(self):
+        """
+        Dragger context finalize event handler.
+        
+        Its mere existence helps with returning to the previous tool when done.
+        """
+        pass
     
     def get_blend(self):
         """
