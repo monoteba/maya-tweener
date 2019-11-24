@@ -36,6 +36,8 @@ Alternatively, you can execute `tweener` as a MEL command.
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
 explore each type. See the description of each mode below.
 
+![demo](tweener-demo.gif)
+
 ### Blend Modes
 
 | Icon | Mode | Description |
