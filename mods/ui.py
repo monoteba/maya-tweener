@@ -282,44 +282,44 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         fraction_layout = QHBoxLayout(main_widget)
         fraction_layout.setSpacing(apply_dpi_scaling(2))
         rad = apply_dpi_scaling(12)
-        self.preset_0_000_btn = PresetButton(radius=rad, fraction=0.0)
-        self.preset_0_167_btn = PresetButton(radius=rad, fraction=0.167)
-        self.preset_0_250_btn = PresetButton(radius=rad, fraction=0.25)
-        self.preset_0_333_btn = PresetButton(radius=rad, fraction=0.333)
-        self.preset_0_500_btn = PresetButton(radius=rad, fraction=0.5)
-        self.preset_0_667_btn = PresetButton(radius=rad, fraction=0.667)
-        self.preset_0_750_btn = PresetButton(radius=rad, fraction=0.75)
-        self.preset_0_833_btn = PresetButton(radius=rad, fraction=0.833)
-        self.preset_1_000_btn = PresetButton(radius=rad, fraction=1.0)
+        self.preset_0_btn = PresetButton(radius=rad, fraction=0.0)
+        self.preset_1_btn = PresetButton(radius=rad, fraction=0.167)
+        self.preset_2_btn = PresetButton(radius=rad, fraction=0.25)
+        self.preset_3_btn = PresetButton(radius=rad, fraction=0.333)
+        self.preset_4_btn = PresetButton(radius=rad, fraction=0.5)
+        self.preset_5_btn = PresetButton(radius=rad, fraction=0.667)
+        self.preset_6_btn = PresetButton(radius=rad, fraction=0.75)
+        self.preset_7_btn = PresetButton(radius=rad, fraction=0.833)
+        self.preset_8_btn = PresetButton(radius=rad, fraction=1.0)
         
-        self.preset_0_000_btn.clicked.connect(
+        self.preset_0_btn.clicked.connect(
             lambda: self.fraction_clicked(0.0))
-        self.preset_0_167_btn.clicked.connect(
+        self.preset_1_btn.clicked.connect(
             lambda: self.fraction_clicked(0.167))
-        self.preset_0_250_btn.clicked.connect(
+        self.preset_2_btn.clicked.connect(
             lambda: self.fraction_clicked(0.25))
-        self.preset_0_333_btn.clicked.connect(
+        self.preset_3_btn.clicked.connect(
             lambda: self.fraction_clicked(0.3333))
-        self.preset_0_500_btn.clicked.connect(
+        self.preset_4_btn.clicked.connect(
             lambda: self.fraction_clicked(0.5))
-        self.preset_0_667_btn.clicked.connect(
+        self.preset_5_btn.clicked.connect(
             lambda: self.fraction_clicked(0.6667))
-        self.preset_0_750_btn.clicked.connect(
+        self.preset_6_btn.clicked.connect(
             lambda: self.fraction_clicked(0.75))
-        self.preset_0_833_btn.clicked.connect(
+        self.preset_7_btn.clicked.connect(
             lambda: self.fraction_clicked(0.833))
-        self.preset_1_000_btn.clicked.connect(
+        self.preset_8_btn.clicked.connect(
             lambda: self.fraction_clicked(1.0))
         
-        fraction_layout.addWidget(self.preset_0_000_btn)
-        fraction_layout.addWidget(self.preset_0_167_btn)
-        fraction_layout.addWidget(self.preset_0_250_btn)
-        fraction_layout.addWidget(self.preset_0_333_btn)
-        fraction_layout.addWidget(self.preset_0_500_btn)
-        fraction_layout.addWidget(self.preset_0_667_btn)
-        fraction_layout.addWidget(self.preset_0_750_btn)
-        fraction_layout.addWidget(self.preset_0_833_btn)
-        fraction_layout.addWidget(self.preset_1_000_btn)
+        fraction_layout.addWidget(self.preset_0_btn)
+        fraction_layout.addWidget(self.preset_1_btn)
+        fraction_layout.addWidget(self.preset_2_btn)
+        fraction_layout.addWidget(self.preset_3_btn)
+        fraction_layout.addWidget(self.preset_4_btn)
+        fraction_layout.addWidget(self.preset_5_btn)
+        fraction_layout.addWidget(self.preset_6_btn)
+        fraction_layout.addWidget(self.preset_7_btn)
+        fraction_layout.addWidget(self.preset_8_btn)
         
         # combine layouts
         top_button_layout.addLayout(mode_layout)
@@ -432,44 +432,28 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
         if self.interpolation_mode == options.BlendingMode.between:
-            self.preset_0_000_btn.set_fraction(0.0, tooltip="0 %", visible=True)
-            self.preset_0_167_btn.set_fraction(0.167, tooltip="17 %",
-                                               visible=True)
-            self.preset_0_250_btn.set_fraction(0.25, tooltip="25 %",
-                                               visible=True)
-            self.preset_0_333_btn.set_fraction(0.333, tooltip="33 %",
-                                               visible=True)
-            self.preset_0_500_btn.set_fraction(0.5, tooltip="50 %",
-                                               visible=True)
-            self.preset_0_667_btn.set_fraction(0.667, tooltip="67 %",
-                                               visible=True)
-            self.preset_0_750_btn.set_fraction(0.75, tooltip="75 %",
-                                               visible=True)
-            self.preset_0_833_btn.set_fraction(0.833, tooltip="83 %",
-                                               visible=True)
-            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %",
-                                               visible=True)
+            self.preset_0_btn.set_fraction(0.0, tooltip="0/0")
+            self.preset_1_btn.set_fraction(0.125, tooltip="1/8")
+            self.preset_2_btn.set_fraction(0.25, tooltip="1/4")
+            self.preset_3_btn.set_fraction(0.333, tooltip="1/3")
+            self.preset_4_btn.set_fraction(0.5, tooltip="1/2")
+            self.preset_5_btn.set_fraction(0.667, tooltip="2/3")
+            self.preset_6_btn.set_fraction(0.75, tooltip="3/4")
+            self.preset_7_btn.set_fraction(0.875, tooltip="7/8")
+            self.preset_8_btn.set_fraction(1.0, tooltip="1/1")
         elif self.interpolation_mode in [options.BlendingMode.towards,
                                          options.BlendingMode.average,
                                          options.BlendingMode.curve,
                                          options.BlendingMode.default]:
-            self.preset_0_000_btn.set_fraction(-1.0, tooltip="100 %",
-                                               visible=True)
-            self.preset_0_167_btn.set_fraction(-0.667, tooltip="67 %",
-                                               visible=True)
-            self.preset_0_250_btn.set_fraction(-0.5, tooltip="50 %",
-                                               visible=True)
-            self.preset_0_333_btn.set_fraction(-0.333, tooltip="33 %",
-                                               visible=True)
-            self.preset_0_500_btn.set_fraction(0.0, tooltip="0 %", visible=True)
-            self.preset_0_667_btn.set_fraction(0.333, tooltip="33 %",
-                                               visible=True)
-            self.preset_0_750_btn.set_fraction(0.5, tooltip="50 %",
-                                               visible=True)
-            self.preset_0_833_btn.set_fraction(0.67, tooltip="67 %",
-                                               visible=True)
-            self.preset_1_000_btn.set_fraction(1.0, tooltip="100 %",
-                                               visible=True)
+            self.preset_0_btn.set_fraction(-1.0, tooltip="1/1")
+            self.preset_1_btn.set_fraction(-0.667, tooltip="2/3")
+            self.preset_2_btn.set_fraction(-0.5, tooltip="1/2")
+            self.preset_3_btn.set_fraction(-0.333, tooltip="1/3")
+            self.preset_4_btn.set_fraction(0.0, tooltip="0/0")
+            self.preset_5_btn.set_fraction(0.333, tooltip="1/3")
+            self.preset_6_btn.set_fraction(0.5, tooltip="1/2")
+            self.preset_7_btn.set_fraction(0.67, tooltip="2/3")
+            self.preset_8_btn.set_fraction(1.0, tooltip="1/1")
     
     def overshoot_button_clicked(self):
         checked = self.overshoot_btn.isChecked()
@@ -501,7 +485,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     
     @staticmethod
     def tick_draw_special_clicked():
-        cmds.undoInfo(openChunk=True, chunkName="Set special tick color")
+        cmds.undoInfo(openChunk=True, chunkName="Changing tick color cannot be undone")
         try:
             tween.tick_draw_special(special=True)
         finally:
@@ -509,7 +493,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     
     @staticmethod
     def tick_draw_normal_clicked():
-        cmds.undoInfo(openChunk=True, chunkName="Set normal tick color")
+        cmds.undoInfo(openChunk=True, chunkName="Changing tick color cannot be undone")
         try:
             tween.tick_draw_special(special=False)
         finally:
@@ -674,14 +658,13 @@ class PresetButton(QPushButton):
         
         painter.end()
     
-    def set_fraction(self, fraction, tooltip="", visible=True):
+    def set_fraction(self, fraction, tooltip=""):
         self.fraction = fraction
         self.angle = fraction * 360
         
         self.setToolTip(tooltip)
         
-        if visible:
-            self.update()
+        self.update()
 
 
 def apply_dpi_scaling(value, asfloat=False):
