@@ -3,9 +3,9 @@ tween module - the methods that does the actual work
 """
 import maya.cmds as cmds
 
-import mods.utils as utils
-import mods.animdata as animdata
-import mods.options as options
+import utils as utils
+import animdata as animdata
+import options as options
 
 
 def maya_useNewAPI():
@@ -40,8 +40,10 @@ def interpolate_between(t):
     
     for curve_fn, key_group in animdata.curve_key_values.iteritems():
         for i in range(len(key_group.key_index)):
-            new_value = lerp_between(key_group.prev_value[i], key_group.next_value[i], t)
-            curve_fn.setValue(key_group.key_index[i], new_value, change=animdata.anim_cache)
+            new_value = lerp_between(key_group.prev_value[i],
+                                     key_group.next_value[i], t)
+            curve_fn.setValue(key_group.key_index[i], new_value,
+                              change=animdata.anim_cache)
 
 
 def interpolate_towards(t):
@@ -51,8 +53,11 @@ def interpolate_towards(t):
     
     for curve_fn, key_group in animdata.curve_key_values.iteritems():
         for i in range(len(key_group.key_index)):
-            new_value = lerp_towards(key_group.prev_value[i], key_group.next_value[i], t, key_group.value[i])
-            curve_fn.setValue(key_group.key_index[i], new_value, change=animdata.anim_cache)
+            new_value = lerp_towards(key_group.prev_value[i],
+                                     key_group.next_value[i], t,
+                                     key_group.value[i])
+            curve_fn.setValue(key_group.key_index[i], new_value,
+                              change=animdata.anim_cache)
 
 
 def interpolate_average(t):
@@ -68,10 +73,12 @@ def interpolate_average(t):
             avg_val = sum(key_group.value) / length
         for i in range(length):
             if is_single:
-                avg_val = (key_group.prev_value[i] + key_group.next_value[i]) * 0.5
+                avg_val = (key_group.prev_value[i] + key_group.next_value[
+                    i]) * 0.5
             prev_val = key_group.value[i] * 2 - avg_val
             new_value = lerp_towards(prev_val, avg_val, t, key_group.value[i])
-            curve_fn.setValue(key_group.key_index[i], new_value, change=animdata.anim_cache)
+            curve_fn.setValue(key_group.key_index[i], new_value,
+                              change=animdata.anim_cache)
 
 
 def interpolate_curve_tangent(t):
@@ -103,15 +110,19 @@ def interpolate_curve_tangent(t):
             if key_group.has_two_segments[i]:
                 if t < 0.5:
                     p = key_group.tangent_points[i][0]
-                    new_value = t1p0 * p[0].y + t1p1 * p[1].y + t1p2 * p[2].y + t1p3 * p[3].y
+                    new_value = t1p0 * p[0].y + t1p1 * p[1].y + t1p2 * p[
+                        2].y + t1p3 * p[3].y
                 else:
                     p = key_group.tangent_points[i][1]
-                    new_value = t2p0 * p[0].y + t2p1 * p[1].y + t2p2 * p[2].y + t2p3 * p[3].y
+                    new_value = t2p0 * p[0].y + t2p1 * p[1].y + t2p2 * p[
+                        2].y + t2p3 * p[3].y
             else:
                 p = key_group.tangent_points[i][0]
-                new_value = tp0 * p[0].y + tp1 * p[1].y + tp2 * p[2].y + tp3 * p[3].y
+                new_value = tp0 * p[0].y + tp1 * p[1].y + tp2 * p[2].y + tp3 * \
+                            p[3].y
             
-            curve_fn.setValue(key_group.key_index[i], new_value, animdata.anim_cache)
+            curve_fn.setValue(key_group.key_index[i], new_value,
+                              animdata.anim_cache)
 
 
 def interpolate_default(t):
@@ -124,10 +135,12 @@ def interpolate_default(t):
             if key_group.default_value is None:
                 continue
             
-            new_value = lerp_towards(key_group.value[i] * 2 - key_group.default_value,
-                                     key_group.default_value,
-                                     t, key_group.value[i])
-            curve_fn.setValue(key_group.key_index[i], new_value, change=animdata.anim_cache)
+            new_value = lerp_towards(
+                key_group.value[i] * 2 - key_group.default_value,
+                key_group.default_value,
+                t, key_group.value[i])
+            curve_fn.setValue(key_group.key_index[i], new_value,
+                              change=animdata.anim_cache)
 
 
 def lerp_between(a, b, t):

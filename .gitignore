@@ -4,3 +4,7 @@
 
 _releases/*
 _wip/*
+
+venv/*
+
+.DS_Store

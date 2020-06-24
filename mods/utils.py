@@ -11,7 +11,7 @@ import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 import maya.mel as mel
 
-import animlayers
+import animlayers as animlayers
 
 Point = namedtuple('Point', 'x y')
 

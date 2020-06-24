@@ -16,16 +16,9 @@ import animdata as animdata
 def do():
     """
     Creates a key on all attributes at any time-value, where a key exists in the curves list
+    :return True on complete, False if cancelled
+    :rtype bool
     """
-    # get main progress bar start progress
-    gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
-    cmds.progressBar(gMainProgressBar,
-                     e=True,
-                     beginProgress=True,
-                     isInterruptable=False,
-                     status='Adding keyframes...',
-                     maxValue=100)
-    
     # get selection
     if utils.is_graph_editor():
         curves = utils.get_selected_anim_curves()
@@ -37,6 +30,10 @@ def do():
     curve_fns = []
     for curve_node in curves:
         curve_fns.append(oma.MFnAnimCurve(curve_node.object()))
+    
+    if len(curve_fns) == 0:
+        sys.stdout.write('# No anim curves to set keys on\n')
+        return True
     
     # get time range
     time_range = utils.get_time_slider_range()
@@ -61,8 +58,14 @@ def do():
             for i in range(curve_fn.numKeys):
                 times.add(curve_fn.input(i).value)
     
-    # determine total number of operations
-    cmds.progressBar(gMainProgressBar, e=True, maxValue=len(curve_fns))
+    # get main progress bar start progress
+    gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
+    cmds.progressBar(gMainProgressBar,
+                     e=True,
+                     beginProgress=True,
+                     isInterruptable=True,
+                     status='Adding keyframes...',
+                     maxValue=len(curve_fns))
     
     # convert to MTime()
     m_times = []
@@ -77,6 +80,7 @@ def do():
     
     # add keys
     key_count = 0
+    cancelled = False
     for curve_fn in curve_fns:
         ts = []
         vs = []
@@ -90,8 +94,17 @@ def do():
             key_count += 1
         
         cmds.progressBar(gMainProgressBar, e=True, step=1)
+        
+        if cmds.progressBar(gMainProgressBar, q=True, isCancelled=True):
+            cancelled = True
+            break
     
     cmds.progressBar(gMainProgressBar, e=True, endProgress=True)
     
-    sys.stdout.write(
-        '# Added %d key%s\n' % (key_count, '' if key_count == 1 else 's'))
+    if cancelled:
+        sys.stdout.write('# Keyhammer cancelled...\n')
+        return False
+    else:
+        sys.stdout.write('# Added %d key%s\n' % (key_count, '' if key_count == 1 else 's'))
+        
+    return True

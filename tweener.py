@@ -80,12 +80,10 @@ def initializePlugin(plugin):
         plugin_fn.registerCommand(TweenerCmd.cmd_name, TweenerCmd.cmd_creator,
                                   TweenerCmd.syntax_creator)
     except:
-        sys.stderr.write(
-            "Failed to register command: %s\n" % TweenerCmd.cmd_name)
+        sys.stderr.write("Failed to register command: %s\n" % TweenerCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully registered command %s\n' % TweenerCmd.cmd_name)
+        sys.stdout.write("# Successfully registered command %s\n" % TweenerCmd.cmd_name)
     
     # register TweenerCmd
     try:
@@ -93,36 +91,30 @@ def initializePlugin(plugin):
                                   TweenerUICmd.cmd_creator,
                                   TweenerUICmd.syntax_creator)
     except:
-        sys.stderr.write(
-            "Failed to register command: %s\n" % TweenerUICmd.cmd_name)
+        sys.stderr.write("Failed to register command: %s\n" % TweenerUICmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully registered command %s\n' % TweenerUICmd.cmd_name)
+        sys.stdout.write("# Successfully registered command %s\n" % TweenerUICmd.cmd_name)
     
     # register KeyHammerCmd
     try:
         plugin_fn.registerCommand(KeyHammerCmd.cmd_name,
                                   KeyHammerCmd.cmd_creator)
     except:
-        sys.stderr.write(
-            "Failed to register command: %s\n" % KeyHammerCmd.cmd_name)
+        sys.stderr.write("Failed to register command: %s\n" % KeyHammerCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully registered command %s\n' % KeyHammerCmd.cmd_name)
+        sys.stdout.write("# Successfully registered command %s\n" % KeyHammerCmd.cmd_name)
     
     # register TweenerToolCmd
     try:
         plugin_fn.registerCommand(TweenerToolCmd.cmd_name,
                                   TweenerToolCmd.cmd_creator)
     except:
-        sys.stderr.write(
-            "Failed to register command: %s\n" % TweenerToolCmd.cmd_name)
+        sys.stderr.write("Failed to register command: %s\n" % TweenerToolCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully registered command %s\n' % TweenerToolCmd.cmd_name)
+        sys.stdout.write("# Successfully registered command %s\n" % TweenerToolCmd.cmd_name)
     
     g.plugin_path = os.path.dirname(
         cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
@@ -139,45 +131,37 @@ def uninitializePlugin(plugin):
     try:
         plugin_fn.deregisterCommand(TweenerCmd.cmd_name)
     except:
-        sys.stderr.write(
-            "Failed to deregister command: %s\n" % TweenerCmd.cmd_name)
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully unregistered command %s\n' % TweenerCmd.cmd_name)
+        sys.stdout.write("# Successfully unregistered command %s\n" % TweenerCmd.cmd_name)
     
     # deregister TweenerCmd
     try:
         plugin_fn.deregisterCommand(TweenerUICmd.cmd_name)
     except:
-        sys.stderr.write(
-            "Failed to deregister command: %s\n" % TweenerUICmd.cmd_name)
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerUICmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully unregistered command %s\n' % TweenerUICmd.cmd_name)
+        sys.stdout.write("# Successfully unregistered command %s\n" % TweenerUICmd.cmd_name)
     
     # deregister KeyHammerCmd
     try:
         plugin_fn.deregisterCommand(KeyHammerCmd.cmd_name)
     except:
-        sys.stderr.write(
-            "Failed to deregister command: %s\n" % KeyHammerCmd.cmd_name)
+        sys.stderr.write("Failed to deregister command: %s\n" % KeyHammerCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully unregistered command %s\n' % KeyHammerCmd.cmd_name)
+        sys.stdout.write("# Successfully unregistered command %s\n" % KeyHammerCmd.cmd_name)
     
     # deregister TweenerToolCmd
     try:
         plugin_fn.deregisterCommand(TweenerToolCmd.cmd_name)
     except:
-        sys.stderr.write(
-            "Failed to deregister command: %s\n" % TweenerToolCmd.cmd_name)
+        sys.stderr.write("Failed to deregister command: %s\n" % TweenerToolCmd.cmd_name)
         raise
     else:
-        sys.stdout.write(
-            '# Successfully unregistered command %s\n' % TweenerToolCmd.cmd_name)
+        sys.stdout.write("# Successfully unregistered command %s\n" % TweenerToolCmd.cmd_name)
 
 
 """
@@ -335,7 +319,8 @@ class KeyHammerCmd(om.MPxCommand):
     def doIt(self, args):
         self.anim_cache = oma.MAnimCurveChange()
         animdata.anim_cache = self.anim_cache
-        keyhammer.do()
+        self.clearResult()
+        self.setResult(keyhammer.do())
     
     def redoIt(self):
         self.anim_cache.redoIt()
@@ -345,6 +330,9 @@ class KeyHammerCmd(om.MPxCommand):
     
     def isUndoable(*args, **kwargs):
         return True
+    
+    def __str__(self):
+        return self.cmd_name
 
 
 class TweenerToolCmd(om.MPxCommand):

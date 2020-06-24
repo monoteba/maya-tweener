@@ -4,8 +4,8 @@ import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 
-import options
-import utils
+import options as options
+import utils as utils
 
 anim_cache = None
 curve_key_values = {}

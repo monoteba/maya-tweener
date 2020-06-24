@@ -18,8 +18,8 @@ from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
 import globals as g
-import options
-import tween
+import options as options
+import tween as tween
 
 tweener_window = None
 
@@ -34,16 +34,7 @@ def get_main_maya_window():
 
 
 def show(restore=False):
-    # close()  # close existing, seems safer to recreate
     TweenerUIScript(restore=restore)
-    
-    # global tweener_window
-    # if tweener_window is None:
-    #     tweener_window = TweenerUI(parent=get_main_maya_window())
-    
-    # tweener_window.show(dockable=True)  # show the window
-    # tweener_window.raise_()  # raise it on top of others
-    # tweener_window.activateWindow()  # set focus to it
 
 
 def close():
@@ -280,9 +271,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         version_label = QLabel(g.plugin_version)
         version_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        version_label.setStyleSheet(
-            'color: rgba(255, 255, 255, 54); font-size: %spx;' % (
-                apply_dpi_scaling(10)))
+        version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: %spx;' % (apply_dpi_scaling(10)))
         
         slider_label_layout.addWidget(
             QWidget())  # empty widget to balance layout
@@ -409,10 +398,12 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         # simulate slider press/release
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
-        cmds.undoInfo(stateWithoutFlush=False)
-        cmds.tweener(t=value, press=True, type=self.interpolation_mode.idx)
-        cmds.undoInfo(stateWithoutFlush=True)
-        cmds.tweener(t=value, press=False, type=self.interpolation_mode.idx)
+        cmds.undoInfo(openChunk=True, chunkName="tweener")
+        try:
+            cmds.tweener(t=value, press=True, type=self.interpolation_mode.idx)
+            cmds.tweener(t=value, press=False, type=self.interpolation_mode.idx)
+        finally:
+            cmds.undoInfo(closeChunk=True)
     
     def load_preferences(self):
         # set which mode button is checked
@@ -493,14 +484,36 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         # save setting
         options.save_overshoot(checked)
     
-    def keyhammer_button_clicked(self):
-        cmds.keyHammer()
+    @staticmethod
+    def keyhammer_button_clicked():
+        cmds.undoInfo(openChunk=True, chunkName="keyHammer")
+        try:
+            result = cmds.keyHammer()
+        finally:
+            cmds.undoInfo(closeChunk=True)
+        
+        # API 2.0 seems to always return MPxCommand results as a list
+        if isinstance(result, list) and len(result) >= 1:
+            result = result[0]
+        
+        if not result:
+            cmds.undo()
     
-    def tick_draw_special_clicked(self):
-        tween.tick_draw_special(special=True)
+    @staticmethod
+    def tick_draw_special_clicked():
+        cmds.undoInfo(openChunk=True, chunkName="Set special tick color")
+        try:
+            tween.tick_draw_special(special=True)
+        finally:
+            cmds.undoInfo(closeChunk=True)
     
-    def tick_draw_normal_clicked(self):
-        tween.tick_draw_special(special=False)
+    @staticmethod
+    def tick_draw_normal_clicked():
+        cmds.undoInfo(openChunk=True, chunkName="Set normal tick color")
+        try:
+            tween.tick_draw_special(special=False)
+        finally:
+            cmds.undoInfo(closeChunk=True)
     
     @staticmethod
     def v_separator_layout():
@@ -550,7 +563,7 @@ def TweenerUIScript(restore=False):
                                 uiScript="import maya.cmds as cmds;"
                                          "if cmds.pluginInfo('tweener.py', q=True, r=True) "
                                          "and cmds.pluginInfo('tweener.py', q=True, loaded=True) == False: "
-                                         "cmds.loadPlugin('tweener.py', qt=True);"
+                                         "cmds.loadPlugin('tweener.py', quiet=True);"
                                          "cmds.evalDeferred('cmds.tweenerUI(restore=False)', lp=True)")
         except Exception as e:
             sys.stdout.write(

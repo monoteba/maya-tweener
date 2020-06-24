@@ -8,9 +8,9 @@ Tool
 import maya.cmds as cmds
 
 import globals as g
-import options
-import tween
-import utils
+import options as options
+import tween as tween
+import utils as utils
 
 tool = None
 
