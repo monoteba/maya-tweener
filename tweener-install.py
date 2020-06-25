@@ -5,6 +5,8 @@ import urllib2
 import json
 import uuid
 import zipfile
+import logging
+from functools import partial
 
 import maya.cmds as cmds
 import maya.mel as mel
@@ -29,33 +31,49 @@ def onMayaDroppedPythonFile(*args):
 def main():
     result = cmds.confirmDialog(t='Tweener Installation',
                                 m='Would you like to download and install Tweener?',
-                                button=['Yes', 'No'],
-                                db='Yes',
-                                cb='No',
-                                ds='No')
+                                button=['Download', 'Offline Installation', 'Cancel'],
+                                db='Download',
+                                cb='Cancel',
+                                ds='Cancel')
     
-    if result == 'No':
+    if result == 'Cancel':
+        return
+    
+    if result == 'Offline Installation':
+        show_offline_window()
         return
     
     sys.stdout.write('# Downloading Tweener...\n')
     
     qApp.processEvents()
     zip_path = download()
+    if zip_path is None:
+        show_offline_window()
+        return
     
     plugin_path = install(zip_path)
     load(plugin_path)
 
 
 def download():
-    # get zip url from github
-    response = urllib2.urlopen(github_url, timeout=10)
-    data = json.load(response)
+    try:
+        # get zip url from github
+        response = urllib2.urlopen(github_url, timeout=10)
+        data = json.load(response)
+    except:
+        sys.stdout.write('# No internet connection: using offline installation.\n')
+        return None
     
-    assets = data['assets']
+    try:
+        assets = data['assets']
+    except Exception as e:
+        logging.exception(e)
+        return None
+    
     if assets is None or len(assets) == 0:
         sys.stderr.write('# Could not locate zip from url %s' % github_url)
         cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-        exit(1)
+        return None
     
     asset = assets[0]
     zip_url = asset['browser_download_url']
@@ -98,9 +116,9 @@ def download():
                 qApp.processEvents()
     
     except Exception as e:
-        sys.stderr.write('%s\n' % e)
+        logging.exception(e)
         cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-        exit(1)
+        return None
     finally:
         sys.stdout.write('# Download successful, installing...\n')
     
@@ -108,7 +126,7 @@ def download():
     return zip_path
 
 
-def install(zip_path):
+def install(zip_path, remove_zip=True):
     # maya plug-ins dir
     maya_app_dir = cmds.internalVar(userAppDir=True)
     
@@ -119,9 +137,9 @@ def install(zip_path):
             sys.stdout.write('# plug-ins directory does not exists, creating it at %s\n' % maya_plug_in_dir)
             os.makedirs(maya_plug_in_dir)
         except Exception as e:
-            sys.stderr.write('%s\n' % e)
+            logging.exception(e)
             cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-            exit(2)
+            return None
     
     # extract zip
     extract_path = maya_plug_in_dir + 'tweener'
@@ -130,9 +148,9 @@ def install(zip_path):
         try:
             shutil.rmtree(extract_path)  # remove existing folder
         except Exception as e:
-            sys.stderr.write('%s\n' % e)
+            logging.exception(e)
             cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-            exit(3)
+            return None
         finally:
             sys.stdout.write('# Removed old installation!\n')
     
@@ -145,31 +163,31 @@ def install(zip_path):
         try:
             os.makedirs(maya_modules_dir)
         except Exception as e:
-            sys.stderr.write('%s\n' % e)
+            logging.exception(e)
             cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-            exit(4)
+            return None
     
     try:
         with open(maya_modules_dir + 'tweener.mod', 'w') as f:
             f.write('+ Tweener 0.0 %s\n' % extract_path)
             f.write('MAYA_PLUG_IN_PATH +:= \n')
     except Exception as e:
-        sys.stderr.write('%s\n' % e)
+        logging.exception(e)
         cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-        exit(5)
+        return None
     finally:
         sys.stdout.write('# Created module file at "%s"\n' % maya_modules_dir)
     
     # clean-up
-    sys.stdout.write('# Cleaning up...\n')
-    try:
-        os.remove(zip_path)
-    except Exception as e:
-        sys.stderr.write('%s\n' % e)
-        cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
-        exit(6)
-    finally:
-        sys.stdout.write('\t# Removed %s\n' % zip_path)
+    if remove_zip:
+        try:
+            sys.stdout.write('# Cleaning up...\n')
+            os.remove(zip_path)
+        except Exception as e:
+            logging.exception(e)
+            cmds.progressBar(gMainProgressBar, edit=True, endProgress=True)
+        finally:
+            sys.stdout.write('# Removed %s\n' % zip_path)
     
     return extract_path
 
@@ -188,8 +206,8 @@ def load(plugin_path):
     if cmds.pluginInfo(plugin_name, q=True, r=True):
         try:
             cmds.unloadPlugin(plugin_name, force=True)
-        except:
-            pass
+        except Exception as e:
+            logging.exception(e)
     
     sys.path.append(plugin_path)
     
@@ -198,11 +216,14 @@ def load(plugin_path):
         reload(tweener)
         tweener.reload_mods()
     except Exception as e:
-        sys.stderr.write('%s\n' % e)
+        logging.exception(e)
     
-    cmds.loadPlugin(plugin_name)
-    if cmds.pluginInfo(plugin_name, q=True, r=True):
-        cmds.pluginInfo(plugin_name, e=True, autoload=True)
+    try:
+        cmds.loadPlugin(plugin_name)
+        if cmds.pluginInfo(plugin_name, q=True, r=True):
+            cmds.pluginInfo(plugin_name, e=True, autoload=True)
+    except Exception as e:
+        logging.exception(e)
     
     try:
         cmds.tweener()
@@ -222,6 +243,56 @@ def load(plugin_path):
         try:
             tweener.ui.add_shelf_button(path=plugin_path)
         except Exception as e:
-            sys.stderr.write('%s\n' % str(e))
+            logging.exception(e)
     
     sys.stdout.write('# Tweener install completed! See the Script Editor for more information.\n')
+
+
+def show_offline_window():
+    window = cmds.window(title="Tweener Offline Install", resizeToFitChildren=True, sizeable=False, bgc=[0.79, 0.79, 0.79])
+    form = cmds.formLayout(nd=100)
+    
+    column = cmds.columnLayout(adjustableColumn=True)
+    cmds.text(label='Tweener was not downloadeded automatically.', align='left')
+    cmds.text(label=' ')
+    cmds.text(label='Please download the latest release from:', align='left')
+    cmds.text(
+        label="<a href=\"https://github.com/mortenblaa/maya-tweener/releases/latest\">https://github.com/mortenblaa/maya-tweener/releases/latest</a>",
+        align='left',
+        hyperlink=True,
+        highlightColor=[1.0, 1.0, 1.0])
+    cmds.text(label=' ')
+    cmds.text(label='The file is called \"tweener-1.0.0.zip\" or similar.', align='left')
+    cmds.text(label=' ')
+    cmds.text(label=' ')
+    cmds.setParent('..')
+    
+    button = cmds.button(label='Install from .zip', command=partial(offline_install, window), bgc=[0.363, 0.363, 0.363])
+    cmds.setParent('..')
+    
+    cmds.formLayout(form, e=True, attachForm=[(column, 'left', 10),
+                                              (column, 'top', 10),
+                                              (column, 'right', 10),
+                                              
+                                              (button, 'left', 10),
+                                              (button, 'bottom', 10),
+                                              (button, 'right', 10)])
+    cmds.showWindow(window)
+
+
+def offline_install(window, *args):
+    cmds.deleteUI(window)
+    zip_path = get_zip()
+    
+    if not zip_path:
+        show_offline_window()
+        return
+    
+    print(zip_path)
+    plugin_path = install(zip_path[0], remove_zip=False)
+    load(plugin_path)
+
+
+def get_zip():
+    zipFilter = 'ZIP file (*.zip)'
+    return cmds.fileDialog2(fileFilter=zipFilter, dialogStyle=2, fileMode=1)
