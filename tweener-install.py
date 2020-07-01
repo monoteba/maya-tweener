@@ -249,7 +249,8 @@ def load(plugin_path):
 
 
 def show_offline_window():
-    window = cmds.window(title="Tweener Offline Install", resizeToFitChildren=True, sizeable=False, bgc=[0.79, 0.79, 0.79])
+    window = cmds.window(title="Tweener Offline Install", resizeToFitChildren=True, sizeable=False,
+                         bgc=[0.79, 0.79, 0.79])
     form = cmds.formLayout(nd=100)
     
     column = cmds.columnLayout(adjustableColumn=True)
@@ -257,7 +258,8 @@ def show_offline_window():
     cmds.text(label=' ')
     cmds.text(label='Please download the latest release from:', align='left')
     cmds.text(
-        label="<a href=\"https://github.com/mortenblaa/maya-tweener/releases/latest\">https://github.com/mortenblaa/maya-tweener/releases/latest</a>",
+        label='<a style="color:#ff8a00;" href="https://github.com/mortenblaa/maya-tweener/releases/latest">'
+              'https://github.com/mortenblaa/maya-tweener/releases/latest</a>',
         align='left',
         hyperlink=True,
         highlightColor=[1.0, 1.0, 1.0])
@@ -267,13 +269,13 @@ def show_offline_window():
     cmds.text(label=' ')
     cmds.setParent('..')
     
-    button = cmds.button(label='Install from .zip', command=partial(offline_install, window), bgc=[0.363, 0.363, 0.363])
+    button = cmds.button(label='Install from .zip', command=partial(offline_install, window))
     cmds.setParent('..')
     
     cmds.formLayout(form, e=True, attachForm=[(column, 'left', 10),
                                               (column, 'top', 10),
                                               (column, 'right', 10),
-                                              
+    
                                               (button, 'left', 10),
                                               (button, 'bottom', 10),
                                               (button, 'right', 10)])
