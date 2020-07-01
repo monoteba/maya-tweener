@@ -21,7 +21,7 @@ Maya 2017 Update 3 or later.
 Download [tweener-install.py](https://github.com/mortenblaa/maya-tweener/raw/master/tweener-install.py) (right-click, save link as...) and drag 
 the file into Maya's viewport. Make sure it is a `.py` file and not a `.txt` file.
 
-If you prefer to manually install the plug-in, refer to "Installation" page in the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
+If you prefer to manually install the plug-in, refer to the "Installation" page in the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
 
 ## Documentation
 
