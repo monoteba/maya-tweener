@@ -52,10 +52,14 @@ explore each type. See the description of each mode below.
 
 | Icon | Name | Description |
 | :---: | :--- | :--- |
-| <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-300:300]` and allows you to go past the target. |
+| <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-200:200]` and allows you to go past the target. |
 | <img src="icons/keyhammer.svg" width="20" height="20"> | Key Hammer | Adds a key for every attribute for any key on selected objects. The manual equivalent method would be to go to the first key and press `S`, go to the next keyframe and press `S`, go to the next keyframe and press `S` etc. for every keyframe. |
 | <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. |
 | <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
+
+### Show or Hide UI Elements
+
+For an even smaller window, you can right click anywhere in the window to show or hide the toolbar or preset buttons
 
 ## Known Issues
 
