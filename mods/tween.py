@@ -155,9 +155,8 @@ def lerp_between(a, b, t):
     """
     
     # remap t to [0;1] from [-1;1]
-    t_remapped = t * 0.5 + 0.5
-    
-    return a + (b - a) * t_remapped
+    t = t * 0.5 + 0.5
+    return a + (b - a) * t
 
 
 def lerp_towards(a, b, t, current):
@@ -171,13 +170,13 @@ def lerp_towards(a, b, t, current):
     :return: value between a and current, or b and current
     :rtype: float
     """
-    
+
     if t < 0:
-        tRemapped = t * 2.0 + 1.0  # remap [-1;0] to [-1;1]
-        return lerp_between(a, current, tRemapped)
+        t = t * 2.0 + 1.0  # remap [-1;0] to [-1;1]
+        return lerp_between(a, current, t)
     elif t > 0:
-        tRemapped = t * 2.0 - 1.0  # remap [0;1] to [-1;1]
-        return lerp_between(current, b, tRemapped)
+        t = t * 2.0 - 1.0  # remap [0;1] to [-1;1]
+        return lerp_between(current, b, t)
     else:
         return current
 

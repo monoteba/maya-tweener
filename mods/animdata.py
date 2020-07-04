@@ -103,16 +103,9 @@ def prepare(mode):
             # append last iteration
             groups.append(index_group)
             
-            num_keys = curve_fn.numKeys
             for grp in groups:
-                prev_index = grp[0] - 1
-                next_index = grp[-1] + 1
-                
-                if prev_index < 0:
-                    prev_index = 0
-                
-                if next_index >= num_keys:
-                    next_index = num_keys - 1
+                prev_index = max(0, grp[0] - 1)
+                next_index = min(grp[-1] + 1, curve_fn.numKeys - 1)
                 
                 for idx in grp:
                     add_to_key_group(curve_fn, idx, prev_index, next_index, key_group)
@@ -128,15 +121,8 @@ def prepare(mode):
             closest_index = curve_fn.findClosest(mtime_range[0])
             closest_time = curve_fn.input(closest_index)
             if current_index is not None:
-                prev_index = closest_index - 1
-                next_index = closest_index + 1
-                
-                if prev_index < 0:
-                    prev_index = 0
-                
-                num_keys = curve_fn.numKeys
-                if next_index >= num_keys:
-                    next_index = num_keys - 1
+                prev_index = max(0, closest_index - 1)
+                next_index = min(curve_fn.numKeys - 1, closest_index + 1)
                 
                 # key exists, so two curve tangent segments
                 if is_curve_tangent:
@@ -156,11 +142,8 @@ def prepare(mode):
                 value = curve_fn.evaluate(mtime_range[0])
                 current_index = curve_fn.addKey(mtime_range[0], value, change=anim_cache)
                 
-                next_index = next_index + 1
-                num_keys = curve_fn.numKeys
-                if next_index >= num_keys:
-                    next_index = num_keys - 1
-                    
+                next_index = min(curve_fn.numKeys - 1, next_index + 1)
+                
                 # there isn't any key yet, so we only have one tangent segment and thus index=None
                 if is_curve_tangent:
                     add_tangent_points_to_key_group(key_group, curve_fn, prev_index, next_index, index=current_index)

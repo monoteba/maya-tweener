@@ -41,18 +41,19 @@ def do():
     
     # get time for keyframes
     times = set()
+    selected_keys = cmds.keyframe(q=True, selected=True, timeChange=True) if is_range is False else None
     
     if is_range:
         unit = om.MTime.uiUnit()
         min_time = om.MTime(time_range[0], unit)
         max_time = om.MTime(time_range[1], unit)
         for curve_fn in curve_fns:
-            start_index = max(0, curve_fn.findClosest(
-                min_time) - 1)  # -1 just to be safe
-            end_index = min(curve_fn.numKeys, curve_fn.findClosest(
-                max_time) + 1)  # +1 just to be safe
+            start_index = max(0, curve_fn.findClosest(min_time))  # -1 just to be safe, is checked later
+            end_index = min(curve_fn.numKeys, curve_fn.findClosest(max_time))  # +1 just to be safe
             for i in range(start_index, end_index):
                 times.add(curve_fn.input(i).value)
+    elif selected_keys is not None:
+        times = set(selected_keys)
     else:
         for curve_fn in curve_fns:
             for i in range(curve_fn.numKeys):

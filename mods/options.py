@@ -42,7 +42,6 @@ class BlendingMode:
 def save_interpolation_mode(idx=0):
     """
     Saves the blending mode using Maya option variables.
-    
     :param idx: The blending mode idx
     :type idx: int
     """
@@ -52,7 +51,6 @@ def save_interpolation_mode(idx=0):
 def load_interpolation_mode():
     """
     Loads the blending mode using Maya option variables.
-    
     :return: The loaded blending mode.
     :rtype: BlendingMode.Mode
     """
@@ -71,7 +69,6 @@ def load_interpolation_mode():
 def save_overshoot(value=False):
     """
     Saves the overshoot state using Maya optionVars.
-    
     :param value: Current state of the overshoot toggle
     """
     cmds.optionVar(iv=('tweener_overshoot', int(value)))
@@ -87,3 +84,41 @@ def load_overshoot():
         return bool(cmds.optionVar(q='tweener_overshoot'))
     
     return False
+
+
+def save_toolbar(visible=True):
+    """
+    Saves the visibility of window buttons
+    :param visible: Whether the toolbar is visible
+    """
+    cmds.optionVar(iv=('tweener_toolbar', int(visible)))
+
+
+def load_toolbar():
+    """
+    Loads the visibility of the toolbar
+    :rtype: bool
+    """
+    if cmds.optionVar(exists='tweener_toolbar'):
+        return bool(cmds.optionVar(q='tweener_toolbar'))
+    
+    return True
+
+
+def save_presets(visible=True):
+    """
+    Saves the visibility of the preset buttons
+    :param visible: Whether the preset buttons are visible
+    """
+    cmds.optionVar(iv=('tweener_presets', int(visible)))
+
+
+def load_presets():
+    """
+    Loads the visibility of the preset buttons
+    :rtype: bool
+    """
+    if cmds.optionVar(exists='tweener_presets'):
+        return bool(cmds.optionVar(q='tweener_presets'))
+    
+    return True

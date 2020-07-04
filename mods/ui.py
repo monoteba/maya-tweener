@@ -117,15 +117,15 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         margin = apply_dpi_scaling(4)
         main_layout.setContentsMargins(margin, margin, margin, margin)
-        
-        # layout window
-        layout = QVBoxLayout(main_widget)
-        layout.setAlignment(Qt.AlignTop)
-        layout.setSpacing(apply_dpi_scaling(4))
-        main_layout.addLayout(layout)
+        main_layout.setAlignment(Qt.AlignTop)
+        main_layout.setSpacing(apply_dpi_scaling(4))
         
         # top button layout
-        top_button_layout = QHBoxLayout(main_widget)
+        self.toolbar_widget = QWidget(main_widget)
+        main_layout.addWidget(self.toolbar_widget)
+        
+        toolbar_layout = QHBoxLayout(self.toolbar_widget)
+        toolbar_layout.setContentsMargins(0, 0, 0, 0)
         
         # mode buttons
         self.interpolation_mode = options.BlendingMode.between
@@ -215,8 +215,63 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         misc_button_layout.addWidget(self.tick_draw_special_btn)
         misc_button_layout.addWidget(self.tick_draw_normal_btn)
         
+        # fraction buttons
+        self.preset_widget = QWidget(main_widget)
+        main_layout.addWidget(self.preset_widget)
+        
+        self.preset_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        
+        preset_layout = QHBoxLayout(self.preset_widget)
+        preset_layout.setContentsMargins(0, 0, 0, 0)
+        
+        preset_layout.setSpacing(apply_dpi_scaling(2))
+        rad = apply_dpi_scaling(12)
+        self.preset_0_btn = PresetButton(radius=rad, fraction=0.0)
+        self.preset_1_btn = PresetButton(radius=rad, fraction=0.167)
+        self.preset_2_btn = PresetButton(radius=rad, fraction=0.25)
+        self.preset_3_btn = PresetButton(radius=rad, fraction=0.333)
+        self.preset_4_btn = PresetButton(radius=rad, fraction=0.5)
+        self.preset_5_btn = PresetButton(radius=rad, fraction=0.667)
+        self.preset_6_btn = PresetButton(radius=rad, fraction=0.75)
+        self.preset_7_btn = PresetButton(radius=rad, fraction=0.833)
+        self.preset_8_btn = PresetButton(radius=rad, fraction=1.0)
+        
+        self.preset_0_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.0))
+        self.preset_1_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.167))
+        self.preset_2_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.25))
+        self.preset_3_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.3333))
+        self.preset_4_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.5))
+        self.preset_5_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.6667))
+        self.preset_6_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.75))
+        self.preset_7_btn.clicked.connect(
+            lambda: self.fraction_clicked(0.833))
+        self.preset_8_btn.clicked.connect(
+            lambda: self.fraction_clicked(1.0))
+        
+        preset_layout.addWidget(self.preset_0_btn)
+        preset_layout.addWidget(self.preset_1_btn)
+        preset_layout.addWidget(self.preset_2_btn)
+        preset_layout.addWidget(self.preset_3_btn)
+        preset_layout.addWidget(self.preset_4_btn)
+        preset_layout.addWidget(self.preset_5_btn)
+        preset_layout.addWidget(self.preset_6_btn)
+        preset_layout.addWidget(self.preset_7_btn)
+        preset_layout.addWidget(self.preset_8_btn)
+        
         # slider
-        slider_layout = QHBoxLayout(main_widget)
+        slider_widget = QWidget(main_widget)
+        main_layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.Maximum, QSizePolicy.MinimumExpanding))
+        main_layout.addWidget(slider_widget)
+        slider_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        
+        slider_layout = QHBoxLayout(slider_widget)
         slider_layout.setContentsMargins(0, 0, 0, 0)
         slider_layout.setSpacing(apply_dpi_scaling(4))
         
@@ -278,63 +333,41 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         slider_label_layout.addWidget(self.slider_label)
         slider_label_layout.addWidget(version_label)
         
-        # fraction buttons
-        fraction_layout = QHBoxLayout(main_widget)
-        fraction_layout.setSpacing(apply_dpi_scaling(2))
-        rad = apply_dpi_scaling(12)
-        self.preset_0_btn = PresetButton(radius=rad, fraction=0.0)
-        self.preset_1_btn = PresetButton(radius=rad, fraction=0.167)
-        self.preset_2_btn = PresetButton(radius=rad, fraction=0.25)
-        self.preset_3_btn = PresetButton(radius=rad, fraction=0.333)
-        self.preset_4_btn = PresetButton(radius=rad, fraction=0.5)
-        self.preset_5_btn = PresetButton(radius=rad, fraction=0.667)
-        self.preset_6_btn = PresetButton(radius=rad, fraction=0.75)
-        self.preset_7_btn = PresetButton(radius=rad, fraction=0.833)
-        self.preset_8_btn = PresetButton(radius=rad, fraction=1.0)
-        
-        self.preset_0_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.0))
-        self.preset_1_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.167))
-        self.preset_2_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.25))
-        self.preset_3_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.3333))
-        self.preset_4_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.5))
-        self.preset_5_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.6667))
-        self.preset_6_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.75))
-        self.preset_7_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.833))
-        self.preset_8_btn.clicked.connect(
-            lambda: self.fraction_clicked(1.0))
-        
-        fraction_layout.addWidget(self.preset_0_btn)
-        fraction_layout.addWidget(self.preset_1_btn)
-        fraction_layout.addWidget(self.preset_2_btn)
-        fraction_layout.addWidget(self.preset_3_btn)
-        fraction_layout.addWidget(self.preset_4_btn)
-        fraction_layout.addWidget(self.preset_5_btn)
-        fraction_layout.addWidget(self.preset_6_btn)
-        fraction_layout.addWidget(self.preset_7_btn)
-        fraction_layout.addWidget(self.preset_8_btn)
-        
         # combine layouts
-        top_button_layout.addLayout(mode_layout)
-        top_button_layout.addStretch()
-        top_button_layout.addLayout(misc_button_layout)
+        toolbar_layout.addLayout(mode_layout)
+        toolbar_layout.addStretch()
+        toolbar_layout.addLayout(misc_button_layout)
         
-        layout.addLayout(top_button_layout)
-        layout.addLayout(fraction_layout)
-        layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.Maximum,
-                                         QSizePolicy.MinimumExpanding))
-        layout.addLayout(slider_layout)
-        layout.addLayout(slider_label_layout)
+        main_layout.addLayout(slider_label_layout)
+        
+        # right click menu
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_popup)
+        self.popupMenu = QMenu()
+        
+        self.toolbar_action = self.PBSaveFileCB = self.popupMenu.addAction("Toolbar")
+        self.toolbar_action.setCheckable(True)
+        self.toolbar_action.triggered.connect(self.popup_toolbar_clicked)
+        
+        self.preset_action = self.PBSaveFileCB = self.popupMenu.addAction("Preset Buttons")
+        self.preset_action.setCheckable(True)
+        self.preset_action.triggered.connect(self.popup_presets_clicked)
         
         self.load_preferences()
         self.set_mode_button()
+    
+    def show_popup(self, position):
+        self.popupMenu.exec_(self.mapToGlobal(position))
+    
+    def popup_toolbar_clicked(self):
+        vis = not self.toolbar_widget.isVisible()
+        self.toolbar_widget.setVisible(vis)
+        options.save_toolbar(vis)
+    
+    def popup_presets_clicked(self):
+        vis = not self.preset_widget.isVisible()
+        self.preset_widget.setVisible(vis)
+        options.save_presets(vis)
     
     def slider_pressed(self):
         self.dragging = True
@@ -426,6 +459,17 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             sys.stdout.write('# %s\n' % e)
         
         self.overshoot_button_clicked()  # simulate button click to setup slider values
+        
+        # visibility of toolbar and preset buttons
+        try:
+            v_t = options.load_toolbar()
+            v_p = options.load_presets()
+            self.toolbar_widget.setVisible(v_t)
+            self.toolbar_action.setChecked(v_t)
+            self.preset_widget.setVisible(v_p)
+            self.preset_action.setChecked(v_p)
+        except Exception as e:
+            sys.stdout.write('# %s\n' % e)
     
     def set_mode_button(self):
         options.save_interpolation_mode(int(self.mode_button_group.checkedId()))
@@ -459,8 +503,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         checked = self.overshoot_btn.isChecked()
         
         if checked:
-            self.slider.setMinimum(-300)
-            self.slider.setMaximum(300)
+            self.slider.setMinimum(-200)
+            self.slider.setMaximum(200)
         else:
             self.slider.setMinimum(-100)
             self.slider.setMaximum(100)
