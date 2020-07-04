@@ -7,7 +7,7 @@ import maya.cmds as cmds
 
 plugin_name = 'tweener.py'
 plugin_path = ''
-plugin_version = '1.0.0'
+plugin_version = '1.0.1'
 
 
 def refresh_plug_in_path():
