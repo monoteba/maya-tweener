@@ -29,6 +29,10 @@ Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
 
 ## Getting Started
 
+<p align="center">
+<img src="tweener-overview.png" width="50%" height="auto">
+</p>
+
 After installing Tweener, click the shelf button <img src="icons/tweener-icon.svg" width="32px" height="32px">
 
 Alternatively, you can execute `tweener` as a MEL command.
