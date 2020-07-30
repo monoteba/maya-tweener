@@ -249,8 +249,7 @@ def load(plugin_path):
 
 
 def show_offline_window():
-    window = cmds.window(title="Tweener Offline Install", resizeToFitChildren=True, sizeable=False,
-                         bgc=[0.79, 0.79, 0.79])
+    window = cmds.window(title="Tweener Offline Install", resizeToFitChildren=True, sizeable=False)
     form = cmds.formLayout(nd=100)
     
     column = cmds.columnLayout(adjustableColumn=True)
