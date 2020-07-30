@@ -90,9 +90,10 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.idle_callback = None
         self.dragging = False
         self.busy = False
+        self.live_preview = True
         
         # define window dimensions
-        self.setMinimumWidth(apply_dpi_scaling(370))
+        self.setMinimumWidth(apply_dpi_scaling(418))
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         
         # style
@@ -187,33 +188,30 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.overshoot_btn.clicked.connect(self.overshoot_button_clicked)
         self.overshoot_btn.setToolTip('Toggle Overshoot')
         
-        self.keyhammer_btn = Button(icon='icons/keyhammer.svg',
-                                    is_checkable=False)
+        self.keyhammer_btn = Button(icon='icons/keyhammer.svg', is_checkable=False)
         self.keyhammer_btn.clicked.connect(self.keyhammer_button_clicked)
         self.keyhammer_btn.setToolTip('Hammer Keys')
         
-        self.tick_draw_special_btn = Button(icon='icons/tick-special.svg',
-                                            is_checkable=False,
-                                            mini_button=True)
-        self.tick_draw_special_btn.clicked.connect(
-            self.tick_draw_special_clicked)
-        self.tick_draw_special_btn.setToolTip(
-            'Set special tick color for keyframe')
+        self.tick_draw_special_btn = Button(icon='icons/tick-special.svg', is_checkable=False, mini_button=True)
+        self.tick_draw_special_btn.clicked.connect(self.tick_draw_special_clicked)
+        self.tick_draw_special_btn.setToolTip('Set special tick color for keyframe')
         
-        self.tick_draw_normal_btn = Button(icon='icons/tick-normal.svg',
-                                           is_checkable=False, mini_button=True)
+        self.tick_draw_normal_btn = Button(icon='icons/tick-normal.svg', is_checkable=False, mini_button=True)
         self.tick_draw_normal_btn.clicked.connect(self.tick_draw_normal_clicked)
-        self.tick_draw_normal_btn.setToolTip(
-            'Set normal tick color for keyframe')
+        self.tick_draw_normal_btn.setToolTip('Set normal tick color for keyframe')
+        
+        self.live_preview_btn = Button(icon='icons/live-preview.svg', is_checkable=True)
+        self.live_preview_btn.clicked.connect(self.live_preview_clicked)
+        self.live_preview_btn.setToolTip('Live Preview')
         
         misc_button_layout.addWidget(self.overshoot_btn)
-        misc_button_layout.addSpacerItem(
-            QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        misc_button_layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
         misc_button_layout.addWidget(self.keyhammer_btn)
-        misc_button_layout.addSpacerItem(
-            QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        misc_button_layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
         misc_button_layout.addWidget(self.tick_draw_special_btn)
         misc_button_layout.addWidget(self.tick_draw_normal_btn)
+        misc_button_layout.addSpacerItem(QSpacerItem(8, 1, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        misc_button_layout.addWidget(self.live_preview_btn)
         
         # fraction buttons
         self.preset_widget = QWidget(main_widget)
@@ -328,8 +326,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         version_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         version_label.setStyleSheet('color: rgba(255, 255, 255, 54); font-size: %spx;' % (apply_dpi_scaling(10)))
         
-        slider_label_layout.addWidget(
-            QWidget())  # empty widget to balance layout
+        slider_label_layout.addWidget(QWidget())  # empty widget to balance layout
         slider_label_layout.addWidget(self.slider_label)
         slider_label_layout.addWidget(version_label)
         
@@ -378,16 +375,16 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         
         # only update when maya is idle to prevent multiple calls without seeing the result
-        self.idle_callback = om.MEventMessage.addEventCallback('idle',
-                                                               self.slider_changed)
+        self.idle_callback = om.MEventMessage.addEventCallback('idle', self.slider_changed)
         
-        # disable undo on first call, so we don't get 2 undos in queue
-        # both press and release add to the same cache, so it should be safe
-        cmds.undoInfo(stateWithoutFlush=False)
-        cmds.tweener(t=blend, press=True, type=self.interpolation_mode.idx)
-        cmds.undoInfo(stateWithoutFlush=True)
-        
-        tween.interpolate(blend=blend, mode=self.interpolation_mode)
+        if self.live_preview:
+            # disable undo on first call, so we don't get 2 undos in queue
+            # both press and release add to the same cache, so it should be safe
+            cmds.undoInfo(stateWithoutFlush=False)
+            cmds.tweener(t=blend, newCache=True, type=self.interpolation_mode.idx)
+            cmds.undoInfo(stateWithoutFlush=True)
+            
+            tween.interpolate(blend=blend, mode=self.interpolation_mode)
     
     def slider_changed(self, *args):
         if self.busy or not self.dragging:
@@ -404,14 +401,15 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
                                          options.BlendingMode.default]:
             self.slider_label.setText(str(slider_value))
         
-        blend = slider_value / 100.0
-        tween.interpolate(blend=blend, mode=self.interpolation_mode)
-        
-        view = omui2.M3dView()
-        view = view.active3dView()
-        view.refresh()
+        if self.live_preview:
+            blend = slider_value / 100.0
+            tween.interpolate(blend=blend, mode=self.interpolation_mode)
+            
+            view = omui2.M3dView()
+            view = view.active3dView()
+            view.refresh()
+            
         qApp.processEvents()
-        
         self.busy = False
     
     def slider_released(self):
@@ -419,7 +417,10 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         slider_value = self.slider.value()
         
         blend = slider_value / 100.0
-        cmds.tweener(t=blend, press=False, type=self.interpolation_mode.idx)
+        if self.live_preview:
+            cmds.tweener(t=blend, newCache=False, type=self.interpolation_mode.idx)
+        else:
+            cmds.tweener(t=blend, newCache=True, type=self.interpolation_mode.idx)
         
         self.slider.setValue(0)
         self.slider_label.setText('')
@@ -429,12 +430,11 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
     def fraction_clicked(self, value):
         value = value * 2.0 - 1.0
         
-        # simulate slider press/release
         self.interpolation_mode = self.mode_button_group.checkedButton().mode()
         cmds.undoInfo(openChunk=True, chunkName="tweener")
         try:
-            cmds.tweener(t=value, press=True, type=self.interpolation_mode.idx)
-            cmds.tweener(t=value, press=False, type=self.interpolation_mode.idx)
+            cmds.tweener(t=value, newCache=True, type=self.interpolation_mode.idx)
+            # cmds.tweener(t=value, newCache=False, type=self.interpolation_mode.idx)
         finally:
             cmds.undoInfo(closeChunk=True)
     
@@ -460,6 +460,15 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         self.overshoot_button_clicked()  # simulate button click to setup slider values
         
+        # live preview state
+        try:
+            self.live_preview_btn.setChecked(options.load_live_preview())
+        except Exception as e:
+            self.live_preview_btn.setChecked(True)
+            sys.stdout.write('# %s\n' % e)
+            
+        self.live_preview_clicked()  # simulate clicked to setup values
+            
         # visibility of toolbar and preset buttons
         try:
             v_t = options.load_toolbar()
@@ -542,6 +551,13 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             tween.tick_draw_special(special=False)
         finally:
             cmds.undoInfo(closeChunk=True)
+    
+    def live_preview_clicked(self):
+        checked = self.live_preview_btn.isChecked()
+        self.live_preview = checked
+        
+        # save setting
+        options.save_live_preview(checked)
     
     @staticmethod
     def v_separator_layout():

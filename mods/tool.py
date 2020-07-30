@@ -48,6 +48,7 @@ class Tool:
         
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
+        self.live_preview = options.load_live_preview()
         
         if not g.plugin_path:
             g.refresh_plug_in_path()
@@ -76,15 +77,17 @@ class Tool:
                                                   anchorPoint=True)
         self.interpolation_mode = options.load_interpolation_mode()
         self.overshoot = options.load_overshoot()
+        self.live_preview = options.load_live_preview()
         
         # disable undo on first call, so we don't get 2 undos in queue
         # both press and release add to the same cache, so it should be safe
-        cmds.undoInfo(stateWithoutFlush=False)
-        cmds.tweener(t=0.0, press=True, type=self.interpolation_mode.idx)
-        cmds.undoInfo(stateWithoutFlush=True)
-        
-        tween.interpolate(blend=0.0, mode=self.interpolation_mode)
-        cmds.refresh()
+        if self.live_preview:
+            cmds.undoInfo(stateWithoutFlush=False)
+            cmds.tweener(t=0.0, newCache=True, type=self.interpolation_mode.idx)
+            cmds.undoInfo(stateWithoutFlush=True)
+            
+            tween.interpolate(blend=0.0, mode=self.interpolation_mode)
+            cmds.refresh()
     
     def drag(self):
         """
@@ -94,16 +97,21 @@ class Tool:
                                                  q=True,
                                                  dragPoint=True)
         
-        blend = self.get_blend()
-        tween.interpolate(blend=blend, mode=self.interpolation_mode)
-        cmds.refresh()
+        if self.live_preview:
+            blend = self.get_blend()
+            tween.interpolate(blend=blend, mode=self.interpolation_mode)
+            cmds.refresh()
     
     def release(self):
         """
         Dragger context release event handler.
         """
         blend = self.get_blend()
-        cmds.tweener(t=blend, press=False, type=self.interpolation_mode.idx)
+        if self.live_preview:
+            cmds.tweener(t=blend, newCache=False, type=self.interpolation_mode.idx)
+        else:
+            cmds.tweener(t=blend, newCache=True, type=self.interpolation_mode.idx)
+            
         cmds.refresh()
         
     def finalize(self):

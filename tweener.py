@@ -180,14 +180,14 @@ class TweenerCmd(om.MPxCommand):
     # command flags
     interpolant_flag = '-t'
     interpolant_flag_long = '-interpolant'
-    press_flag = '-p'
-    press_flag_long = '-press'
     type_flag = '-tp'
     type_flag_long = '-type'
+    new_cache_flag = '-nc'
+    new_cache_long = '-newCache'
     
     # default command argument values
     blend_arg = 0
-    press_arg = False
+    new_cache_arg = True
     type_arg = None
     
     def __init__(self):
@@ -202,9 +202,8 @@ class TweenerCmd(om.MPxCommand):
         syntax = om.MSyntax()
         
         # add flags
-        syntax.addFlag(cls.interpolant_flag, cls.interpolant_flag_long,
-                       om.MSyntax.kDouble)
-        syntax.addFlag(cls.press_flag, cls.press_flag_long, om.MSyntax.kBoolean)
+        syntax.addFlag(cls.interpolant_flag, cls.interpolant_flag_long, om.MSyntax.kDouble)
+        syntax.addFlag(cls.new_cache_flag, cls.new_cache_long, om.MSyntax.kBoolean)
         syntax.addFlag(cls.type_flag, cls.type_flag_long, om.MSyntax.kLong)
         return syntax
     
@@ -212,11 +211,10 @@ class TweenerCmd(om.MPxCommand):
         arg_data = om.MArgParser(self.syntax(), args)
         
         if arg_data.isFlagSet(self.interpolant_flag):
-            self.blend_arg = arg_data.flagArgumentDouble(self.interpolant_flag,
-                                                         0)
+            self.blend_arg = arg_data.flagArgumentDouble(self.interpolant_flag, 0)
         
-        if arg_data.isFlagSet(self.press_flag):
-            self.press_arg = arg_data.flagArgumentBool(self.press_flag, 0)
+        if arg_data.isFlagSet(self.new_cache_flag):
+            self.new_cache_arg = arg_data.flagArgumentBool(self.new_cache_flag, 0)
         
         if arg_data.isFlagSet(self.type_flag):
             self.type_arg = arg_data.flagArgumentInt(self.type_flag, 0)
@@ -232,16 +230,15 @@ class TweenerCmd(om.MPxCommand):
         # the animation cache must be stored in the command instance itself so
         # we pass a reference to the cache to the Lt class, so we can manipulate
         # the currently active cache
-        if self.press_arg:
-            # if press, then create a new cache
+        if self.new_cache_arg:
+            # if initialize, then create a new cache
             self.anim_cache = oma.MAnimCurveChange()
             animdata.anim_cache = self.anim_cache
             animdata.prepare(mode=options.BlendingMode.get_mode_from_id(self.type_arg))
-        else:
-            # else use the existing stored at module level
-            self.anim_cache = animdata.anim_cache
-            tween.interpolate(blend=self.blend_arg,
-                              mode=options.BlendingMode.get_mode_from_id(self.type_arg))
+        
+        # always interpolate
+        self.anim_cache = animdata.anim_cache
+        tween.interpolate(blend=self.blend_arg, mode=options.BlendingMode.get_mode_from_id(self.type_arg))
     
     def redoIt(self):
         self.anim_cache.redoIt()

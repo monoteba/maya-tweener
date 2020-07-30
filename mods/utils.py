@@ -346,10 +346,10 @@ def get_curve_tangents_bezier_points(curve_fn, start_index, end_index):
     p4 = Point(curve_fn.input(end_index).asUnits(om.MTime.kSeconds), curve_fn.value(end_index))
     
     p2 = curve_fn.getTangentXY(start_index, False)  # inTangent = False
-    p2 = Point(p1.x + p2[0] / 3, p1.y + p2[1] / 3)
+    p2 = Point(p1.x + p2[0] / 3.0, p1.y + p2[1] / 3.0)
     
     p3 = curve_fn.getTangentXY(end_index, True)  # inTangent = True
-    p3 = Point(p4.x - p3[0] / 3, p4.y - p3[1] / 3)
+    p3 = Point(p4.x - p3[0] / 3.0, p4.y - p3[1] / 3.0)
     
     return p1, p2, p3, p4
 

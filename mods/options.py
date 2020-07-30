@@ -86,6 +86,27 @@ def load_overshoot():
     return False
 
 
+def save_live_preview(value=True):
+    """
+    Saves the live preview state using Maya optionVars.
+    :param value: Current state of the live preview toggle
+    :return:
+    """
+    cmds.optionVar(iv=('tweener_live_preview', int(value)))
+
+
+def load_live_preview():
+    """
+    Loads the live preview state from Maya optionVars.
+    :return:  The loaded live preview state
+    :rtype: bool
+    """
+    if cmds.optionVar(exists='tweener_live_preview'):
+        return bool(cmds.optionVar(q='tweener_live_preview'))
+    
+    return True
+
+
 def save_toolbar(visible=True):
     """
     Saves the visibility of window buttons

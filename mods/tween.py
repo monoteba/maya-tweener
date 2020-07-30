@@ -70,7 +70,7 @@ def interpolate_average(t):
         is_single = length < 2
         avg_val = 0
         if not is_single:
-            avg_val = sum(key_group.value) / length
+            avg_val = sum(key_group.value) / float(length)
         for i in range(length):
             if is_single:
                 avg_val = (key_group.prev_value[i] + key_group.next_value[
