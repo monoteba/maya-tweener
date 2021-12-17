@@ -1,13 +1,19 @@
 import sys
 import os
 import shutil
-import urllib2
 import json
 import uuid
 import zipfile
 import logging
+import ssl
+import certifi
 from functools import partial
 
+if sys.version_info >= (3, 0):
+    from urllib.request import urlopen
+else:
+    from urllib2 import urlopen
+    
 import maya.cmds as cmds
 import maya.mel as mel
 import maya.utils as utils
@@ -24,7 +30,7 @@ plugin_name = 'tweener.py'
 
 
 def onMayaDroppedPythonFile(*args):
-    qApp.processEvents()
+    QApplication.processEvents()
     utils.executeDeferred(main)
 
 
@@ -45,7 +51,7 @@ def main():
     
     sys.stdout.write('# Downloading Tweener...\n')
     
-    qApp.processEvents()
+    QApplication.processEvents()
     zip_path = download()
     if zip_path is None:
         show_offline_window()
@@ -58,9 +64,10 @@ def main():
 def download():
     try:
         # get zip url from github
-        response = urllib2.urlopen(github_url, timeout=10)
+        response = urlopen(github_url, timeout=10, context=ssl.create_default_context(cafile=certifi.where()))
         data = json.load(response)
-    except:
+    except Exception as e:
+        sys.stdout.write('Error: %s\n' % e)
         sys.stdout.write('# No internet connection: using offline installation.\n')
         return None
     
@@ -84,7 +91,7 @@ def download():
     zip_path = dir_path + '/' + name
     
     # url
-    f = urllib2.urlopen(zip_url, timeout=10)
+    f = urlopen(zip_url, timeout=10, context=ssl.create_default_context(cafile=certifi.where()))
     
     # try to get file size
     try:
@@ -113,7 +120,7 @@ def download():
                     break
                 cmds.progressBar(gMainProgressBar, e=True, step=len(chunk))
                 local_file.write(chunk)
-                qApp.processEvents()
+                QApplication.processEvents()
     
     except Exception as e:
         logging.exception(e)
@@ -213,7 +220,13 @@ def load(plugin_path):
     
     try:
         import tweener
-        reload(tweener)
+        
+        if sys.version_info >= (3, 0):
+            import importlib
+            importlib.reload(tweener)
+        else:
+            reload(tweener)
+            
         tweener.reload_mods()
     except Exception as e:
         logging.exception(e)

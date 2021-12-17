@@ -1,17 +1,20 @@
 """
 keyhammer
 """
-
 import sys
 
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
-import mods.utils as utils
 import maya.cmds as cmds
 import maya.mel as mel
 
-import mods.animdata as animdata
-
+if sys.version_info >= (3, 0):
+    import mods.animdata as animdata
+    import mods.utils as utils
+else:
+    import animdata as animdata
+    import utils as utils
+    
 
 def do():
     """

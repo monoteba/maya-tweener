@@ -1,13 +1,14 @@
 """
 ui module
 """
+import sys
+import os
+
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaUI as omui2
 import maya.OpenMayaUI as omui
 import maya.cmds as cmds
 import maya.mel as mel
-import sys
-import os
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
@@ -17,9 +18,14 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
-import mods.globals as g
-import mods.options as options
-import mods.tween as tween
+if sys.version_info >= (3, 0):
+    import mods.globals as g
+    import mods.options as options
+    import mods.tween as tween
+else:
+    import globals as g
+    import options as options
+    import tween as tween
 
 tweener_window = None
 
@@ -30,7 +36,14 @@ def maya_useNewAPI():
 
 def get_main_maya_window():
     ptr = omui.MQtUtil.mainWindow()
-    return wrapInstance(long(ptr), QMainWindow)
+
+    if sys.version_info < (3, 0):
+        try:
+            ptr = long(ptr)
+        except NameError:
+            pass
+    
+    return wrapInstance(ptr, QMainWindow)
 
 
 def show(restore=False):
@@ -409,7 +422,8 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             view = view.active3dView()
             view.refresh()
             
-        qApp.processEvents()
+        QApplication.processEvents()
+        # qApp.processEvents()
         self.busy = False
     
     def slider_released(self):

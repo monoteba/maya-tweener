@@ -3,15 +3,19 @@ mods.utils
 
 Functions for getting objects, curves, keys etc.
 """
-
 from collections import namedtuple
+import sys
 
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 import maya.mel as mel
 
-import mods.animlayers as animlayers
+if sys.version_info >= (3, 0):
+    import mods.animlayers as animlayers
+else:
+    import animlayers as animlayers
+    
 
 Point = namedtuple('Point', 'x y')
 
@@ -241,7 +245,7 @@ def get_anim_curve_default_value(anim_curve):
                     if parent.child(i) == dst_plug:
                         idx = i
                         break
-                        
+                
                 target_parent = target_plug.parent()
                 if target_parent.numChildren() > idx:
                     p = target_parent.child(idx)

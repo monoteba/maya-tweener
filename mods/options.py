@@ -3,7 +3,6 @@ options module
 
 Takes care of saving and loading preferences in Maya.
 """
-
 import maya.cmds as cmds
 
 

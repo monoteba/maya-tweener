@@ -4,13 +4,20 @@ Tool
 - Allows Tweener to be used as a Maya tool using mouse drag.
 - The tool can also be assigned a hotkey using the tweenerTool command.
 """
+import sys
 
 import maya.cmds as cmds
 
-import mods.globals as g
-import mods.options as options
-import mods.tween as tween
-import mods.utils as utils
+if sys.version_info >= (3, 0):
+    import mods.globals as g
+    import mods.options as options
+    import mods.tween as tween
+    import mods.utils as utils
+else:
+    import globals as g
+    import options as options
+    import tween as tween
+    import utils as utils
 
 tool = None
 

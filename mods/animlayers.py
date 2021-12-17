@@ -1,13 +1,16 @@
 """
 mods.animlayers
 """
+import sys
 
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import maya.cmds as cmds
 
-import mods.utils as utils
-
+if sys.version_info >= (3, 0):
+    import mods.utils as utils
+else:
+    import utils as utils
 
 def maya_useNewAPI():
     pass

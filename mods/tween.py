@@ -1,11 +1,18 @@
 """
 tween module - the methods that does the actual work
 """
+import sys
+
 import maya.cmds as cmds
 
-import mods.utils as utils
-import mods.animdata as animdata
-import mods.options as options
+if sys.version_info >= (3, 0):
+    import mods.utils as utils
+    import mods.animdata as animdata
+    import mods.options as options
+else:
+    import utils as utils
+    import animdata as animdata
+    import options as options
 
 
 def maya_useNewAPI():
@@ -38,7 +45,7 @@ def interpolate_between(t):
     Linearly interpolate between neighbouring values.
     """
     
-    for curve_fn, key_group in animdata.curve_key_values.iteritems():
+    for curve_fn, key_group in animdata.curve_key_values.items():
         for i in range(len(key_group.key_index)):
             new_value = lerp_between(key_group.prev_value[i],
                                      key_group.next_value[i], t)
@@ -51,7 +58,7 @@ def interpolate_towards(t):
     Interpolate towards the neighbouring values, based on current value.
     """
     
-    for curve_fn, key_group in animdata.curve_key_values.iteritems():
+    for curve_fn, key_group in animdata.curve_key_values.items():
         for i in range(len(key_group.key_index)):
             new_value = lerp_towards(key_group.prev_value[i],
                                      key_group.next_value[i], t,
@@ -65,7 +72,7 @@ def interpolate_average(t):
     Interpolate towards or away from the average value
     """
     
-    for curve_fn, key_group in animdata.curve_key_values.iteritems():
+    for curve_fn, key_group in animdata.curve_key_values.items():
         length = len(key_group.key_index)
         is_single = length < 2
         avg_val = 0
@@ -105,7 +112,7 @@ def interpolate_curve_tangent(t):
     t2p2 = 3 * pow(t2, 2) * (1 - t2)
     t2p3 = pow(t2, 3)
     
-    for curve_fn, key_group in animdata.curve_key_values.iteritems():
+    for curve_fn, key_group in animdata.curve_key_values.items():
         for i in range(len(key_group.key_index)):
             if key_group.has_two_segments[i]:
                 if t < 0.5:
@@ -130,7 +137,7 @@ def interpolate_default(t):
     Interpolate towards or away from the attributes default value.
     """
     
-    for curve_fn, key_group in animdata.curve_key_values.iteritems():
+    for curve_fn, key_group in animdata.curve_key_values.items():
         for i in range(len(key_group.key_index)):
             if key_group.default_value is None:
                 continue

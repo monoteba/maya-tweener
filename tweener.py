@@ -38,7 +38,7 @@ def reload_mods():
     path = (os.path.dirname(__file__)).lower()
     to_delete = []
     
-    for key, module in sys.modules.iteritems():
+    for key, module in sys.modules.items():
         try:
             if module is None:
                 continue
