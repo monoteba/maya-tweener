@@ -3,9 +3,9 @@ tween module - the methods that does the actual work
 """
 import maya.cmds as cmds
 
-import utils as utils
-import animdata as animdata
-import options as options
+import mods.utils as utils
+import mods.animdata as animdata
+import mods.options as options
 
 
 def maya_useNewAPI():

@@ -17,9 +17,9 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
-import globals as g
-import options as options
-import tween as tween
+import mods.globals as g
+import mods.options as options
+import mods.tween as tween
 
 tweener_window = None
 

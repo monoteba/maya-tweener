@@ -10,7 +10,7 @@ import mods.utils as utils
 import maya.cmds as cmds
 import maya.mel as mel
 
-import animdata as animdata
+import mods.animdata as animdata
 
 
 def do():

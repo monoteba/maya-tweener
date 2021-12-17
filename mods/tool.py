@@ -7,10 +7,10 @@ Tool
 
 import maya.cmds as cmds
 
-import globals as g
-import options as options
-import tween as tween
-import utils as utils
+import mods.globals as g
+import mods.options as options
+import mods.tween as tween
+import mods.utils as utils
 
 tool = None
 
