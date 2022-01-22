@@ -6,7 +6,6 @@ import uuid
 import zipfile
 import logging
 import ssl
-import certifi
 from functools import partial
 
 if sys.version_info >= (3, 0):
@@ -64,7 +63,8 @@ def main():
 def download():
     try:
         # get zip url from github
-        response = urlopen(github_url, timeout=10, context=ssl.create_default_context(cafile=certifi.where()))
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        response = urlopen(github_url, timeout=10, context=ssl_context)
         data = json.load(response)
     except Exception as e:
         sys.stdout.write('Error: %s\n' % e)
@@ -91,7 +91,12 @@ def download():
     zip_path = dir_path + '/' + name
     
     # url
-    f = urlopen(zip_url, timeout=10, context=ssl.create_default_context(cafile=certifi.where()))
+    try:
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        f = urlopen(zip_url, timeout=10, context=ssl_context)
+    except Exception as e:
+        logging.exception(e)
+        return None
     
     # try to get file size
     try:
