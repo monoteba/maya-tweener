@@ -62,8 +62,14 @@ def main():
 
 def download():
     try:
-        # get zip url from github
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS) if sys.version_info >= (3, 0) else ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    except Exception as e:
+        sys.stdout.write('Error: %s\n' % e)
+        sys.stdout.write('# Failed to set SSL Context.\n')
+        return None
+        
+    try:
+        # get zip url from github        
         response = urlopen(github_url, timeout=10, context=ssl_context)
         data = json.load(response)
     except Exception as e:
@@ -92,7 +98,6 @@ def download():
     
     # url
     try:
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         f = urlopen(zip_url, timeout=10, context=ssl_context)
     except Exception as e:
         logging.exception(e)
