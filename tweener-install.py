@@ -62,7 +62,7 @@ def main():
 
 def download():
     try:
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS) if sys.version_info >= (3, 0) else ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS) if sys.version_info >= (3, 0) else ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     except Exception as e:
         sys.stdout.write('Error: %s\n' % e)
         sys.stdout.write('# Failed to set SSL Context.\n')
