@@ -3,6 +3,7 @@ tween module - the methods that does the actual work
 """
 import sys
 
+import maya.api.OpenMaya as om
 import maya.cmds as cmds
 
 if sys.version_info >= (3, 0):
@@ -193,8 +194,23 @@ def tick_draw_special(special=True):
     Makes the currently selected keyframes use the special tick color
     """
     
+    # set tick color of selected keys in graph editor or dopesheet
     if utils.is_graph_editor_or_dope_sheet():
         cmds.keyframe(tds=special)
-    else:
-        time_range = utils.get_time_slider_range()
-        cmds.keyframe(tds=special, t=time_range)
+        return
+
+    # check if any keys are selected (not allowed when setting tds on time range)
+    sl_list = om.MGlobal.getActiveSelectionList()
+    it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
+    
+    # clear the active key selection (if needed)
+    if not it.isDone():
+        cmds.selectKey(clear=True)
+    
+    # color the keys on the time slider
+    time_range = utils.get_time_slider_range()
+    cmds.keyframe(tds=special, t=time_range)
+    
+    # restore previous selection (if needed)
+    if not it.isDone():
+        om.MGlobal.setActiveSelectionList(sl_list)
