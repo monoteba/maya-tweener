@@ -23,7 +23,7 @@ def do():
     :rtype bool
     """
     # get selection
-    if utils.is_graph_editor():
+    if utils.is_graph_editor_or_dope_sheet():
         curves = utils.get_selected_anim_curves()
     else:
         nodes = utils.get_selected_objects()

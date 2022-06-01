@@ -34,7 +34,7 @@ def prepare(mode):
     
     # get curves
     
-    if utils.is_graph_editor():
+    if utils.is_graph_editor_or_dope_sheet():
         curves = utils.get_selected_anim_curves()
         plugs = None
     else:

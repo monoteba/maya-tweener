@@ -193,7 +193,7 @@ def tick_draw_special(special=True):
     Makes the currently selected keyframes use the special tick color
     """
     
-    if utils.is_graph_editor():
+    if utils.is_graph_editor_or_dope_sheet():
         cmds.keyframe(tds=special)
     else:
         time_range = utils.get_time_slider_range()

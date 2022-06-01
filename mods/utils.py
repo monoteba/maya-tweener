@@ -290,7 +290,7 @@ def get_channelbox_attributes():
     return attr
 
 
-def is_graph_editor():
+def is_graph_editor_or_dope_sheet():
     """
     Determine if keys are selected in the Graph Editor or Dope Sheet.
     
@@ -298,24 +298,38 @@ def is_graph_editor():
     :rtype: bool
     """
     
+    # get active selected keys, with no keys just return False
     sl_list = om.MGlobal.getActiveSelectionList()
     it = om.MItSelectionList(sl_list, om.MFn.kAnimCurve)
     
-    visible_panels = cmds.getPanel(vis=True)
-    graph_panels = cmds.getPanel(sty='graphEditor')
-    dope_panels = cmds.getPanel(sty='dopeSheetPanel')
+    if it.isDone():
+        return False
+
+    # we have keys, so check if graph editor or dope sheet is visible
+    graph_vis = is_panel_type_visible('graphEditor')
+    dope_vis = is_panel_type_visible('dopeSheetPanel')
     
-    if graph_panels is not None:
-        graph_vis = any(x in graph_panels for x in visible_panels)
-    else:
-        graph_vis = False
+    return graph_vis or dope_vis
+
+
+def is_panel_type_visible(typ):
+    """
+    Determine if a given panel type is visible and not minimized.
     
-    if dope_panels is not None:
-        dope_vis = any(x in dope_panels for x in visible_panels)
-    else:
-        dope_vis = False
+    :param typ: Name of panel to check
+    :type typ: str
+    :return: True if the panel is visible, otherwise False
+    :rtype: bool
+    """
     
-    return not it.isDone() and (graph_vis or dope_vis)
+    for panel in cmds.getPanel(sty=typ):
+        control = cmds.scriptedPanel(panel, q=True, ctl=True)
+        if control:
+            control = control.split('|')[0]
+            if cmds.window(control, q=True, vis=True) and not cmds.window(control, q=True, i=True):
+                return True
+    
+    return False
 
 
 def get_time_slider_range():
