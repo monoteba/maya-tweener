@@ -305,11 +305,15 @@ def is_graph_editor_or_dope_sheet():
     if it.isDone():
         return False
 
-    # we have keys, so check if graph editor or dope sheet is visible
-    graph_vis = is_panel_type_visible('graphEditor')
-    dope_vis = is_panel_type_visible('dopeSheetPanel')
+    # we have keys, so check if graph editor is visible
+    if is_panel_type_visible('graphEditor'):
+        return True
     
-    return graph_vis or dope_vis
+    # ... or dope sheet
+    if is_panel_type_visible('dopeSheetPanel'):
+        return True
+    
+    return False
 
 
 def is_panel_type_visible(typ):
