@@ -77,8 +77,9 @@ def add_shelf_button(path=None):
                              image=icon_path,
                              useAlpha=True, style='iconOnly',
                              command="import maya.cmds as cmds\n"
-                                     "if cmds.pluginInfo('tweener.py', q=True, r=True):\n"
-                                     "\tcmds.loadPlugin('tweener.py', quiet=True)\n"
+                                     "if cmds.pluginInfo('tweener.py', q=True, registered=True):\n"
+                                     "\tif cmds.pluginInfo('tweener.py', q=True, loaded=False):\n"
+                                     "\t\tcmds.loadPlugin('tweener.py')\n"
                                      "\tcmds.tweener()\n"
                                      "else:\n"
                                      "\tcmds.warning('tweener.py is not registered')")
