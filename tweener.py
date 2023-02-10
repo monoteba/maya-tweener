@@ -1,6 +1,6 @@
 """
 Tweener is a tool similar to TweenMachine or aTools/animBot. It allows you to quickly create inbetweens in Maya by
-favouring adjacent keys and can speed-up the animation process.
+favouring adjacent keys and can speed up the animation process.
 
 Please refer to the plug-ins GitHub page for more information at https://github.com/mortenblaa/maya-tweener
 """

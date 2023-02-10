@@ -319,19 +319,29 @@ def is_graph_editor_or_dope_sheet():
 def is_panel_type_visible(typ):
     """
     Determine if a given panel type is visible and not minimized.
-    
+
     :param typ: Name of panel to check
     :type typ: str
     :return: True if the panel is visible, otherwise False
     :rtype: bool
     """
     
-    for panel in cmds.getPanel(sty=typ):
-        control = cmds.scriptedPanel(panel, q=True, ctl=True)
-        if control:
-            control = control.split('|')[0]
-            if cmds.window(control, q=True, vis=True) and not cmds.window(control, q=True, i=True):
-                return True
+    try:
+        for panel in cmds.getPanel(sty=typ):
+            control = cmds.scriptedPanel(panel, q=True, ctl=True)
+            if control:
+                control = control.split('|')[0]
+                
+                if cmds.window(control, q=True, ex=True):
+                    if cmds.window(control, q=True, vis=True) and not cmds.window(control, q=True, i=True):
+                        return True
+                elif cmds.workspaceControl(control, q=True, ex=True):
+                    if cmds.workspaceControl(control, q=True, vis=True) \
+                            and not cmds.workspaceControl(control, q=True, collapse=True):
+                        return True
+    except Exception as e:
+        sys.stdout.write('# Error determining window visibility of type %s: %s\n' % (typ, str(e)))
+        pass
     
     return False
 
