@@ -18,14 +18,14 @@ Maya 2017 Update 3 or later.
 
 ## Installation
 
-Download [tweener-install.py](https://github.com/mortenblaa/maya-tweener/raw/master/tweener-install.py) (right-click, save link as...) and drag 
+Download [tweener-install.py](https://github.com/monoteba/maya-tweener/raw/master/tweener-install.py) (right-click, save link as...) and drag 
 the file into Maya's viewport. Make sure it is a `.py` file and not a `.txt` file.
 
-If you prefer to manually install the plug-in, refer to the "Installation" page in the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
+If you prefer to manually install the plug-in, refer to the "Installation" page in the [wiki](https://github.com/monoteba/maya-tweener/wiki).
 
 ## Documentation
 
-Please refer to the [wiki](https://github.com/mortenblaa/maya-tweener/wiki).
+Please refer to the [wiki](https://github.com/monoteba/maya-tweener/wiki).
 
 ## Getting Started
 
@@ -66,7 +66,7 @@ For an even smaller window, you can right click anywhere in the window to show o
 
 ## Known Issues
 
-Please refer to the [issues](https://github.com/mortenblaa/maya-tweener/issues) page for known issues.
+Please refer to the [issues](https://github.com/monoteba/maya-tweener/issues) page for known issues.
 
 ## Licensing
 

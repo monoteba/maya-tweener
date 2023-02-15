@@ -22,7 +22,7 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from shiboken2 import wrapInstance
 
-github_url = 'https://api.github.com/repos/mortenblaa/maya-tweener/releases/latest'
+github_url = 'https://api.github.com/repos/monoteba/maya-tweener/releases/latest'
 gMainProgressBar = mel.eval('$tmp = $gMainProgressBar')
 
 plugin_name = 'tweener.py'
@@ -280,8 +280,8 @@ def show_offline_window():
     cmds.text(label=' ')
     cmds.text(label='Please download the latest release from:', align='left')
     cmds.text(
-        label='<a style="color:#ff8a00;" href="https://github.com/mortenblaa/maya-tweener/releases/latest">'
-              'https://github.com/mortenblaa/maya-tweener/releases/latest</a>',
+        label='<a style="color:#ff8a00;" href="https://github.com/monoteba/maya-tweener/releases/latest">'
+              'https://github.com/monoteba/maya-tweener/releases/latest</a>',
         align='left',
         hyperlink=True,
         highlightColor=[1.0, 1.0, 1.0])
