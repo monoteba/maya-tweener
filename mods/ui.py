@@ -39,7 +39,7 @@ def get_main_maya_window():
 
     if sys.version_info < (3, 0):
         try:
-            ptr = long(ptr)
+            ptr = int(ptr)
         except NameError:
             pass
     
@@ -604,8 +604,7 @@ def TweenerUIScript(restore=False):
         restored_control = omui.MQtUtil.getCurrentParent()
     
     if tweener_window is None:
-        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl',
-                                 exists=True):
+        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
             cmds.deleteUI('tweenerUIWindowWorkspaceControl')
         
         tweener_window = TweenerUI()
@@ -613,8 +612,7 @@ def TweenerUIScript(restore=False):
     
     if restore:
         mixin_ptr = omui.MQtUtil.findControl(tweener_window.objectName())
-        omui.MQtUtil.addWidgetToMayaLayout(long(mixin_ptr),
-                                           long(restored_control))
+        omui.MQtUtil.addWidgetToMayaLayout(int(mixin_ptr), int(restored_control))
     else:
         try:
             tweener_window.show(dockable=True, retain=True,
@@ -625,8 +623,7 @@ def TweenerUIScript(restore=False):
                                          "cmds.loadPlugin('tweener.py', quiet=True);"
                                          "cmds.evalDeferred('cmds.tweenerUI(restore=False)', lp=True)")
         except Exception as e:
-            sys.stdout.write(
-                'Error occured when restoring UI window %s' % str(e))
+            sys.stdout.write('Error occured when restoring UI window %s' % str(e))
     
     # assume this is passed back to the workspace control through the uiScript
     return tweener_window

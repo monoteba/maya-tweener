@@ -13,6 +13,11 @@ if sys.version_info >= (3, 0):
 else:
     from urllib2 import urlopen
     
+if sys.version_info >= (3, 4):
+    import importlib as imp
+else:
+    import imp
+    
 import maya.cmds as cmds
 import maya.mel as mel
 import maya.utils as utils
@@ -235,7 +240,7 @@ def load(plugin_path):
             import importlib
             importlib.reload(tweener)
         else:
-            reload(tweener)
+            imp.reload(tweener)
             
         tweener.reload_mods()
     except Exception as e:

@@ -79,7 +79,8 @@ def initializePlugin(plugin):
     try:
         plugin_fn.registerCommand(TweenerCmd.cmd_name, TweenerCmd.cmd_creator,
                                   TweenerCmd.syntax_creator)
-    except:
+    except Exception as e:
+        sys.stderr.write("%s\n" % str(e))
         sys.stderr.write("Failed to register command: %s\n" % TweenerCmd.cmd_name)
         raise
     else:
@@ -90,7 +91,8 @@ def initializePlugin(plugin):
         plugin_fn.registerCommand(TweenerUICmd.cmd_name,
                                   TweenerUICmd.cmd_creator,
                                   TweenerUICmd.syntax_creator)
-    except:
+    except Exception as e:
+        sys.stderr.write("%s\n" % str(e))
         sys.stderr.write("Failed to register command: %s\n" % TweenerUICmd.cmd_name)
         raise
     else:
@@ -100,7 +102,8 @@ def initializePlugin(plugin):
     try:
         plugin_fn.registerCommand(KeyHammerCmd.cmd_name,
                                   KeyHammerCmd.cmd_creator)
-    except:
+    except Exception as e:
+        sys.stderr.write("%s\n" % str(e))
         sys.stderr.write("Failed to register command: %s\n" % KeyHammerCmd.cmd_name)
         raise
     else:
@@ -110,14 +113,23 @@ def initializePlugin(plugin):
     try:
         plugin_fn.registerCommand(TweenerToolCmd.cmd_name,
                                   TweenerToolCmd.cmd_creator)
-    except:
+    except Exception as e:
+        sys.stderr.write("%s\n" % str(e))
         sys.stderr.write("Failed to register command: %s\n" % TweenerToolCmd.cmd_name)
         raise
     else:
         sys.stdout.write("# Successfully registered command %s\n" % TweenerToolCmd.cmd_name)
     
-    g.plugin_path = os.path.dirname(
-        cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
+    g.plugin_path = os.path.dirname(cmds.pluginInfo(plugin_fn.name(), q=True, path=True)) + '/'
+    
+    # restore the window, if it exists
+    try:
+        if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
+            if not cmds.workspaceControl('tweenerUIWindowWorkspaceControl', q=True, collapse=True):
+                cmds.evalDeferred('import maya.cmds as cmds; cmds.tweenerUI(restore=False)', lp=True)
+    except Exception as e:
+        sys.stderr.write("%s\n" % str(e))
+        sys.stderr.write("Failed to restore Tweener window.\n")
 
 
 def uninitializePlugin(plugin):
@@ -130,7 +142,7 @@ def uninitializePlugin(plugin):
     # deregister TweenerCmd
     try:
         plugin_fn.deregisterCommand(TweenerCmd.cmd_name)
-    except:
+    except Exception:
         sys.stderr.write("Failed to deregister command: %s\n" % TweenerCmd.cmd_name)
         raise
     else:
@@ -139,7 +151,7 @@ def uninitializePlugin(plugin):
     # deregister TweenerCmd
     try:
         plugin_fn.deregisterCommand(TweenerUICmd.cmd_name)
-    except:
+    except Exception:
         sys.stderr.write("Failed to deregister command: %s\n" % TweenerUICmd.cmd_name)
         raise
     else:
@@ -148,7 +160,7 @@ def uninitializePlugin(plugin):
     # deregister KeyHammerCmd
     try:
         plugin_fn.deregisterCommand(KeyHammerCmd.cmd_name)
-    except:
+    except Exception:
         sys.stderr.write("Failed to deregister command: %s\n" % KeyHammerCmd.cmd_name)
         raise
     else:
@@ -157,7 +169,7 @@ def uninitializePlugin(plugin):
     # deregister TweenerToolCmd
     try:
         plugin_fn.deregisterCommand(TweenerToolCmd.cmd_name)
-    except:
+    except Exception:
         sys.stderr.write("Failed to deregister command: %s\n" % TweenerToolCmd.cmd_name)
         raise
     else:
@@ -231,7 +243,7 @@ class TweenerCmd(om.MPxCommand):
         # we pass a reference to the cache to the Lt class, so we can manipulate
         # the currently active cache
         if self.new_cache_arg:
-            # if initialize, then create a new cache
+            # initialize, then create a new cache
             self.anim_cache = oma.MAnimCurveChange()
             animdata.anim_cache = self.anim_cache
             animdata.prepare(mode=options.BlendingMode.get_mode_from_id(self.type_arg))
