@@ -85,7 +85,7 @@ def add_shelf_button(path=None):
                                      "\tcmds.warning('tweener.py is not registered')")
 
 
-class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
+class TweenerUI(MayaQWidgetDockableMixin, QDialog):
     def __init__(self, parent=None):
         super(TweenerUI, self).__init__(parent=parent)
         
@@ -119,16 +119,17 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             'QPushButton:hover { background-color: rgb(112, 112, 112); }'
             'QPushButton:pressed { background-color: rgb(29, 29, 29); }'
             'QPushButton:checked { background-color: rgb(82, 133, 166); }' % (
-                apply_dpi_scaling(3), apply_dpi_scaling(2),
+                apply_dpi_scaling(3),
+                apply_dpi_scaling(2),
                 apply_dpi_scaling(1))
         )
         
         widget_height = apply_dpi_scaling(16)
         
         # setup central widget and layout
-        main_widget = QWidget()
+        main_widget = self
         main_layout = QVBoxLayout(main_widget)
-        self.setCentralWidget(main_widget)
+        # self.setCentralWidget(main_widget)
         
         margin = apply_dpi_scaling(4)
         main_layout.setContentsMargins(margin, margin, margin, margin)
@@ -231,7 +232,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.preset_widget = QWidget(main_widget)
         main_layout.addWidget(self.preset_widget)
         
-        self.preset_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.preset_widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
         
         preset_layout = QHBoxLayout(self.preset_widget)
         preset_layout.setContentsMargins(0, 0, 0, 0)
@@ -239,19 +240,19 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         preset_layout.setSpacing(apply_dpi_scaling(2))
         rad = apply_dpi_scaling(12)
         self.preset_0_btn = PresetButton(radius=rad, fraction=0.0)
-        self.preset_1_btn = PresetButton(radius=rad, fraction=0.167)
+        self.preset_1_btn = PresetButton(radius=rad, fraction=0.1667)
         self.preset_2_btn = PresetButton(radius=rad, fraction=0.25)
-        self.preset_3_btn = PresetButton(radius=rad, fraction=0.333)
+        self.preset_3_btn = PresetButton(radius=rad, fraction=0.3333)
         self.preset_4_btn = PresetButton(radius=rad, fraction=0.5)
-        self.preset_5_btn = PresetButton(radius=rad, fraction=0.667)
+        self.preset_5_btn = PresetButton(radius=rad, fraction=0.6667)
         self.preset_6_btn = PresetButton(radius=rad, fraction=0.75)
-        self.preset_7_btn = PresetButton(radius=rad, fraction=0.833)
+        self.preset_7_btn = PresetButton(radius=rad, fraction=0.8333)
         self.preset_8_btn = PresetButton(radius=rad, fraction=1.0)
         
         self.preset_0_btn.clicked.connect(
             lambda: self.fraction_clicked(0.0))
         self.preset_1_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.167))
+            lambda: self.fraction_clicked(0.1667))
         self.preset_2_btn.clicked.connect(
             lambda: self.fraction_clicked(0.25))
         self.preset_3_btn.clicked.connect(
@@ -263,7 +264,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.preset_6_btn.clicked.connect(
             lambda: self.fraction_clicked(0.75))
         self.preset_7_btn.clicked.connect(
-            lambda: self.fraction_clicked(0.833))
+            lambda: self.fraction_clicked(0.8333))
         self.preset_8_btn.clicked.connect(
             lambda: self.fraction_clicked(1.0))
         
@@ -279,9 +280,9 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         # slider
         slider_widget = QWidget(main_widget)
-        main_layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.Maximum, QSizePolicy.MinimumExpanding))
+        main_layout.addSpacerItem(QSpacerItem(1, 8, QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
         main_layout.addWidget(slider_widget)
-        slider_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        slider_widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
         
         slider_layout = QHBoxLayout(slider_widget)
         slider_layout.setContentsMargins(0, 0, 0, 0)
@@ -289,10 +290,10 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setFixedHeight(widget_height + apply_dpi_scaling(3))
-        self.slider.setFixedWidth(apply_dpi_scaling(300))
+        self.slider.setMinimumWidth(apply_dpi_scaling(100))
         self.slider.setValue(0)
-        self.slider.setMinimum(-100)
-        self.slider.setMaximum(100)
+        self.slider.setMinimum(-10000)
+        self.slider.setMaximum(10000)
         self.slider.setTickInterval(1)
         
         self.slider.sliderPressed.connect(self.slider_pressed)
@@ -364,25 +365,30 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         self.preset_action.setCheckable(True)
         self.preset_action.triggered.connect(self.popup_presets_clicked)
         
+        self.tick_draw_special_action = self.PBSaveFileCB = self.popupMenu.addAction("Special Key Tick Color")
+        self.tick_draw_special_action.setCheckable(True)
+        self.tick_draw_special_action.triggered.connect(self.popup_tick_draw_special_clicked)
+        
         self.load_preferences()
         self.set_mode_button()
     
     def show_popup(self, position):
         self.popupMenu.exec_(self.mapToGlobal(position))
     
-    def popup_toolbar_clicked(self):
-        vis = not self.toolbar_widget.isVisible()
-        self.toolbar_widget.setVisible(vis)
-        options.save_toolbar(vis)
+    def popup_toolbar_clicked(self, checked):
+        self.toolbar_widget.setVisible(checked)
+        options.save_toolbar(checked)
     
-    def popup_presets_clicked(self):
-        vis = not self.preset_widget.isVisible()
-        self.preset_widget.setVisible(vis)
-        options.save_presets(vis)
+    def popup_presets_clicked(self, checked):
+        self.preset_widget.setVisible(checked)
+        options.save_presets(checked)
+        
+    def popup_tick_draw_special_clicked(self, checked):
+        options.save_tick_draw_special(checked)
     
     def slider_pressed(self):
         self.dragging = True
-        slider_value = self.slider.value()
+        slider_value = self.slider.value() / 100.0
         
         blend = slider_value / 100.0
         
@@ -399,21 +405,24 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             cmds.undoInfo(stateWithoutFlush=True)
             
             tween.interpolate(blend=blend, mode=self.interpolation_mode)
+            
+            if options.load_tick_draw_special():
+                tween.tick_draw_special_custom(special=True, undo_chunk=False)
     
     def slider_changed(self, *args):
         if self.busy or not self.dragging:
             return
         
         self.busy = True
-        slider_value = self.slider.value()
+        slider_value = self.slider.value() / 100.0
         
         if self.interpolation_mode == options.BlendingMode.between:
-            self.slider_label.setText(str(int(slider_value * 0.5 + 50)))
+            self.slider_label.setText('%.1f' % (slider_value * 0.5 + 50))
         elif self.interpolation_mode in [options.BlendingMode.towards,
                                          options.BlendingMode.average,
                                          options.BlendingMode.curve,
                                          options.BlendingMode.default]:
-            self.slider_label.setText(str(slider_value))
+            self.slider_label.setText('%.1f' % slider_value)
         
         if self.live_preview:
             blend = slider_value / 100.0
@@ -424,18 +433,20 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             view.refresh()
             
         QApplication.processEvents()
-        # qApp.processEvents()
         self.busy = False
     
     def slider_released(self):
         self.dragging = False
-        slider_value = self.slider.value()
+        slider_value = self.slider.value() / 100.0
         
         blend = slider_value / 100.0
         if self.live_preview:
             cmds.tweener(t=blend, newCache=False, type=self.interpolation_mode.idx)
         else:
             cmds.tweener(t=blend, newCache=True, type=self.interpolation_mode.idx)
+            
+            if options.load_tick_draw_special():
+                tween.tick_draw_special_custom(special=True, undo_chunk=False)
         
         self.slider.setValue(0)
         self.slider_label.setText('')
@@ -488,10 +499,12 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
         try:
             v_t = options.load_toolbar()
             v_p = options.load_presets()
+            v_tds = options.load_tick_draw_special()
             self.toolbar_widget.setVisible(v_t)
             self.toolbar_action.setChecked(v_t)
             self.preset_widget.setVisible(v_p)
             self.preset_action.setChecked(v_p)
+            self.tick_draw_special_action.setChecked(v_tds)
         except Exception as e:
             sys.stdout.write('# %s\n' % e)
     
@@ -503,9 +516,9 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
             self.preset_0_btn.set_fraction(0.0, tooltip="0/0")
             self.preset_1_btn.set_fraction(0.125, tooltip="1/8")
             self.preset_2_btn.set_fraction(0.25, tooltip="1/4")
-            self.preset_3_btn.set_fraction(0.333, tooltip="1/3")
+            self.preset_3_btn.set_fraction(0.3333, tooltip="1/3")
             self.preset_4_btn.set_fraction(0.5, tooltip="1/2")
-            self.preset_5_btn.set_fraction(0.667, tooltip="2/3")
+            self.preset_5_btn.set_fraction(0.6667, tooltip="2/3")
             self.preset_6_btn.set_fraction(0.75, tooltip="3/4")
             self.preset_7_btn.set_fraction(0.875, tooltip="7/8")
             self.preset_8_btn.set_fraction(1.0, tooltip="1/1")
@@ -514,24 +527,24 @@ class TweenerUI(MayaQWidgetDockableMixin, QMainWindow):
                                          options.BlendingMode.curve,
                                          options.BlendingMode.default]:
             self.preset_0_btn.set_fraction(-1.0, tooltip="1/1")
-            self.preset_1_btn.set_fraction(-0.667, tooltip="2/3")
+            self.preset_1_btn.set_fraction(-0.6667, tooltip="2/3")
             self.preset_2_btn.set_fraction(-0.5, tooltip="1/2")
-            self.preset_3_btn.set_fraction(-0.333, tooltip="1/3")
+            self.preset_3_btn.set_fraction(-0.3333, tooltip="1/3")
             self.preset_4_btn.set_fraction(0.0, tooltip="0/0")
-            self.preset_5_btn.set_fraction(0.333, tooltip="1/3")
+            self.preset_5_btn.set_fraction(0.3333, tooltip="1/3")
             self.preset_6_btn.set_fraction(0.5, tooltip="1/2")
-            self.preset_7_btn.set_fraction(0.67, tooltip="2/3")
+            self.preset_7_btn.set_fraction(0.6667, tooltip="2/3")
             self.preset_8_btn.set_fraction(1.0, tooltip="1/1")
     
     def overshoot_button_clicked(self):
         checked = self.overshoot_btn.isChecked()
         
         if checked:
-            self.slider.setMinimum(-200)
-            self.slider.setMaximum(200)
+            self.slider.setMinimum(-20000)
+            self.slider.setMaximum(20000)
         else:
-            self.slider.setMinimum(-100)
-            self.slider.setMaximum(100)
+            self.slider.setMinimum(-10000)
+            self.slider.setMaximum(10000)
         
         # save setting
         options.save_overshoot(checked)
@@ -600,8 +613,6 @@ def TweenerUIScript(restore=False):
     """
     
     global tweener_window
-    if restore:
-        restored_control = omui.MQtUtil.getCurrentParent()
     
     if tweener_window is None:
         if cmds.workspaceControl('tweenerUIWindowWorkspaceControl', exists=True):
@@ -611,11 +622,13 @@ def TweenerUIScript(restore=False):
         tweener_window.setObjectName("tweenerUIWindow")
     
     if restore:
+        restored_control = omui.MQtUtil.getCurrentParent()
         mixin_ptr = omui.MQtUtil.findControl(tweener_window.objectName())
         omui.MQtUtil.addWidgetToMayaLayout(int(mixin_ptr), int(restored_control))
     else:
         try:
             tweener_window.show(dockable=True, retain=True,
+                                height=tweener_window.sizeHint().height(),
                                 checksPlugins=True, requiredPlugin='tweener.py',
                                 uiScript="import maya.cmds as cmds;"
                                          "if cmds.pluginInfo('tweener.py', q=True, r=True) "

@@ -214,3 +214,27 @@ def tick_draw_special(special=True):
     # restore previous selection (if needed)
     if not it.isDone():
         om.MGlobal.setActiveSelectionList(sl_list)
+
+
+def tick_draw_special_custom(special):
+    """
+    Makes the current set of keys use the special tick color, using the Python API.
+    
+    Important: NOT undoable!
+    
+    :param special: Use the special tick color?
+    :type special: bool
+    """
+    
+    try:
+        for curve_fn, key_group in animdata.curve_key_values.items():
+            for i in range(len(key_group.key_index)):
+                node_fn = om.MFnDependencyNode(curve_fn.object())
+                if node_fn.hasAttribute('kyts'):
+                    plug = node_fn.findPlug('kyts', True)
+                    if plug.isArray:
+                        for index in key_group.key_index:
+                            array_plug = plug.elementByLogicalIndex(index)
+                            array_plug.setBool(special)
+    except Exception as e:
+        sys.stderr.write('%s\n' % str(e))

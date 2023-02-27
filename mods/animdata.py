@@ -33,7 +33,6 @@ def prepare(mode):
     global curve_key_values
     
     # get curves
-    
     if utils.is_graph_editor_or_dope_sheet():
         curves = utils.get_selected_anim_curves()
         plugs = None
@@ -41,7 +40,7 @@ def prepare(mode):
         nodes = utils.get_selected_objects()
         curves, plugs = utils.get_anim_curves_from_objects(nodes)
     
-    # get prev and next values so we can use them to blend while dragging slider
+    # get prev and next values, so we can use them to blend while dragging slider
     is_default = bool(mode == options.BlendingMode.default)
     is_curve_tangent = bool(mode == options.BlendingMode.curve)
     
@@ -71,7 +70,7 @@ def prepare(mode):
         selected_keys = cmds.keyframe(str(curve_fn.absoluteName()), q=True, selected=True, indexValue=True)
         if time_range[0] - time_range[1] != 0:
             # time range selected on time slider
-            indices = cmds.keyframe(str(curve_fn.name()), q=True, time=time_range, iv=True)
+            indices = cmds.keyframe(str(curve_fn.absoluteName()), q=True, time=time_range, indexValue=True)
             if indices is None:
                 continue
             

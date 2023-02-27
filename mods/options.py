@@ -122,7 +122,7 @@ def load_toolbar():
     if cmds.optionVar(exists='tweener_toolbar'):
         return bool(cmds.optionVar(q='tweener_toolbar'))
     
-    return True
+    return True  # default
 
 
 def save_presets(visible=True):
@@ -141,4 +141,23 @@ def load_presets():
     if cmds.optionVar(exists='tweener_presets'):
         return bool(cmds.optionVar(q='tweener_presets'))
     
-    return True
+    return True  # default
+
+
+def save_tick_draw_special(visible=True):
+    """
+    Saves the visibility of the preset buttons
+    :param visible: Whether the preset buttons are visible
+    """
+    cmds.optionVar(iv=('tweener_tick_draw_special', int(visible)))
+
+
+def load_tick_draw_special():
+    """
+    Loads the visibility of the preset buttons
+    :rtype: bool
+    """
+    if cmds.optionVar(exists='tweener_tick_draw_special'):
+        return bool(cmds.optionVar(q='tweener_tick_draw_special'))
+    
+    return False  # default
