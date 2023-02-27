@@ -57,7 +57,7 @@ explore each type. See the description of each mode below.
 | <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-200:200]` and allows you to go past the target. |
 | <img src="icons/keyhammer.svg" width="20" height="20"> | Key Hammer | Adds a key for all attributes, wherever a key is already set. This ensures that all attributes are keyed on all keyframes. Useful if you think like a traditional animator or need to retime. |
 | <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. Caution: This cannot be undone! |
-| <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
+| <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. Caution: This cannot be undone! |
 | <img src="icons/live-preview.svg" width="20" height="20"> | Live Preview | Toggles live preview when dragging slider. |
 
 ### Other Options
