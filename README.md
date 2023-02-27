@@ -66,7 +66,7 @@ A few additional options can be accessed by right-clicking anywhere in the windo
 
 The toolbar and preset button can be shown or hidden for a smaller window.
 
-Keys can automatically use the _special tick color_. This applies to both new and existing keys. Caution: Key colors cannot currently be undone! Note also, that due to a limitation in Maya, the selected range in the Time Slider panel will be lost when modifying the key color.
+Keys can automatically use the _special tick color_. This applies to both new and existing keys. Caution: Modifying key colors cannot currently be undone! Note also, that due to a limitation in Maya, the selected range in the Time Slider panel will be lost when modifying the key color.
 
 <p align="center">
 <img src="images/tweener-options.png" width="50%" height="auto">
