@@ -1,7 +1,7 @@
 # Tweener <img src="icons/tweener-icon.svg" width="32px" height="32px">
 
 <p align="center">
-<img src="tweener-screenshot.png" width="50%" height="auto">
+<img src="images/tweener-screenshot.png" width="50%" height="auto">
 </p>
 
 Tweener has nothing to do with young people, basketball or [that tennis move between your legs](https://en.wikipedia.org/wiki/Tweener_(tennis)).
@@ -36,9 +36,9 @@ Alternatively, you can execute `tweener` as a MEL command.
 Tweener is quite simple. Select the tween mode and drag the slider to interpolate between poses. I'll encourage you to 
 explore each type. See the description of each mode below.
 
-![tweener overview](tweener-overview.png)
+![tweener overview](images/tweener-overview.png)
 
-![demo](tweener-demo.gif)
+![demo](images/tweener-demo.gif)
 
 ### Blend Modes
 
@@ -56,13 +56,21 @@ explore each type. See the description of each mode below.
 | :---: | :--- | :--- |
 | <img src="icons/overshoot.svg" width="20" height="20"> | Overshoot | Extends the interpolation from `[-100:100]` to `[-200:200]` and allows you to go past the target. |
 | <img src="icons/keyhammer.svg" width="20" height="20"> | Key Hammer | Adds a key for all attributes, wherever a key is already set. This ensures that all attributes are keyed on all keyframes. Useful if you think like a traditional animator or need to retime. |
-| <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. |
+| <img src="icons/tick-special.svg" width="20" height="20"> | Special Tick Color | Sets the current frame, selected keys, or time range to the special keyframe tick color. Caution: This cannot be undone! |
 | <img src="icons/tick-normal.svg" width="20" height="20"> | Normal Tick Color | Sets the current frame, selected keys, or time range to the normal keyframe tick color. |
 | <img src="icons/live-preview.svg" width="20" height="20"> | Live Preview | Toggles live preview when dragging slider. |
 
-### Show or Hide UI Elements
+### Other Options
 
-For an even smaller window, you can right click anywhere in the window to show or hide the toolbar or preset buttons.
+A few additional options can be accessed by right-clicking anywhere in the window.
+
+The toolbar and preset button can be shown or hidden for a smaller window.
+
+Keys can automatically use the _special tick color_. This applies to both new and existing keys. Caution: Key colors cannot currently be undone! Note also, that due to a limitation in Maya, the selected range in the Time Slider panel will be lost when modifying the key color.
+
+<p align="center">
+<img src="images/tweener-options.png" width="50%" height="auto">
+</p>
 
 ## Known Issues
 
