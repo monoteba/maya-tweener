@@ -407,7 +407,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QDialog):
             tween.interpolate(blend=blend, mode=self.interpolation_mode)
             
             if options.load_tick_draw_special():
-                tween.tick_draw_special_custom(special=True, undo_chunk=False)
+                tween.tick_draw_special_custom(special=True)
     
     def slider_changed(self, *args):
         if self.busy or not self.dragging:
@@ -446,7 +446,7 @@ class TweenerUI(MayaQWidgetDockableMixin, QDialog):
             cmds.tweener(t=blend, newCache=True, type=self.interpolation_mode.idx)
             
             if options.load_tick_draw_special():
-                tween.tick_draw_special_custom(special=True, undo_chunk=False)
+                tween.tick_draw_special_custom(special=True)
         
         self.slider.setValue(0)
         self.slider_label.setText('')
