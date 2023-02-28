@@ -41,7 +41,7 @@ class AnimationLayer(object):
         :param layer: Animation layer
         :param selected: Is the layer selected?
         :param locked: Is the layer locked?
-        :type layer: om.MObject or None
+        :type layer: maya.api.OpenMaya.MObject or None
         :type selected: bool
         :type locked: bool
         """
@@ -116,7 +116,7 @@ class Cache(object):
         Get the scene animation layers stored in the cache.
         
         :return: List of animation layers
-        :rtype: list of om.MObject or None
+        :rtype: list of maya.api.OpenMaya.MObject or None
         """
         return self.__scene_layers
     
@@ -126,7 +126,7 @@ class Cache(object):
         Get the selected animation layers stored in the cache. Excludes locked layers.
         
         :return: List of animation layers
-        :rtype: list of om.MObject or None
+        :rtype: list of maya.api.OpenMaya.MObject or None
         """
         return self.__selected_layers
     
@@ -136,7 +136,7 @@ class Cache(object):
         Get the locked animation layers stored in the cache.
         
         :return: List of animation layers
-        :rtype: list of om.MObject or None
+        :rtype: list of maya.api.OpenMaya.MObject or None
         """
         return self.__locked_layers
     
@@ -146,7 +146,7 @@ class Cache(object):
         Get the unlocked animation layers stored in the cache.
 
         :return: List of animation layers
-        :rtype: list of om.MObject or None
+        :rtype: list of maya.api.OpenMaya.MObject or None
         """
         return self.__unlocked_layers
 
@@ -194,7 +194,7 @@ def get_root_layer():
     Get the root animation layer if it exists.
 
     :return: Root layer or None
-    :rtype: om.MObject or None
+    :rtype: maya.api.OpenMaya.MObject or None
     """
     
     root_layer = cmds.animLayer(q=True, root=True)
@@ -221,7 +221,7 @@ def get_scene_layers(locked=False):
     :param locked: Include locked layers
     :type locked: bool
     :return: list of MObject of anim layers in scene
-    :rtype: list of om.MObject or None
+    :rtype: list of maya.api.OpenMaya.MObject or None
     """
     root_layer = get_root_layer()
     
@@ -262,9 +262,9 @@ def get_selected_layers(layers=None):
     Excludes locked layers unless a list of layers is passed.
     
     :param layers: Optional list of animation layer objects
-    :type layers: list of om.MObject or None
+    :type layers: list of maya.api.OpenMaya.MObject or None
     :return: Selected anim layer
-    :rtype: list of om.MObject
+    :rtype: list of maya.api.OpenMaya.MObject
     """
     
     if layers is None:
@@ -289,9 +289,9 @@ def get_locked_layers(layers=None):
     Get the locked animation layers from top to bottom.
 
     :param layers: Optional list of animation layer objects
-    :type layers: list of om.MObject or None
+    :type layers: list of maya.api.OpenMaya.MObject or None
     :return: Locked animation layers
-    :rtype: list of om.MObject
+    :rtype: list of maya.api.OpenMaya.MObject
     """
     
     if layers is None:
@@ -323,10 +323,10 @@ def get_anim_curve(plug, layer):
     
     :param plug: The attribute plug
     :param layer: The animation layer to retrieve the curve from
-    :type plug: om.MPlug
-    :type layer: om.MObject
+    :type plug: maya.api.OpenMaya.MPlug
+    :type layer: maya.api.OpenMaya.MObject
     :return: Animation curve on the best layer
-    :rtype: oma.MFnAnimCurve or None
+    :rtype: maya.api.OpenMayaAnim.MFnAnimCurve or None
     """
     # special case for root layer
     if cache.root.layer and layer == cache.root.layer:
@@ -401,9 +401,9 @@ def get_best_layer(plug):
     Traverse the attribute plug hiearchy in search of animation layers and find the best candidate.
     
     :param plug: MPlug for where to start the search
-    :type plug: om.MPlug
+    :type plug: maya.api.OpenMaya.MPlug
     :return: Best layer or None
-    :rtype: om.MObject or None
+    :rtype: maya.api.OpenMaya.MObject or None
     """
     root = cache.root
     sel_layers = cache.selected_layers

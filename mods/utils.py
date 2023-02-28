@@ -41,7 +41,7 @@ def get_selected_objects():
     Gets the active selection filtered by MFn.kDependencyNode.
     
     :return: List of selected objects' dependencyNode
-    :rtype: list of om.MFnDependencyNode
+    :rtype: list of maya.api.OpenMaya.MFnDependencyNode
     """
     
     nodes = []
@@ -63,9 +63,9 @@ def get_anim_curves_from_objects(nodes):
     """ Gets the animation curves connected to nodes.
     
     :param nodes: List with MFnDependencyNode
-    :type nodes: list of om.MFnDependencyNode
+    :type nodes: list of maya.api.OpenMaya.MFnDependencyNode
     :return: Tuple of curves and plugs
-    :rtype: (list of om.MFnDependencyNode, list of om.MPlug)
+    :rtype: (list of maya.api.OpenMaya.MFnDependencyNode, list of maya.api.OpenMaya.MPlug)
     """
     
     curves = []
@@ -77,65 +77,77 @@ def get_anim_curves_from_objects(nodes):
     
     if has_anim_layers and animlayers.all_layers_locked():
         cmds.warning('All animation layers are locked!')
+        
+    def process_plug(attr, plug, isBlendShape=False):
+        if plug.isLocked or not plug.isKeyable:
+            return None
+        
+        connections = plug.connectedTo(True, False)
+    
+        # if the attribute has a connection
+        if connections:
+            conn_node = connections[0].node()
+            
+            api = conn_node.apiType()
+            if api in ANIM_CURVE_TYPES:
+                # filter out attributes not selected in channelbox
+                if channelbox_attr:
+                    if isBlendShape:
+                        attr_name = plug.partialName(useAlias=True)
+                    else:
+                        attr_name = om.MFnAttribute(attr).shortName
+                        
+                    if attr_name not in channelbox_attr:
+                        return None
+            
+                # add the node if it matches one of the types we want
+                curves.append(om.MFnDependencyNode(conn_node))
+                plugs.append(plug)
+        
+            # find curve in animation layer
+            elif has_anim_layers and api in animlayers.BLEND_NODE_TYPES:
+                # filter out attributes not selected in channelbox
+                if channelbox_attr:
+                    if isBlendShape:
+                        attr_name = plug.partialName(useAlias=True)
+                    else:
+                        attr_name = om.MFnAttribute(attr).shortName
+                        
+                    if attr_name not in channelbox_attr:
+                        return None
+            
+                best_layer = animlayers.get_best_layer(plug)
+                if not best_layer:
+                    return None
+            
+                # for testing purposes
+                # try:
+                #     print('-> Best layer is %s' % (om.MFnDependencyNode(best_layer).name()))
+                # except Exception as e:
+                #     pass
+            
+                curve_node = animlayers.get_anim_curve(plug, best_layer)
+                if curve_node:
+                    curves.append(om.MFnDependencyNode(curve_node))
+                    plugs.append(plug)
     
     # get curves
     for node in nodes:
+        # if blendshape
+        if node.object().apiType() == om.MFn.kBlendShape:
+            plug = node.findPlug('weight', True)
+            if plug.isArray:
+                for i in plug.getExistingArrayAttributeIndices():
+                    weight_plug = plug.elementByLogicalIndex(i)
+                    process_plug(attr=weight_plug.attribute(), plug=weight_plug, isBlendShape=True)
+        
         # get all attributes
         attr_count = node.attributeCount()
         for index in range(attr_count):
             attr = node.attribute(index)
             plug = node.findPlug(attr, True)
-            
-            if plug.isLocked or not plug.isKeyable:
-                continue
-            
-            connections = plug.connectedTo(True, False)
-            
-            # if the attribute has a connection
-            if connections:
-                conn_node = connections[0].node()
-                
-                api = conn_node.apiType()
-                if api in ANIM_CURVE_TYPES:
-                    # filter out attributes not selected in channelbox
-                    if channelbox_attr:
-                        attr_name = om.MFnAttribute(attr).shortName
-                        if attr_name not in channelbox_attr:
-                            continue
-                    
-                    # add the node if it matches one of the types we want
-                    curves.append(om.MFnDependencyNode(conn_node))
-                    plugs.append(plug)
-                
-                # find curve in animation layer
-                elif has_anim_layers and api in animlayers.BLEND_NODE_TYPES:
-                    # filter out attributes not selected in channelbox
-                    if channelbox_attr:
-                        attr_name = om.MFnAttribute(attr).shortName
-                        if attr_name not in channelbox_attr:
-                            continue
-                    
-                    # for testing purposes
-                    # print('Attribute: %s' % plug)
-                    
-                    # benchmark_start = time.clock()
-                    best_layer = animlayers.get_best_layer(plug)
-                    if not best_layer:
-                        continue
-                    
-                    # for testing purposes
-                    # try:
-                    #     print('-> Best layer is %s' % (om.MFnDependencyNode(best_layer).name()))
-                    # except Exception as e:
-                    #     pass
-                    
-                    curve_node = animlayers.get_anim_curve(plug, best_layer)
-                    # animlayers.cache.benchmark += time.clock() - benchmark_start
-                    if curve_node:
-                        curves.append(om.MFnDependencyNode(curve_node))
-                        plugs.append(plug)
+            process_plug(attr=attr, plug=plug)
     
-    # sys.stdout.write('# Retrieved %d curves in %.4f sec\n' % (len(curve_list), animlayers.cache.benchmark))
     return curves, plugs
 
 
@@ -147,7 +159,7 @@ def get_selected_anim_curves():
     - UL, UA, UU, UT are used for set driven keys
     
     :return: Dictionary with curve names as key and node as value
-    :rtype: list of om.MFnDependencyNode
+    :rtype: list of maya.api.OpenMaya.MFnDependencyNode
     """
     
     sl_list = om.MGlobal.getActiveSelectionList()
@@ -172,7 +184,7 @@ def get_attribute_default_value(plug):
     """ Get the default value for the given plug
     
     :param plug: Plug for the attribute
-    :type plug: om.MPlug
+    :type plug: maya.api.OpenMaya.MPlug
     :return: Default value of the attribute found on the plug
     :rtype: float or None
     """
@@ -201,7 +213,7 @@ def get_anim_curve_default_value(anim_curve):
     Get the default value of the given anim curve
     
     :param anim_curve: Animation curve
-    :type anim_curve: oma.MFnAnimCurve
+    :type anim_curve: maya.api.OpenMayaAnim.MFnAnimCurve
     :return: Default value of attribute curve is connected to.
     :rtype: float or None
     """
